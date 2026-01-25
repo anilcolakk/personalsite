@@ -46,7 +46,7 @@ const t = texts[lang];
 ---
 
 <div class="ai-chat-widget" id="ai-chat-widget" data-lang={lang}>
-  <button class="ai-chat-trigger" id="ai-chat-trigger" aria-label="AI Assistant">
+  <button class="ai-chat-trigger" id="ai-chat-trigger" aria-label="AI Assistant" onclick="window.toggleAIChat()">
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
     </svg>
@@ -62,7 +62,7 @@ const t = texts[lang];
           <span class="chat-subtitle">{t.subtitle}</span>
         </div>
       </div>
-      <button class="chat-close" id="chat-close" aria-label="Close">
+      <button class="chat-close" id="chat-close" aria-label="Close" onclick="window.closeAIChat()">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -84,11 +84,11 @@ const t = texts[lang];
       <a href="https://console.groq.com/keys" target="_blank" rel="noopener" class="api-link">{t.apiLabel}</a>
       <div class="api-input-row">
         <input type="password" id="groq-api-key" placeholder={t.apiPlaceholder} />
-        <button id="save-groq-key" class="btn-save">{t.saveBtn}</button>
+        <button id="save-groq-key" class="btn-save" onclick="window.saveGroqKey()">{t.saveBtn}</button>
       </div>
     </div>
     
-    <form class="chat-input-form" id="chat-form">
+    <form class="chat-input-form" id="chat-form" onsubmit="window.handleChatSubmit(event)">
       <input 
         type="text" 
         id="chat-input" 
@@ -382,176 +382,108 @@ const t = texts[lang];
 </style>
 
 <script is:inline>
-  // Groq AI Integration - FREE!
-  const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
-  
-  // Robust initialization
-  function initAIChat() {
-    const widget = document.getElementById('ai-chat-widget');
-    if (!widget) return; // Wait for next cycle if not ready
-
-    const lang = widget.dataset.lang || 'en';
-    
-    const siteNotes = [
-       { code: 'EE202', name: 'Circuit Analysis', desc: 'DC/AC circuits, nodal/mesh analysis' },
-       { code: 'EE301', name: 'Electronics I', desc: 'Diodes, BJTs, MOSFETs' },
-       { code: 'EE361', name: 'Signals & Systems', desc: 'Fourier, Laplace, Z-transform' },
-       { code: 'EE402', name: 'Discrete Time Systems', desc: 'DSP fundamentals' }
-    ];
-
-    const texts = {
-      en: {
-        thinking: 'Thinking...',
-        error: 'Error. Check API key.',
-        noKey: 'Please add your free Groq API key first.',
-        saved: 'API key saved! AI is ready.',
-        systemPrompt: `You are a helpful AI tutor for EE students. Access to: ${siteNotes.map(n=>n.code).join(', ')}. Recommend notes explicitly.`
-      },
-      tr: {
-        thinking: 'Düşünüyorum...',
-        error: 'Hata. API anahtarını kontrol et.',
-        noKey: 'Lütfen önce API anahtarını ekle.',
-        saved: 'API anahtarı kaydedildi!',
-        systemPrompt: `EE öğrencileri için yapay zeka asistanısın. Şu notlara erişimin var: ${siteNotes.map(n=>n.code).join(', ')}. Notları öner.`
-      }
-    };
-    
-    const t = texts[lang];
-    const trigger = document.getElementById('ai-chat-trigger');
+  // Simple global functions for reliability
+  window.toggleAIChat = function() {
     const panel = document.getElementById('ai-chat-panel');
-    const closeBtn = document.getElementById('chat-close');
-    const form = document.getElementById('chat-form');
+    const input = document.getElementById('chat-input');
+    panel.classList.toggle('open');
+    if(panel.classList.contains('open') && input) setTimeout(() => input.focus(), 100);
+  }
+
+  window.closeAIChat = function() {
+    document.getElementById('ai-chat-panel').classList.remove('open');
+  }
+
+  // Handle outside click
+  document.addEventListener('click', function(e) {
+    const panel = document.getElementById('ai-chat-panel');
+    const trigger = document.getElementById('ai-chat-trigger');
+    if (panel && panel.classList.contains('open') && 
+        !panel.contains(e.target) && 
+        !trigger.contains(e.target)) {
+      panel.classList.remove('open');
+    }
+  });
+
+  // Chat logic
+  window.handleChatSubmit = async function(e) {
+    e.preventDefault();
+    const widget = document.getElementById('ai-chat-widget');
+    const lang = widget?.dataset.lang || 'en';
     const input = document.getElementById('chat-input');
     const messages = document.getElementById('chat-messages');
-    const apiSection = document.getElementById('chat-api-section');
-    const apiKeyInput = document.getElementById('groq-api-key');
-    const saveKeyBtn = document.getElementById('save-groq-key');
     
-    // Load key
-    const savedKey = localStorage.getItem('groq_api_key');
-    if (savedKey) {
-      if(apiSection) apiSection.classList.add('hidden');
-      if(apiKeyInput) apiKeyInput.value = savedKey;
-    }
-    
-    // Events
-    trigger.onclick = () => {
-       panel.classList.toggle('open');
-       if(panel.classList.contains('open')) setTimeout(() => input.focus(), 100);
-    };
-    
-    closeBtn.onclick = () => panel.classList.remove('open');
-    
-    saveKeyBtn.onclick = () => {
-      const key = apiKeyInput.value.trim();
-      if (key.startsWith('gsk_')) {
-        localStorage.setItem('groq_api_key', key);
-        if(apiSection) apiSection.classList.add('hidden');
-        addMsg(t.saved, 'assistant');
-      } else {
-        addMsg('Key must start with "gsk_"', 'assistant');
-      }
-    };
+    const txt = input.value.trim();
+    if (!txt) return;
 
-    let history = [];
+    // Check key
+    const key = localStorage.getItem('groq_api_key');
+    const t = lang === 'tr' ? 
+      { noKey: 'Lütfen ücretsiz Groq API anahtarını girin.', thinking: 'Düşünüyorum...', error: 'Hata oluştu.' } : 
+      { noKey: 'Please enter your free Groq API key.', thinking: 'Thinking...', error: 'An error occurred.' };
 
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      const txt = input.value.trim();
-      if (!txt) return;
-
-      const key = localStorage.getItem('groq_api_key');
-      if (!key) { return addMsg(t.noKey, 'assistant'); }
-
-      addMsg(txt, 'user');
-      input.value = '';
-      
-      const loadId = 'loading-' + Date.now();
+    function addMsg(text, role) {
       const div = document.createElement('div');
-      div.id = loadId;
-      div.className = 'message assistant thinking';
-      div.innerText = t.thinking;
+      div.className = `message ${role}`;
+      div.innerHTML = `<p>${text.replace(/\n/g, '<br>')}</p>`;
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
-      
-      history.push({ role: 'user', content: txt });
+    }
 
-      try {
-        const res = await fetch(GROQ_API_URL, {
-           method: 'POST',
-           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-           body: JSON.stringify({
-              model: 'llama-3.3-70b-versatile',
-              messages: [{role: 'system', content: t.systemPrompt}, ...history.slice(-5)],
-              max_tokens: 400
-           })
-        });
-        
-        document.getElementById(loadId)?.remove();
-        const json = await res.json();
-        const reply = json.choices?.[0]?.message?.content || 'Error';
-        
-        history.push({ role: 'assistant', content: reply });
-        addMsg(reply, 'assistant');
-      } catch(err) {
-        document.getElementById(loadId)?.remove();
-        addMsg(t.error, 'assistant');
-      }
-    };
+    if (!key) return addMsg(t.noKey, 'assistant');
 
-    function addMsg(txt, role) {
-       const div = document.createElement('div');
-       div.className = `message ${role}`;
-       div.innerHTML = `<p>${txt.replace(/\n/g, '<br>')}</p>`;
-       messages.appendChild(div);
-       messages.scrollTop = messages.scrollHeight;
+    addMsg(txt, 'user');
+    input.value = '';
+
+    // Loading
+    const loadId = 'loading-' + Date.now();
+    const loader = document.createElement('div');
+    loader.id = loadId;
+    loader.className = 'message assistant thinking';
+    loader.innerText = t.thinking;
+    messages.appendChild(loader);
+    messages.scrollTop = messages.scrollHeight;
+
+    try {
+       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+          body: JSON.stringify({
+             model: 'llama-3.3-70b-versatile',
+             messages: [
+               {role: 'system', content: 'You are a helpful engineering tutor.'},
+               {role: 'user', content: txt}
+             ],
+             max_tokens: 400
+          })
+       });
+       document.getElementById(loadId)?.remove();
+       const json = await res.json();
+       addMsg(json.choices?.[0]?.message?.content || 'Error', 'assistant');
+    } catch(err) {
+       document.getElementById(loadId)?.remove();
+       addMsg(t.error, 'assistant');
     }
   }
 
-<script is:inline>
-  // Robust AI Chat Initialization
-  (function() {
-    const init = () => {
-      const widget = document.getElementById('ai-chat-widget');
-      if (!widget) return;
-
-      const trigger = document.getElementById('ai-chat-trigger');
-      const panel = document.getElementById('ai-chat-panel');
-      const closeBtn = document.getElementById('chat-close');
-      const input = document.getElementById('chat-input');
-      const lang = widget.dataset.lang || 'en';
-
-      // Simple Toggle Logic
-      const toggle = (e) => {
-        e?.stopPropagation();
-        panel.classList.toggle('open');
-        if (panel.classList.contains('open')) {
-          setTimeout(() => input?.focus(), 100);
-        }
-      };
-
-      // Events
-      trigger.onclick = toggle;
-      closeBtn.onclick = () => panel.classList.remove('open');
-      
-      // Close on outside click
-      document.addEventListener('click', (e) => {
-        if (panel.classList.contains('open') && 
-            !panel.contains(e.target) && 
-            !trigger.contains(e.target)) {
-          panel.classList.remove('open');
-        }
-      });
-    };
-
-    // Run immediately if present, otherwise wait
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
+  // Key save logic
+  window.saveGroqKey = function() {
+    const input = document.getElementById('groq-api-key');
+    const section = document.getElementById('chat-api-section');
+    const key = input.value.trim();
+    if(key.startsWith('gsk_')) {
+      localStorage.setItem('groq_api_key', key);
+      section.style.display = 'none';
+      alert('Key saved!');
     } else {
-      init();
+      alert('Invalid key. Must start with gsk_');
     }
-    
-    // Safety check for Astro view transitions
-    document.addEventListener('astro:page-load', init);
-  })();
+  }
+
+  // Restore state on load
+  const savedKey = localStorage.getItem('groq_api_key');
+  if(savedKey) {
+    const s = document.getElementById('chat-api-section');
+    if(s) s.style.display = 'none';
+  }
 </script>

@@ -33,10 +33,9 @@ const instagramEmbedUrl = `https://www.instagram.com/reel/${videoId}/embed`;
 const youtubeThumbnail = thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 ---
 
-<div class={`video-embed video-embed--${platform} video-embed--${aspectRatio}`}>
-  <div class="video-embed__wrapper">
+<div class={`video-embed video-embed--${platform} video-embed--${aspectRatio} video-embed__wrapper`}>
     {platform === 'youtube' && (
-      <div class="video-embed__lazy" data-video-id={videoId}>
+      <div class="video-embed__lazy" onclick={`loadYoutubeVideo(this, '${videoId}')`}>
         <img 
           src={youtubeThumbnail} 
           alt={title}
@@ -51,7 +50,6 @@ const youtubeThumbnail = thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefau
         </button>
       </div>
     )}
-  </div>
 </div>
 
 <style>
@@ -61,6 +59,7 @@ const youtubeThumbnail = thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefau
     border-radius: var(--radius-xl);
     overflow: hidden;
     background: #000;
+position: relative;
   }
   
   .video-embed--vertical {
@@ -70,12 +69,6 @@ const youtubeThumbnail = thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefau
   
   .video-embed--horizontal {
     aspect-ratio: 16/9;
-  }
-  
-  .video-embed__wrapper {
-    width: 100%;
-    height: 100%;
-    position: relative;
   }
   
   .video-embed__iframe {
@@ -88,7 +81,8 @@ const youtubeThumbnail = thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefau
   .video-embed__lazy {
     width: 100%;
     height: 100%;
-    position: relative;
+    position: absolute;
+    top: 0; left: 0;
     cursor: pointer;
     background-size: cover;
     background-position: center;
@@ -126,40 +120,18 @@ const youtubeThumbnail = thumbnail || `https://i.ytimg.com/vi/${videoId}/hqdefau
   }
 </style>
 
-<script>
-  function initVideoEmbeds() {
-    const lazyVideos = document.querySelectorAll('.video-embed__lazy');
+<script is:inline>
+  window.loadYoutubeVideo = function(el, videoId) {
+    const parent = el.parentElement;
+    const iframe = document.createElement('iframe');
+    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+    iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+    iframe.allowFullscreen = true;
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = '0';
     
-    lazyVideos.forEach((video) => {
-      // Clean up old listeners by cloning (simple reset) or just adding one
-      // Since Astro viewtransitions might duplicate, we check for flag
-      if(video.hasAttribute('data-init')) return;
-      video.setAttribute('data-init', 'true');
-
-      video.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        const wrapper = this.parentElement;
-        const videoId = this.getAttribute('data-video-id');
-        
-        if (!wrapper || !videoId) return;
-        
-        const iframe = document.createElement('iframe');
-        iframe.setAttribute('src', `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`);
-        iframe.setAttribute('frameborder', '0');
-        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture');
-        iframe.setAttribute('allowfullscreen', 'true');
-        iframe.classList.add('video-embed__iframe');
-        
-        // Replace content
-        wrapper.innerHTML = '';
-        wrapper.appendChild(iframe);
-      });
-    });
+    parent.innerHTML = '';
+    parent.appendChild(iframe);
   }
-
-  // Hook into Astro events
-  document.addEventListener('DOMContentLoaded', initVideoEmbeds);
-  document.addEventListener('astro:page-load', initVideoEmbeds);
 </script>
