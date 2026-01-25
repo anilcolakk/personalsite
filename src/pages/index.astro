@@ -3,6 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import CourseCard from '@components/CourseCard.astro';
 import TwitterEmbed from '@components/TwitterEmbed.astro';
 import VideoEmbed from '@components/VideoEmbed.astro';
+import VisitorStats from '@components/VisitorStats.astro';
 
 const featuredCourses = [
   {
@@ -28,7 +29,7 @@ const featuredCourses = [
   },
 ];
 
-// Hardcoded pinned tweet ID (Twitter API requires paid tier for user lookup)
+// Hardcoded pinned tweet ID
 const pinnedTweetId = '1948458834596692267';
 
 const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -155,6 +156,7 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
 
   <!-- Social Section -->
   <section class="social-section section">
+
     <div class="container">
       <div class="section-header text-center">
         <h2 class="section-title">Beyond the Classroom</h2>
@@ -181,36 +183,10 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
              />
           </div>
         </div>
-        
-        <!-- Video Content -->
-        <div class="social-grid__videos">
-          <h3 class="social-col-title" style="display: flex; align-items: center; gap: 0.5rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #ef4444;">
-               <polygon points="23 7 16 12 23 17 23 7"></polygon>
-               <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-            </svg>
-            VLSI & Tech Shorts
-          </h3>
-          <div class="videos-grid">
-            <!-- VLSI / ASML Shorts Placeholders -->
-             <VideoEmbed 
-              platform="youtube" 
-              videoId="CjXhQoqk1xM"
-              title="ASML Chip Manufacturing Tech"
-              aspectRatio="vertical"
-            />
-            <VideoEmbed 
-              platform="youtube" 
-              videoId="O-Yt89b6pGk"
-              title="VLSI Design Basics"
-              aspectRatio="vertical"
-            />
-          </div>
-          <p style="text-align: right; font-size: 0.8rem; margin-top: 0.5rem; color: var(--text-tertiary);">
-            <a href="https://youtube.com" target="_blank">Watch more on YouTube &rarr;</a>
-          </p>
-        </div>
       </div>
+      
+      <!-- Visitor Stats -->
+      <VisitorStats title="Global Community" />
     </div>
   </section>
 
@@ -270,8 +246,9 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
   .courses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
   
   /* Social */
-  .social-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
-  .social-col-title { font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2); }
+  .social-grid { display: flex; justify-content: center; }
+  .social-grid__twitter { max-width: 500px; width: 100%; }
+  .social-col-title { font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-4); display: flex; align-items: center; justify-content: center; gap: var(--space-2); }
   .videos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-4); }
 
   /* CTA */

@@ -1,0 +1,152 @@
+---
+interface Props {
+  title?: string;
+}
+
+const { title = "Global Visitors" } = Astro.props;
+---
+
+<div class="visitor-stats-card">
+  <div class="stats-header">
+    <h3>{title}</h3>
+    <div class="live-dot">
+      <span class="dot"></span>
+      <span class="label">Live Tracking</span>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-item">
+      <span class="stat-value">124</span>
+      <span class="stat-label">Daily</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">856</span>
+      <span class="stat-label">Weekly</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-value">3.2k</span>
+      <span class="stat-label">Monthly</span>
+    </div>
+  </div>
+
+  <div class="map-container">
+    <div class="map-placeholder">
+      <!-- 
+        Replace this placeholder with the embed code from your preferred visitor map provider.
+        Examples: ClustrMaps, Map My Visitors, RevolverMaps
+      -->
+      <div class="placeholder-content">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        <p>Visitor Map Widget</p>
+        <span class="instruction">Add embed code here</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .visitor-stats-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    margin-top: var(--space-8);
+  }
+
+  .stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-6);
+  }
+
+  .stats-header h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+  }
+
+  .live-dot {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--success-500);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    background: currentColor;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    text-align: center;
+  }
+
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .stat-value {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  .stat-label {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .map-container {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    height: 200px; /* Adjust based on widget height */
+  }
+
+  .map-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(0, 0, 0, 0.03) 10px,
+      rgba(0, 0, 0, 0.03) 20px
+    );
+  }
+
+  .placeholder-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .instruction {
+    font-size: var(--text-xs);
+    opacity: 0.7;
+  }
+</style>
