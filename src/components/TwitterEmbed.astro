@@ -1,247 +1,96 @@
 ---
 /**
- * TwitterEmbed Component
- * Embeds a Twitter/X timeline or single tweet
- * Supports dark mode and responsive design
+ * TwitterEmbed - Static Version
+ * reliable "Follow on X" card instead of broken iframe
  */
 interface Props {
-  /** Twitter username for timeline embed (without @) */
   username?: string;
-  /** Tweet ID for single tweet embed */
-  tweetId?: string;
-  /** Also supports 'id' for compatibility */
-  id?: string;
-  /** Number of tweets to show in timeline (1-20) */
-  limit?: number;
-  /** Title for the section */
+  id?: string; // Kept for API compatibility but unused
   title?: string;
 }
 
-const { 
-  username = 'aaanilclk', 
-  tweetId, 
-  id,
-  limit = 3,
-  title = 'Latest Updates'
-} = Astro.props;
-
-// Support both tweetId and id props
-const actualTweetId = tweetId || id;
-const isTimeline = !actualTweetId && username;
-const isTweet = !!actualTweetId;
+const { username = 'aaanilclk', title = 'Latest Updates' } = Astro.props;
 ---
 
-<div class="twitter-embed" data-theme-aware>
-  <div class="twitter-embed__header">
-    <div class="twitter-embed__icon">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-      </svg>
-    </div>
-    <h3 class="twitter-embed__title">{title}</h3>
-    <a 
-      href={`https://twitter.com/${username}`} 
-      target="_blank" 
-      rel="noopener noreferrer"
-      class="twitter-embed__follow"
-    >
-      Follow @{username}
-    </a>
+<div class="static-twitter-card">
+  <div class="twitter-header">
+    <svg viewBox="0 0 24 24" aria-hidden="true" class="twitter-icon"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"></path></svg>
+    <h3>{title}</h3>
   </div>
-
-  <div class="twitter-embed__content" id="twitter-embed-content">
-    {isTimeline && (
-      <a 
-        class="twitter-timeline" 
-        data-lang="en"
-        data-theme="light"
-        data-tweet-limit={limit}
-        data-chrome="noheader nofooter noborders transparent"
-        href={`https://twitter.com/${username}?ref_src=twsrc%5Etfw`}
-      >
-        Loading tweets...
-      </a>
-    )}
-    
-    {isTweet && (
-      <blockquote class="twitter-tweet" data-theme="light">
-        <a href={`https://twitter.com/x/status/${actualTweetId}`}>Loading tweet...</a>
-      </blockquote>
-    )}
-    
-    <!-- Placeholder while loading -->
-    <div class="twitter-embed__placeholder" id="twitter-placeholder">
-      <div class="tweet-skeleton">
-        <div class="tweet-skeleton__avatar"></div>
-        <div class="tweet-skeleton__content">
-          <div class="tweet-skeleton__line tweet-skeleton__line--short"></div>
-          <div class="tweet-skeleton__line"></div>
-          <div class="tweet-skeleton__line tweet-skeleton__line--medium"></div>
-        </div>
-      </div>
-      <div class="tweet-skeleton">
-        <div class="tweet-skeleton__avatar"></div>
-        <div class="tweet-skeleton__content">
-          <div class="tweet-skeleton__line tweet-skeleton__line--short"></div>
-          <div class="tweet-skeleton__line tweet-skeleton__line--medium"></div>
-          <div class="tweet-skeleton__line"></div>
-        </div>
-      </div>
-    </div>
+  
+  <div class="twitter-content">
+    <p class="twitter-bio">
+      Follow <strong>@{username}</strong> for real-time updates on engineering resources, VLSI trends, and more.
+    </p>
+    <a href={`https://x.com/${username}`} target="_blank" rel="noopener noreferrer" class="twitter-follow-btn">
+      Follow on X &rarr;
+    </a>
   </div>
 </div>
 
 <style>
-  .twitter-embed {
+  .static-twitter-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
-    overflow: hidden;
-    transition: all var(--transition-base);
+    padding: var(--space-6);
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
   }
-
-  .twitter-embed:hover {
-    box-shadow: var(--shadow-lg);
-    border-color: var(--primary-200);
+  
+  .static-twitter-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--text-primary);
   }
-
-  [data-theme="dark"] .twitter-embed:hover {
-    border-color: var(--primary-800);
-  }
-
-  .twitter-embed__header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-4);
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .twitter-embed__icon {
-    width: 32px;
-    height: 32px;
+  
+  .twitter-header {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--text-primary);
-    color: var(--bg-primary);
-    border-radius: var(--radius-lg);
+    gap: 0.5rem;
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
   }
-
-  [data-theme="dark"] .twitter-embed__icon {
-    background: white;
-    color: black;
+  
+  .twitter-icon {
+    width: 24px;
+    height: 24px;
   }
-
-  .twitter-embed__title {
-    flex: 1;
-    font-size: var(--text-lg);
-    font-weight: 700;
-    margin: 0;
-  }
-
-  .twitter-embed__follow {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    padding: 6px 12px;
-    background: var(--text-primary);
-    color: var(--bg-primary);
-    border-radius: var(--radius-full);
-    text-decoration: none;
-    transition: all var(--transition-fast);
-  }
-
-  .twitter-embed__follow:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-  }
-
-  [data-theme="dark"] .twitter-embed__follow {
-    background: white;
-    color: black;
-  }
-
-  .twitter-embed__content {
-    padding: var(--space-4);
-    min-height: 200px;
-    max-height: 500px;
-    overflow-y: auto;
-    position: relative;
-  }
-
-  .twitter-embed__placeholder {
+  
+  .twitter-content {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    padding: var(--space-4);
-    background: var(--bg-card);
-    z-index: 1;
   }
-
-  /* When content is loaded, hide placeholder via JS */
   
-  .tweet-skeleton {
-    display: flex;
-    gap: var(--space-3);
-    padding: var(--space-4);
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-lg);
-    animation: pulse 2s ease-in-out infinite;
+  .twitter-bio {
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    line-height: 1.5;
   }
-
-  .tweet-skeleton__avatar {
-    width: 48px;
-    height: 48px;
-    background: var(--border-color);
-    border-radius: var(--radius-full);
-    flex-shrink: 0;
+  
+  .twitter-follow-btn {
+    display: inline-block;
+    background: #000;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
   }
-
-  .tweet-skeleton__content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
+  
+  .twitter-follow-btn:hover {
+    background: #333;
   }
-
-  .tweet-skeleton__line {
-    height: 12px;
-    background: var(--border-color);
-    border-radius: var(--radius-sm);
+  
+  [data-theme="dark"] .twitter-follow-btn {
+    background: #fff;
+    color: #000;
   }
-
-  .tweet-skeleton__line--short { width: 40%; }
-  .tweet-skeleton__line--medium { width: 70%; }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+  
+  [data-theme="dark"] .twitter-follow-btn:hover {
+    background: #e5e5e5;
   }
-    {isTweet && (
-      <div class="twitter-tweet-container" style="display: flex; justify-content: center;">
-        <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
-          <a href={`https://twitter.com/x/status/${actualTweetId}`}></a>
-        </blockquote>
-        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-      </div>
-    )}
-  </div>
-</div>
-
-<style>
-  .twitter-embed {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-xl);
-    overflow: hidden;
-    padding: 1rem;
-  }
-  /* Simple overrides */
-  :global(.twitter-tweet) { margin: 0 auto !important; }
 </style>
