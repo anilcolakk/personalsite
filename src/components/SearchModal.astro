@@ -347,7 +347,7 @@
     
     try {
       // Use a variable to prevent Vite from trying to resolve this at build time
-      const pagefindPath = '/pagefind/pagefind-ui.js';
+      const pagefindPath = import.meta.env.BASE_URL + 'pagefind/pagefind-ui.js';
       // @ts-ignore - Pagefind is loaded from the build output
       const { PagefindUI } = await import(/* @vite-ignore */ pagefindPath);
       

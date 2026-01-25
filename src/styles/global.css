@@ -164,22 +164,29 @@
    Dark Theme
    ============================================ */
 [data-theme="dark"] {
-  --bg-primary: var(--neutral-950);
-  --bg-secondary: var(--neutral-900);
-  --bg-tertiary: var(--neutral-800);
-  --bg-card: var(--neutral-900);
-  --bg-card-hover: var(--neutral-800);
+  --bg-primary: #020617;
+  /* Darker background (neutral-950) */
+  --bg-secondary: #0f172a;
+  /* Slightly lighter (neutral-900) */
+  --bg-tertiary: #1e293b;
+  /* Distinctly lighter for inputs/hover (neutral-800) */
+  --bg-card: #0f172a;
+  --bg-card-hover: #1e293b;
 
-  --text-primary: var(--neutral-50);
-  --text-secondary: var(--neutral-300);
-  --text-tertiary: var(--neutral-400);
-  --text-inverse: var(--neutral-900);
+  --text-primary: #f8fafc;
+  /* White-ish (neutral-50) */
+  --text-secondary: #e2e8f0;
+  /* Much brighter secondary text (neutral-200) */
+  --text-tertiary: #cbd5e1;
+  /* Brighter tertiary (neutral-300) */
+  --text-inverse: #020617;
 
-  --border-color: var(--neutral-800);
-  --border-color-hover: var(--neutral-700);
+  --border-color: #334155;
+  /* More visible borders (neutral-700) */
+  --border-color-hover: #475569;
 
-  --gradient-hero: linear-gradient(135deg, var(--neutral-900) 0%, var(--primary-900) 50%, var(--secondary-900) 100%);
-  --gradient-card: linear-gradient(145deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.7) 100%);
+  --gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #581c87 100%);
+  --gradient-card: linear-gradient(145deg, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 1) 100%);
 }
 
 /* ============================================

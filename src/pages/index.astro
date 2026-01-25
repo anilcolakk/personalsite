@@ -55,6 +55,8 @@ const stats = [
   { value: '2000+', label: 'Students Helped' },
   { value: '4.9', label: 'Avg Rating' },
 ];
+
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <BaseLayout title="Home">
@@ -83,7 +85,7 @@ const stats = [
       </p>
       
       <div class="hero-cta animate-fade-in-up delay-200">
-        <a href="/courses" class="btn btn-primary btn-lg">
+        <a href={`${base}/courses`} class="btn btn-primary btn-lg">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
@@ -198,7 +200,7 @@ const stats = [
           <h2 class="section-title">Popular Courses</h2>
           <p class="section-subtitle">Most accessed resources by students</p>
         </div>
-        <a href="/courses" class="btn btn-secondary">
+        <a href={`${base}/courses`} class="btn btn-secondary">
           View All Courses
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
@@ -272,7 +274,7 @@ const stats = [
             Get instant access to comprehensive study materials and join our community of successful EEE students.
           </p>
           <div class="cta-buttons">
-            <a href="/courses" class="btn btn-primary btn-lg">Start Learning Now</a>
+            <a href={`${base}/courses`} class="btn btn-primary btn-lg">Start Learning Now</a>
           </div>
         </div>
         <div class="cta-decoration">

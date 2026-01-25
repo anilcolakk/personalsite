@@ -5,7 +5,7 @@
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
 import LockedContent from '@components/LockedContent.astro';
-import ShopierButton from '@components/ShopierButton.astro';
+
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -30,11 +30,11 @@ const yearLabels: Record<string, string> = {
   '4': '4th Year',
 };
 
-const formattedDate = note.data.createdAt.toLocaleDateString('en-US', {
-  year: 'numeric',
   month: 'long',
   day: 'numeric',
 });
+
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
 <BaseLayout 
@@ -46,11 +46,11 @@ const formattedDate = note.data.createdAt.toLocaleDateString('en-US', {
     <header class="note-hero">
       <div class="container">
         <nav class="note-breadcrumb">
-          <a href="/notes">Notes</a>
+          <a href={`${base}/notes`}>Notes</a>
           <span>/</span>
-          <a href={`/notes?year=${note.data.year}`}>{yearLabels[note.data.year]}</a>
+          <a href={`${base}/notes?year=${note.data.year}`}>{yearLabels[note.data.year]}</a>
           <span>/</span>
-          <a href={`/notes?course=${note.data.courseCode}`}>{note.data.courseCode}</a>
+          <a href={`${base}/notes?course=${note.data.courseCode}`}>{note.data.courseCode}</a>
         </nav>
         
         <div class="note-hero__content">
@@ -128,11 +128,6 @@ const formattedDate = note.data.createdAt.toLocaleDateString('en-US', {
                   <span class="price-amount">₺{note.data.price?.toFixed(2)}</span>
                   <span class="price-label">One-time purchase</span>
                 </div>
-                <ShopierButton 
-                  productId={note.data.shopierProductId!}
-                  productName={note.data.title}
-                  price={note.data.price!}
-                />
                 <ul class="purchase-features">
                   <li>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -201,7 +196,7 @@ const formattedDate = note.data.createdAt.toLocaleDateString('en-US', {
             <!-- Related Notes -->
             <div class="sidebar-card related-card">
               <h4>More from {note.data.courseCode}</h4>
-              <a href={`/notes?course=${note.data.courseCode}`} class="btn btn-secondary btn-sm">
+              <a href={`${base}/notes?course=${note.data.courseCode}`} class="btn btn-secondary btn-sm">
                 View All Notes
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <line x1="5" y1="12" x2="19" y2="12"/>

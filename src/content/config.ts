@@ -24,8 +24,7 @@ const notesCollection = defineCollection({
 
         // Paid Resource Settings
         isPaid: z.boolean().default(false),
-        price: z.number().optional().describe('Price in TRY'),
-        shopierProductId: z.string().optional().describe('Shopier product ID for payment'),
+        // Removed monetization fields
 
         // Metadata
         createdAt: z.date(),

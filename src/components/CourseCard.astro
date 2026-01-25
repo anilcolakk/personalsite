@@ -8,9 +8,10 @@ interface Props {
 }
 
 const { code, name, category, resourceCount, description } = Astro.props;
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<a href={`/courses/${code.toLowerCase()}`} class="course-card">
+<a href={`${base}/courses/${code.toLowerCase()}`} class="course-card">
   <div class="course-header">
     <span class="course-code">{code}</span>
   </div>

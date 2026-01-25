@@ -1,11 +1,12 @@
----
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+
 const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Courses', href: '/courses' },
-  { name: 'Equivalency Tool', href: '/equivalency' },
-  { name: 'Blog', href: '/blog' },
-  { name: 'About', href: '/about' },
-  { name: 'Contact', href: '/contact' },
+  { name: 'Home', href: `${base}/` },
+  { name: 'Courses', href: `${base}/courses` },
+  { name: 'Equivalency Tool', href: `${base}/equivalency` },
+  { name: 'Blog', href: `${base}/blog` },
+  { name: 'About', href: `${base}/about` },
+  { name: 'Contact', href: `${base}/contact` },
 ];
 
 const currentPath = Astro.url.pathname;
@@ -133,6 +134,10 @@ const currentPath = Astro.url.pathname;
     transition: all var(--transition-fast);
   }
   
+  [data-theme="dark"] .nav-link {
+    color: var(--neutral-300); /* Ensure high contrast for inactive links */
+  }
+  
   .nav-link:hover {
     color: var(--text-primary);
     background: var(--bg-tertiary);
@@ -141,11 +146,13 @@ const currentPath = Astro.url.pathname;
   .nav-link.active {
     color: var(--primary-600);
     background: var(--primary-50);
+    font-weight: 600; /* Make active link slightly bolder */
   }
   
   [data-theme="dark"] .nav-link.active {
-    color: var(--primary-400);
-    background: rgba(59, 130, 246, 0.15);
+    color: var(--primary-300); /* Brighter blue for active state */
+    background: rgba(59, 130, 246, 0.25); /* More visible background */
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.4); /* Add subtle border for definition */
   }
   
   .nav-actions {

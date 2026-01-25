@@ -51,16 +51,6 @@
           "type": "boolean",
           "default": false
         },
-        "price": {
-          "type": "number",
-          "description": "Price in TRY",
-          "markdownDescription": "Price in TRY"
-        },
-        "shopierProductId": {
-          "type": "string",
-          "description": "Shopier product ID for payment",
-          "markdownDescription": "Shopier product ID for payment"
-        },
         "createdAt": {
           "anyOf": [
             {

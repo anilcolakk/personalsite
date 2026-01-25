@@ -16,9 +16,11 @@ interface Props {
 const { 
   title, 
   description = 'METU EEE Resources - Free and premium lecture notes, study materials, and course equivalency tools for Electrical and Electronics Engineering students.',
-  image = '/images/og-image.png',
   noindex = false
 } = Astro.props;
+
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+const image = Astro.props.image || `${base}/images/og-image.png`;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
@@ -53,18 +55,19 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="twitter:image" content={image} />
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
     
     <!-- Theme Color -->
-    <meta name="theme-color" content="#2563eb" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a" />
     
     <!-- Preconnect to Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
     <!-- Pagefind Search CSS -->
-    <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+    <link rel="stylesheet" href={`${base}/pagefind/pagefind-ui.css`} />
   </head>
   <body>
     <Header />
