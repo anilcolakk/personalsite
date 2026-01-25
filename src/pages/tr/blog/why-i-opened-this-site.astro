@@ -12,7 +12,7 @@ const post = {
 const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<BaseLayout title={post.title} description="Bu platformun arkasındaki hikaye ve EEE öğrencilerine yardım etme misyonum." image={post.image}>
+<BaseLayout title={post.title} description="Bu platformun arkasındaki hikaye ve EEE öğrencilerine yardım etme misyonum." image={`${base}${post.image}`}>
   <article class="blog-post">
     <!-- Hero Header -->
     <div class="post-header">
@@ -40,7 +40,7 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
     <!-- Featured Image -->
     <div class="container">
       <div class="featured-image-container">
-        <img src={post.image} alt="Elektrik Mühendisliği Tarihi" class="featured-image" />
+        <img src={`${base}${post.image}`} alt="Elektrik Mühendisliği Tarihi" class="featured-image" />
       </div>
     </div>
 

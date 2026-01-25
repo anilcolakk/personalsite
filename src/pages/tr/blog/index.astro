@@ -76,14 +76,22 @@ function formatDate(dateStr: string): string {
           </div>
         </div>
         <div class="featured-image">
-          <div class="image-placeholder">
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-            </svg>
-          </div>
+          {blogPosts[0].image ? (
+            <img 
+              src={`${base}${blogPosts[0].image}`} 
+              alt={blogPosts[0].title} 
+              class="featured-img-cover" 
+            />
+          ) : (
+            <div class="image-placeholder">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            </div>
+          )}
         </div>
       </div>
       
@@ -166,6 +174,7 @@ function formatDate(dateStr: string): string {
   .read-time { display: flex; align-items: center; gap: var(--space-1); font-size: var(--text-sm); color: var(--text-tertiary); }
   .read-more { display: flex; align-items: center; gap: var(--space-2); font-size: var(--text-sm); font-weight: 600; color: var(--primary-600); }
   .featured-image { border-radius: var(--radius-xl); overflow: hidden; }
+  .featured-img-cover { width: 100%; height: 100%; object-fit: cover; min-height: 300px; }
   .image-placeholder { width: 100%; height: 100%; min-height: 300px; background: var(--gradient-hero); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,0.5); }
   .image-placeholder.small { min-height: 180px; }
   
