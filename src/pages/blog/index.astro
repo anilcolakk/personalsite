@@ -89,7 +89,7 @@ function formatDate(dateStr: string): string {
       <div class="category-filter" id="category-filter">
         {categories.map((category) => (
           <button 
-            class:list={['category-btn', { active: category === 'All' }]}
+            class={`category-btn ${category === 'All' ? 'active' : ''}`}
             data-category={category}
           >
             {category}

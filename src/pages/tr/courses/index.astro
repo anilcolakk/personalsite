@@ -1,0 +1,160 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import CourseCard from '@components/CourseCard.astro';
+
+import { allCourses } from '../../../data/allCourses.js';
+
+const categories = ['Tümü', ...new Set(allCourses.map(c => c.category))];
+const years = ['Tümü', 1, 2, 3, 4];
+---
+
+<BaseLayout title="Ders Arşivi" description="Tüm ODTÜ EEE derslerini ve çalışma materyallerini keşfedin">
+  <section class="courses-page">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">Ders Arşivi</h1>
+        <p class="page-description">
+          Derslere göre düzenlenmiş ders notları, sınav çözümleri ve çalışma materyallerinin kapsamlı koleksiyonumuzu keşfedin.
+        </p>
+      </div>
+      
+      <div class="filters-section">
+        <div class="search-box">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <input 
+            type="text" 
+            id="search-input"
+            class="search-input" 
+            placeholder="Ders adı veya kodu ile arayın..."
+          />
+        </div>
+        
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label">Kategori</label>
+            <select id="category-filter" class="filter-select">
+              {categories.map((cat) => (
+                <option value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Yıl</label>
+            <select id="year-filter" class="filter-select">
+              {years.map((year) => (
+                <option value={year}>{year === 'Tümü' ? 'Tüm Yıllar' : `${year}. Yıl`}</option>
+              ))}
+            </select>
+          </div>
+          
+          <button id="reset-filters" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            Sıfırla
+          </button>
+        </div>
+      </div>
+      
+      <div class="results-info">
+        <span id="results-count">{allCourses.length}</span> ders bulundu
+      </div>
+      
+      <div class="courses-grid" id="courses-grid">
+        {allCourses.map((course) => (
+          <div 
+            class="course-item" 
+            data-category={course.category}
+            data-year={course.year}
+            data-name={course.name.toLowerCase()}
+            data-code={course.code.toLowerCase()}
+          >
+            <CourseCard {...course} isFree={true} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .courses-page { padding: var(--space-12) 0 var(--space-20); }
+  .page-header { text-align: center; margin-bottom: var(--space-10); }
+  .page-title { font-size: var(--text-4xl); font-weight: 800; margin-bottom: var(--space-4); }
+  .page-description { font-size: var(--text-lg); color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+  
+  .filters-section { margin-bottom: var(--space-8); }
+  .search-box { position: relative; margin-bottom: var(--space-4); }
+  .search-icon { position: absolute; left: var(--space-4); top: 50%; transform: translateY(-50%); color: var(--text-tertiary); }
+  .search-input { width: 100%; padding: var(--space-4) var(--space-4) var(--space-4) var(--space-12); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); font-size: var(--text-base); }
+  .search-input:focus { outline: none; border-color: var(--primary-500); }
+  
+  .filter-row { display: flex; gap: var(--space-4); align-items: end; }
+  .filter-group { display: flex; flex-direction: column; gap: var(--space-1); }
+  .filter-label { font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); }
+  .filter-select { padding: var(--space-3) var(--space-4); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); font-size: var(--text-sm); min-width: 150px; }
+  
+  .results-info { margin-bottom: var(--space-6); color: var(--text-secondary); }
+  
+  .courses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
+  .course-item.hidden { display: none; }
+  
+  @media (max-width: 1024px) { .courses-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 768px) { 
+    .courses-grid { grid-template-columns: 1fr; }
+    .filter-row { flex-direction: column; align-items: stretch; }
+  }
+</style>
+
+<script>
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const categoryFilter = document.getElementById('category-filter') as HTMLSelectElement;
+  const yearFilter = document.getElementById('year-filter') as HTMLSelectElement;
+  const resetBtn = document.getElementById('reset-filters');
+  const courseItems = document.querySelectorAll('.course-item');
+  const resultsCount = document.getElementById('results-count');
+  
+  function filterCourses() {
+    const search = searchInput.value.toLowerCase();
+    const category = categoryFilter.value;
+    const year = yearFilter.value;
+    let count = 0;
+    
+    courseItems.forEach(item => {
+      const el = item as HTMLElement;
+      const name = el.dataset.name || '';
+      const code = el.dataset.code || '';
+      const itemCategory = el.dataset.category || '';
+      const itemYear = el.dataset.year || '';
+      
+      const matchesSearch = name.includes(search) || code.includes(search);
+      const matchesCategory = category === 'Tümü' || itemCategory === category;
+      const matchesYear = year === 'Tümü' || itemYear === year;
+      
+      if (matchesSearch && matchesCategory && matchesYear) {
+        el.classList.remove('hidden');
+        count++;
+      } else {
+        el.classList.add('hidden');
+      }
+    });
+    
+    if (resultsCount) resultsCount.textContent = String(count);
+  }
+  
+  searchInput?.addEventListener('input', filterCourses);
+  categoryFilter?.addEventListener('change', filterCourses);
+  yearFilter?.addEventListener('change', filterCourses);
+  
+  resetBtn?.addEventListener('click', () => {
+    searchInput.value = '';
+    categoryFilter.value = 'Tümü';
+    yearFilter.value = 'Tümü';
+    filterCourses();
+  });
+</script>

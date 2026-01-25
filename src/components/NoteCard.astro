@@ -28,7 +28,7 @@ const yearLabels: Record<string, string> = {
 const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
-<article class="note-card" class:list={[{ 'note-card--featured': featured, 'note-card--paid': isPaid }]}>
+<article class={`note-card ${featured ? 'note-card--featured' : ''} ${isPaid ? 'note-card--paid' : ''}`}>
   <div class="note-card__header">
     <div class="note-card__badges">
       <span class="badge badge-year">{yearLabels[year]}</span>

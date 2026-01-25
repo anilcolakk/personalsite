@@ -161,32 +161,28 @@
 }
 
 /* ============================================
-   Dark Theme
+   Dark Theme - Warm, Readable
    ============================================ */
 [data-theme="dark"] {
-  --bg-primary: #020617;
-  /* Darker background (neutral-950) */
-  --bg-secondary: #0f172a;
-  /* Slightly lighter (neutral-900) */
-  --bg-tertiary: #1e293b;
-  /* Distinctly lighter for inputs/hover (neutral-800) */
-  --bg-card: #0f172a;
-  --bg-card-hover: #1e293b;
+  --bg-primary: #0f1419;
+  --bg-secondary: #1a1f2e;
+  --bg-tertiary: #252d3d;
+  --bg-card: #1a1f2e;
+  --bg-card-hover: #252d3d;
 
-  --text-primary: #f8fafc;
-  /* White-ish (neutral-50) */
-  --text-secondary: #e2e8f0;
-  /* Much brighter secondary text (neutral-200) */
-  --text-tertiary: #cbd5e1;
-  /* Brighter tertiary (neutral-300) */
-  --text-inverse: #020617;
+  /* High contrast text for readability */
+  --text-primary: #ffffff;
+  --text-secondary: #e8eaed;
+  --text-tertiary: #d1d5db;
+  --text-inverse: #0f1419;
 
-  --border-color: #334155;
-  /* More visible borders (neutral-700) */
-  --border-color-hover: #475569;
+  /* Visible borders */
+  --border-color: #3d4452;
+  --border-color-hover: #5d6572;
 
-  --gradient-hero: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #581c87 100%);
-  --gradient-card: linear-gradient(145deg, rgba(30, 41, 59, 1) 0%, rgba(15, 23, 42, 1) 100%);
+  /* Softer gradients */
+  --gradient-hero: linear-gradient(135deg, #1a1f2e 0%, #2d3a5a 50%, #3d2a5a 100%);
+  --gradient-card: linear-gradient(145deg, rgba(37, 45, 61, 1) 0%, rgba(26, 31, 46, 1) 100%);
 }
 
 /* ============================================
@@ -349,14 +345,16 @@ p {
 }
 
 .btn-primary {
-  background: var(--gradient-hero);
+  background: var(--primary-600);
   color: white;
-  box-shadow: var(--shadow-md), 0 0 20px -5px var(--primary-500);
+  border: none;
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg), 0 0 30px -5px var(--primary-500);
+  background: var(--primary-700);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-secondary {

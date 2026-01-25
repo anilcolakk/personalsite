@@ -1,0 +1,125 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const contactMethods = [
+  {
+    icon: 'email',
+    title: 'E-posta',
+    value: 'anil.colak@metu.edu.tr',
+    href: 'mailto:anil.colak@metu.edu.tr',
+    description: 'Detaylı sorular için en iyisi'
+  },
+  {
+    icon: 'linkedin',
+    title: 'LinkedIn',
+    value: 'Anıl Salih Çolak',
+    href: 'https://www.linkedin.com/in/an%C4%B1l-salih-%C3%A7olak-554793153/',
+    description: 'Profesyonel iletişim'
+  },
+  {
+    icon: 'twitter',
+    title: 'X (Twitter)',
+    value: '@aaanilclk',
+    href: 'https://x.com/aaanilclk',
+    description: 'Güncellemeler için takip edin'
+  }
+];
+
+const faqs = [
+  {
+    question: 'Kaynaklara nasıl erişebilirim?',
+    answer: 'Tüm kaynaklar tamamen ücretsiz! Ders Arşivi\'ne giderek Google Drive üzerinden materyalleri görüntüleyebilir ve indirebilirsiniz.'
+  },
+  {
+    question: 'Belirli bir ders talep edebilir miyim?',
+    answer: 'Kesinlikle! Aşağıdaki iletişim formunu kullanarak herhangi bir ders talep edebilirsiniz. Talepleri konuya olan ilgime ve uzmanlığıma göre önceliklendiriyorum.'
+  },
+  {
+    question: 'Özel ders veriyor musunuz?',
+    answer: 'Evet. Müsaitlik için benimle iletişime geçin.'
+  },
+];
+---
+
+<BaseLayout title="İletişim" description="Sorular, iş birlikleri veya ders talepleri için iletişime geçin">
+  <section class="contact-page">
+    <div class="container">
+      <div class="page-header">
+        <h1 class="page-title">İletişime Geçin</h1>
+        <p class="page-description">
+          Bir sorunuz, öneriniz veya iş birliği yapmak mı istiyorsunuz? Sizden haber almak isterim. 
+          Aşağıdan tercih ettiğiniz iletişim yöntemini seçin.
+        </p>
+      </div>
+      
+      <div class="contact-methods">
+        {contactMethods.map((method) => (
+          <a href={method.href} class="contact-card" target={method.href.startsWith('http') ? '_blank' : undefined}>
+            <div class="contact-icon">
+              {method.icon === 'email' && (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+              )}
+              {method.icon === 'linkedin' && (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              )}
+              {method.icon === 'twitter' && (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                </svg>
+              )}
+            </div>
+            <div class="contact-info">
+              <h3 class="contact-title">{method.title}</h3>
+              <p class="contact-value">{method.value}</p>
+              <p class="contact-desc">{method.description}</p>
+            </div>
+          </a>
+        ))}
+      </div>
+      
+      <div class="faq-section">
+        <h2 class="section-title">Sık Sorulan Sorular</h2>
+        <div class="faq-grid">
+          {faqs.map((faq) => (
+            <div class="faq-card">
+              <h3 class="faq-question">{faq.question}</h3>
+              <p class="faq-answer">{faq.answer}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .contact-page { padding: var(--space-12) 0 var(--space-20); }
+  .page-header { text-align: center; margin-bottom: var(--space-12); }
+  .page-title { font-size: var(--text-4xl); font-weight: 800; margin-bottom: var(--space-4); }
+  .page-description { font-size: var(--text-lg); color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+  
+  .contact-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); margin-bottom: var(--space-16); }
+  .contact-card { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-xl); transition: all 0.2s; }
+  .contact-card:hover { transform: translateY(-4px); border-color: var(--primary-400); box-shadow: var(--shadow-lg); }
+  .contact-icon { width: 56px; height: 56px; background: var(--primary-50); color: var(--primary-600); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  [data-theme="dark"] .contact-icon { background: rgba(59,130,246,0.15); color: var(--primary-400); }
+  .contact-title { font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-1); }
+  .contact-value { color: var(--primary-600); font-weight: 500; }
+  [data-theme="dark"] .contact-value { color: var(--primary-400); }
+  .contact-desc { font-size: var(--text-sm); color: var(--text-tertiary); margin-top: var(--space-1); }
+  
+  .section-title { font-size: var(--text-2xl); font-weight: 700; margin-bottom: var(--space-8); text-align: center; }
+  .faq-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: var(--space-4); max-width: 800px; margin: 0 auto; }
+  .faq-card { padding: var(--space-6); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-xl); }
+  .faq-question { font-size: var(--text-lg); font-weight: 700; margin-bottom: var(--space-2); }
+  .faq-answer { color: var(--text-secondary); line-height: 1.7; }
+  
+  @media (max-width: 768px) {
+    .contact-methods { grid-template-columns: 1fr; }
+  }
+</style>

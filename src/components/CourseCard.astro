@@ -5,9 +5,10 @@ interface Props {
   category: string;
   resourceCount: number;
   description: string;
+  isFree?: boolean;
 }
 
-const { code, name, category, resourceCount, description } = Astro.props;
+const { code, name, category, resourceCount, description, isFree = false } = Astro.props;
 const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
@@ -26,6 +27,11 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
       </svg>
       {category}
     </span>
+    {isFree && (
+      <span class="course-badge-free">
+        Free
+      </span>
+    )}
     <span class="course-resources">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
@@ -134,5 +140,19 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
   .course-card:hover .course-hover-indicator {
     opacity: 1;
     transform: translateY(-50%) translateX(0);
+  }
+
+  .course-badge-free {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 6px;
+    background: var(--success-500);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: var(--radius-full);
+    margin-right: auto;
+    margin-left: var(--space-2);
   }
 </style>

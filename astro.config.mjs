@@ -15,5 +15,12 @@ export default defineConfig({
                 external: ['/pagefind/pagefind-ui.js']
             }
         }
+    },
+    i18n: {
+        defaultLocale: "en",
+        locales: ["en", "tr"],
+        routing: {
+            prefixDefaultLocale: false
+        }
     }
 });

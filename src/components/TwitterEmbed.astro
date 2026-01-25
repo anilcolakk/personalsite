@@ -16,15 +16,19 @@ interface Props {
 }
 
 const { 
-  username = 'meaboringlife', 
+  username = 'aaanilclk', 
   tweetId, 
+  id,
   limit = 3,
   title = 'Latest Updates'
 } = Astro.props;
 
+// Support both tweetId and id props
+const actualTweetId = tweetId || id;
+
 // Determine embed type
-const isTimeline = !tweetId && username;
-const isTweet = !!tweetId;
+const isTimeline = !actualTweetId && username;
+const isTweet = !!actualTweetId;
 ---
 
 <div class="twitter-embed" data-theme-aware>
@@ -61,7 +65,7 @@ const isTweet = !!tweetId;
     
     {isTweet && (
       <blockquote class="twitter-tweet" data-theme="light">
-        <a href={`https://twitter.com/x/status/${tweetId}`}>Loading tweet...</a>
+        <a href={`https://twitter.com/x/status/${actualTweetId}`}>Loading tweet...</a>
       </blockquote>
     )}
     

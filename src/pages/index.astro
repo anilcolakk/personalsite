@@ -3,6 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import CourseCard from '@components/CourseCard.astro';
 import TwitterEmbed from '@components/TwitterEmbed.astro';
 import VideoEmbed from '@components/VideoEmbed.astro';
+import { getPinnedTweet } from '../utils/twitter';
 
 const featuredCourses = [
   {
@@ -28,7 +29,9 @@ const featuredCourses = [
   },
 ];
 
-// Replaced stats with personal mission statement items or removed entirely
+// Fetch pinned tweet ID at build time (falls back to hardcoded ID)
+const pinnedTweetId = await getPinnedTweet('aaanilclk') || '1881773099955745131';
+
 const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
 
@@ -170,10 +173,10 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
             </svg>
             Latest Updates
           </h3>
-          <!-- Pinned Tweet manually embedded or via component logic -->
+          <!-- Pinned Tweet fetched from Twitter API at build time -->
           <div class="pinned-tweet-container">
              <TwitterEmbed 
-                id="1881773099955745131" 
+                id={pinnedTweetId} 
                 title="Pinned Update"
                 limit={1}
              />
