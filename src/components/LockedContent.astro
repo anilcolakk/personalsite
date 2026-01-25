@@ -34,7 +34,7 @@ const { preview, price, productId, noteTitle } = Astro.props;
     </p>
     
     <div class="locked-content__price-box">
-      <span class="locked-content__price">₺{price.toFixed(2)}</span>
+      <span class="locked-content__price">₺{(price || 0).toFixed(2)}</span>
       <span class="locked-content__price-label">One-time purchase</span>
     </div>
     
