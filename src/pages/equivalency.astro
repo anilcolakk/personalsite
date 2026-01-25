@@ -236,7 +236,13 @@ const universities = Object.entries(curriculaData.universities)
     
     // Perform Analysis
     const course = state.courses.find(c => c.code === code);
-    const metuCourses = window.CURRICULA_DATA.universities.ODTU.courses;
+    // Use lower case 'odtu' to match the JSON key added by user
+    const metuCourses = window.CURRICULA_DATA.universities.odtu ? window.CURRICULA_DATA.universities.odtu.courses : [];
+    
+    if (!metuCourses.length) {
+        console.error("ODTU courses not found in data!");
+    }
+
     const match = findBestMatch(course, metuCourses);
     
     renderAnalysis(course, match);

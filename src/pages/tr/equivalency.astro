@@ -1,9 +1,10 @@
 ---
-import BaseLayout from '@layouts/BaseLayout.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 import curriculaData from '../../data/curricula.json';
+import NoteSubmissionForm from '../../components/NoteSubmissionForm.astro';
 
 const universities = Object.entries(curriculaData.universities)
-  .filter(([key]) => key !== 'ODTU')
+  .filter(([key]) => key !== 'odtu' && key !== 'ODTU')
   .map(([key, uni]) => ({
     id: key, 
     name: uni.name, 
@@ -13,7 +14,7 @@ const universities = Object.entries(curriculaData.universities)
   }));
 ---
 
-<BaseLayout title="Ders Eşdeğerlik Aracı" description="Yapay zeka destekli ders saydırma ve eşdeğerlik aracı">
+<BaseLayout title="Ders Eşdeğerlik Aracı" description="Yapay zeka destekli ders transfer ve eşdeğerlik aracı">
   <div class="finder-layout">
     <div class="container-fluid">
       
@@ -58,12 +59,24 @@ const universities = Object.entries(curriculaData.universities)
           </div>
         </div>
 
-        <!-- Column 2: Courses -->
+        <!-- Column 2: Courses (With Year Filter) -->
         <div class="finder-col col-courses disabled" id="col-courses">
           <div class="col-header">
             <h3>2. Ders Seç</h3>
             <span id="selected-uni-label" class="col-badge hidden"></span>
           </div>
+          
+          <!-- Year Tabs -->
+          <div class="year-tabs-container">
+             <div class="year-tabs" id="year-tabs">
+                <button class="year-tab active" onclick="filterByYear(0)">Tümü</button>
+                <button class="year-tab" onclick="filterByYear(1)">1. Sınıf</button>
+                <button class="year-tab" onclick="filterByYear(2)">2. Sınıf</button>
+                <button class="year-tab" onclick="filterByYear(3)">3. Sınıf</button>
+                <button class="year-tab" onclick="filterByYear(4)">4. Sınıf</button>
+             </div>
+          </div>
+
           <div class="col-search">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" id="course-search" placeholder="Ders ara..." disabled>
@@ -92,6 +105,7 @@ const universities = Object.entries(curriculaData.universities)
       </div>
     </div>
   </div>
+  <NoteSubmissionForm />
 </BaseLayout>
 
 <script define:vars={{ curriculaData }}>
@@ -99,12 +113,13 @@ const universities = Object.entries(curriculaData.universities)
 </script>
 
 <script is:inline>
-  let state = { uniId: null, courses: [], selectedCourse: null };
+  let state = { uniId: null, courses: [], selectedCourse: null, selectedYear: 0 };
 
   // 1. Select University
   window.selectUniversity = (id, name, shortName) => {
     state.uniId = id;
     state.selectedCourse = null;
+    state.selectedYear = 0; // Reset to All
     
     // Update UI State
     document.querySelectorAll('.uni-item').forEach(el => el.classList.remove('active'));
@@ -120,6 +135,9 @@ const universities = Object.entries(curriculaData.universities)
     
     document.getElementById('course-search').disabled = false;
     
+    // Reset Year Tabs
+    updateYearTabs(0);
+
     // Reset & Disable Col 3
     document.getElementById('col-analysis').classList.add('disabled');
     document.getElementById('analysis-container').innerHTML = `
@@ -131,9 +149,40 @@ const universities = Object.entries(curriculaData.universities)
 
     // Load Courses
     const uniData = window.CURRICULA_DATA.universities[id];
-    state.courses = uniData ? uniData.courses.sort((a, b) => a.code.localeCompare(b.code)) : [];
+    // Sort by Year then Code
+    state.courses = uniData ? uniData.courses.sort((a, b) => (a.year - b.year) || a.code.localeCompare(b.code)) : [];
     renderCourses(state.courses);
   };
+
+  // Year Filtering
+  window.filterByYear = (year) => {
+      state.selectedYear = year;
+      updateYearTabs(year);
+      
+      const searchInput = document.getElementById('course-search');
+      const term = searchInput ? searchInput.value.toLowerCase() : '';
+      
+      let filtered = state.courses;
+      
+      // Filter by Year
+      if (year > 0) {
+          filtered = filtered.filter(c => c.year === year);
+      }
+      
+      // Filter by Search Term if present
+      if (term) {
+          filtered = filtered.filter(c => c.code.toLowerCase().includes(term) || c.name.toLowerCase().includes(term));
+      }
+      
+      renderCourses(filtered);
+  };
+
+  function updateYearTabs(activeYear) {
+      document.querySelectorAll('.year-tab').forEach((btn, idx) => {
+          if (idx === activeYear) btn.classList.add('active');
+          else btn.classList.remove('active');
+      });
+  }
 
   function renderCourses(list) {
     const container = document.getElementById('course-list-container');
@@ -143,24 +192,31 @@ const universities = Object.entries(curriculaData.universities)
       return;
     }
 
-    container.innerHTML = list.map(c => `
-      <button class="course-row" id="course-${c.code}" onclick="selectCourse('${c.code}')">
-        <div class="course-code">${c.code}</div>
-        <div class="course-name">${c.nameTR || c.name}</div>
+    container.innerHTML = list.map(c => {
+      // Color coding by year
+      let yearColorClass = 'year-other';
+      if (c.year === 1) yearColorClass = 'year-1';
+      else if (c.year === 2) yearColorClass = 'year-2';
+      else if (c.year === 3) yearColorClass = 'year-3';
+      else if (c.year === 4) yearColorClass = 'year-4';
+
+      return `
+      <button class="course-row ${yearColorClass}" id="course-${c.code.replace(/\s+/g, '-')}" onclick="selectCourse('${c.code}')">
+        <div class="year-badge">Y${c.year}</div>
+        <div class="course-info">
+            <div class="course-code">${c.code}</div>
+            <div class="course-name">${c.name}</div>
+        </div>
         <svg class="chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"></path></svg>
       </button>
-    `).join('');
+    `}).join('');
   }
 
   // Search Filter
   document.getElementById('course-search')?.addEventListener('input', (e) => {
     const term = e.target.value.toLowerCase();
-    const filtered = state.courses.filter(c => 
-      c.code.toLowerCase().includes(term) || 
-      (c.nameTR && c.nameTR.toLowerCase().includes(term)) ||
-      c.name.toLowerCase().includes(term)
-    );
-    renderCourses(filtered);
+    // Re-apply current year filter + search
+    window.filterByYear(state.selectedYear);
   });
 
   // 2. Select Course
@@ -169,7 +225,10 @@ const universities = Object.entries(curriculaData.universities)
     
     // Update UI
     document.querySelectorAll('.course-row').forEach(el => el.classList.remove('active'));
-    document.getElementById(`course-${code}`).classList.add('active');
+    // Handle spaces in IDs safely
+    const safeId = `course-${code.replace(/\s+/g, '-')}`;
+    const el = document.getElementById(safeId);
+    if(el) el.classList.add('active');
     
     // Enable Col 3
     const col3 = document.getElementById('col-analysis');
@@ -177,7 +236,9 @@ const universities = Object.entries(curriculaData.universities)
     
     // Perform Analysis
     const course = state.courses.find(c => c.code === code);
-    const metuCourses = window.CURRICULA_DATA.universities.ODTU.courses;
+    // Use lower case 'odtu' to match the JSON key
+    const metuCourses = window.CURRICULA_DATA.universities.odtu ? window.CURRICULA_DATA.universities.odtu.courses : [];
+    
     const match = findBestMatch(course, metuCourses);
     
     renderAnalysis(course, match);
@@ -187,8 +248,6 @@ const universities = Object.entries(curriculaData.universities)
   function findBestMatch(source, targets) {
      let best = null;
      let maxScore = 0;
-     // Note: Matching still relies on English 'topics' and 'name' primarily, 
-     // as topics in JSON are currently English. 
      const sTerms = (source.topics || []).concat(source.name.split(' ')).map(t => t.toLowerCase());
 
      targets.forEach(t => {
@@ -218,10 +277,6 @@ const universities = Object.entries(curriculaData.universities)
 
      const topicsList = (source.topics || []).map(t => `<span class="topic-tag">${t}</span>`).join('');
 
-     // TR: Use nameTR if available
-     const sourceName = source.nameTR || source.name;
-     const targetName = target ? (target.nameTR || target.name) : 'Eşleşme Yok';
-
      container.innerHTML = `
       <div class="analysis-card animate-fade-in">
         
@@ -239,20 +294,20 @@ const universities = Object.entries(curriculaData.universities)
         <!-- Comparison Table -->
         <div class="comparison-box">
            <div class="compare-row from">
-              <span class="lbl">GÖNDEREN</span>
+              <span class="lbl">KAYNAK</span>
               <div class="compare-detail">
                  <strong>${source.code}</strong>
-                 <span>${sourceName}</span>
+                 <span>${source.name}</span>
               </div>
            </div>
            
            <div class="middle-arrow">⬇️</div>
            
            <div class="compare-row to">
-              <span class="lbl">ODTÜ KARŞILIĞI</span>
+              <span class="lbl">HEDEF (ODTÜ)</span>
               <div class="compare-detail">
-                 <strong>${target ? target.code : '---'}</strong>
-                 <span>${targetName}</span>
+                 <strong>${target ? target.code : 'Eşleşme Yok'}</strong>
+                 <span>${target ? target.name : 'Müfredat uyumsuzluğu'}</span>
               </div>
            </div>
         </div>
@@ -261,7 +316,7 @@ const universities = Object.entries(curriculaData.universities)
         <div class="topics-box">
            <h5>Kapsanan Konular</h5>
            <div class="topics-flow">
-              ${topicsList || '<span class="text-muted">Konu listesi yok</span>'}
+              ${topicsList || '<span class="text-muted">Konu listelenmedi</span>'}
            </div>
         </div>
 
@@ -273,19 +328,21 @@ const universities = Object.entries(curriculaData.universities)
            </div>
            <p>
              Konu analizine dayanarak, <strong>${source.code}</strong> dersi 
-             <strong>${target ? target.code : 'transfer gereksinimleri'}</strong> ile
-             ${isHigh ? 'güçlü şekilde' : 'kısmen'} örtüşmektedir.
-             ${isHigh ? 'Kredi saydırma ihtimali yüksektir.' : 'Ders içeriği incelemesi tavsiye edilir.'}
+             <strong>${target ? target.code : 'transfer gereksinimleri'}</strong> ile ${isHigh ? 'güçlü bir şekilde' : 'kısmen'} eşleşmektedir.
+             ${isHigh ? 'Kredi transferi yüksek ihtimalle onaylanır.' : 'Ders içeriğinin (syllabus) incelenmesi önerilir.'}
            </p>
+           <button class="btn-ai-detail" onclick="alert('Detaylı Yapay Zeka Analizi yakında gelecek! Bu özellik derinlemesine syllabus karşılaştırması sunacak.')">
+              Detaylı Analizi Gör
+           </button>
         </div>
 
         <!-- Submit Notes for this Course -->
         <div class="submit-notes-box">
-           <p><strong>${source.code}</strong> için notların mı var?</p>
-           <a href="/notes/submit?course=${source.code}" class="btn-submit-sm">
+           <p>Bu ders için notların mı var?</p>
+           <button onclick="window.openSubmissionModal('${source.code}')" class="btn-submit-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              Not Gönder
-           </a>
+              Notlarını Paylaş
+           </button>
         </div>
 
       </div>
@@ -352,6 +409,35 @@ const universities = Object.entries(curriculaData.universities)
     color: var(--text-primary); font-size: 0.95rem;
   }
 
+  /* Year Tabs */
+  .year-tabs-container {
+      padding: 10px 15px;
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+  }
+  .year-tabs {
+      display: flex;
+      gap: 8px;
+  }
+  .year-tab {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+  }
+  .year-tab:hover { background: var(--bg-tertiary); }
+  .year-tab.active {
+      background: var(--primary-600);
+      color: white;
+      border-color: var(--primary-600);
+  }
+
   /* Column 1: Unis */
   .uni-list { display: flex; flex-direction: column; gap: 5px; }
   .uni-item {
@@ -381,18 +467,32 @@ const universities = Object.entries(curriculaData.universities)
      background: transparent; border: 1px solid transparent; border-radius: 10px;
      cursor: pointer; width: 100%; text-align: left; margin-bottom: 5px;
      transition: all 0.1s;
+     position: relative;
+     overflow: hidden;
   }
-  .course-row:hover { background: var(--bg-tertiary); }
+
+  /* Year Badges Colors */
+  .course-row.year-1 { border-left: 4px solid #3b82f6; } /* Blue */
+  .course-row.year-2 { border-left: 4px solid #10b981; } /* Green */
+  .course-row.year-3 { border-left: 4px solid #f59e0b; } /* Amber */
+  .course-row.year-4 { border-left: 4px solid #8b5cf6; } /* Purple */
+  .course-row.year-other { border-left: 4px solid #94a3b8; } /* Gray */
+
+  .course-row:hover { background: var(--bg-tertiary); transform: translateX(2px); }
   .course-row.active { 
      background: var(--bg-tertiary); 
      border-color: var(--primary-500); 
      box-shadow: var(--shadow-sm);
   }
+  .year-badge {
+      font-size: 0.7rem; font-weight: 800; opacity: 0.7; width: 20px;
+  }
+  .course-info { flex: 1; min-width: 0; }
   .course-code { 
     font-family: monospace; font-weight: 700; color: var(--primary-600); 
-    background: var(--primary-50); padding: 4px 8px; border-radius: 6px;
+    font-size: 0.9rem;
   }
-  .course-name { flex: 1; font-size: 0.9rem; font-weight: 500; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .course-name { font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Column 3: Analysis */
   .analysis-card { padding: 20px; }
@@ -420,7 +520,14 @@ const universities = Object.entries(curriculaData.universities)
      color: white; padding: 20px; border-radius: 16px; margin-top: 20px;
   }
   .ai-head { display: flex; align-items: center; gap: 10px; font-weight: 700; margin-bottom: 10px; }
-  .ai-box p { font-size: 0.95rem; line-height: 1.6; opacity: 0.9; }
+  .ai-box p { font-size: 0.95rem; line-height: 1.6; opacity: 0.9; margin-bottom: 15px; }
+  
+  .btn-ai-detail {
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4);
+      color: white; padding: 8px 16px; border-radius: 8px; font-size: 0.9rem;
+      cursor: pointer; transition: all 0.2s; width: 100%;
+  }
+  .btn-ai-detail:hover { background: rgba(255,255,255,0.3); }
 
   .topic-tag { 
     display: inline-block; background: var(--bg-tertiary); padding: 4px 10px; 
