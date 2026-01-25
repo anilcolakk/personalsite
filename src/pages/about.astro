@@ -94,14 +94,8 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
         <h2 class="section-title">Skills & Expertise</h2>
         <div class="skills-grid">
           {skills.map((skill) => (
-            <div class="skill-card">
-              <div class="skill-header">
-                <span class="skill-name">{skill.name}</span>
-                <span class="skill-level">{skill.level}%</span>
-              </div>
-              <div class="skill-bar">
-                <div class="skill-progress" style={`width: ${skill.level}%`}></div>
-              </div>
+            <div class="skill-tag">
+              {skill.name}
             </div>
           ))}
         </div>
@@ -277,48 +271,27 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
   }
   
   .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-6);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
   }
   
-  .skill-card {
+  .skill-tag {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-xl);
-    padding: var(--space-5);
-  }
-  
-  .skill-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-3);
-  }
-  
-  .skill-name {
+    border-radius: var(--radius-full);
+    padding: var(--space-3) var(--space-6);
     font-weight: 600;
     color: var(--text-primary);
-  }
-  
-  .skill-level {
+    transition: all 0.2s;
     font-size: var(--text-sm);
-    font-weight: 700;
-    color: var(--primary-600);
   }
   
-  .skill-bar {
-    height: 8px;
+  .skill-tag:hover {
+    border-color: var(--primary-400);
+    transform: translateY(-2px);
     background: var(--bg-tertiary);
-    border-radius: var(--radius-full);
-    overflow: hidden;
-  }
-  
-  .skill-progress {
-    height: 100%;
-    background: var(--gradient-hero);
-    border-radius: var(--radius-full);
-    transition: width 1s ease;
+    color: var(--primary-600);
   }
   
   /* Timeline Section */
