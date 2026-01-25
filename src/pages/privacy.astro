@@ -1,0 +1,29 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Privacy Policy">
+  <section class="section">
+    <div class="container container-sm">
+      <h1 class="section-title">Privacy Policy</h1>
+      <p class="last-updated">Last Updated: January 2026</p>
+      
+      <div class="content">
+        <p>Your privacy is important. This site is a personal project to share educational resources.</p>
+        
+        <h2>Information Collection</h2>
+        <p>We do not collect personal data. We use anonymous analytics (RevolverMaps) to visualize visitor locations.</p>
+        
+        <h2>Cookies</h2>
+        <p>This site may use local storage to save your preferences (like dark mode).</p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .container-sm { max-width: 800px; margin: 0 auto; }
+  .last-updated { color: var(--text-tertiary); margin-bottom: 2rem; }
+  .content { font-size: 1.1rem; line-height: 1.8; }
+  h2 { margin-top: 2rem; margin-bottom: 1rem; }
+</style>

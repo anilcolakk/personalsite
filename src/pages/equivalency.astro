@@ -273,9 +273,9 @@ const universities = Object.entries(curriculaData.universities)
     const apiKey = localStorage.getItem('groq_api_key');
     if (!apiKey) {
        resultArea.innerHTML = `
-         <p style="color:var(--error-600)">No API Key found.</p>
+         <p style="color:var(--error-600)">No AI Key found.</p>
          <button class="btn-sm btn-outline" onclick="document.getElementById('ai-chat-trigger').click()">
-           Open Chat Settings to Add Key
+           Open Chat Settings to Set Free Groq Key
          </button>
        `;
        return;

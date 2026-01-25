@@ -223,58 +223,25 @@ const isTweet = !!actualTweetId;
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
   }
+    {isTweet && (
+      <div class="twitter-tweet-container" style="display: flex; justify-content: center;">
+        <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
+          <a href={`https://twitter.com/x/status/${actualTweetId}`}></a>
+        </blockquote>
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .twitter-embed {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    padding: 1rem;
+  }
+  /* Simple overrides */
+  :global(.twitter-tweet) { margin: 0 auto !important; }
 </style>
-
-<script is:inline>
-  // Robust Twitter Loader
-  window.twttr = (function(d, s, id) {
-    var js, fjs = d.getElementsByTagName(s)[0],
-      t = window.twttr || {};
-    if (d.getElementById(id)) return t;
-    js = d.createElement(s);
-    js.id = id;
-    js.src = "https://platform.twitter.com/widgets.js";
-    fjs.parentNode.insertBefore(js, fjs);
-
-    t._e = [];
-    t.ready = function(f) {
-      t._e.push(f);
-    };
-
-    return t;
-  }(document, "script", "twitter-wjs"));
-
-  function initTwitter() {
-    const placeholder = document.getElementById('twitter-placeholder');
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    
-    // Update theme attrs
-    document.querySelectorAll('.twitter-timeline, .twitter-tweet').forEach(el => {
-       el.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    });
-
-    if (window.twttr && window.twttr.widgets) {
-       window.twttr.widgets.load();
-       // Hide placeholder after slight delay
-       setTimeout(() => {
-          if(placeholder) placeholder.style.opacity = '0';
-          setTimeout(() => placeholder?.remove(), 500);
-       }, 2000); 
-    }
-  }
-
-  // Observers
-  const observer = new MutationObserver((mutations) => {
-     mutations.forEach(m => {
-        if (m.attributeName === 'data-theme') initTwitter();
-     });
-  });
-  observer.observe(document.documentElement, { attributes: true });
-
-  // Init
-  if (document.readyState === 'loading') {
-     document.addEventListener('DOMContentLoaded', initTwitter);
-  } else {
-     setTimeout(initTwitter, 500); // Slight delay for safety
-  }
-</script>

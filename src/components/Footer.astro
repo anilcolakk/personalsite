@@ -1,39 +1,88 @@
 ---
 const currentYear = new Date().getFullYear();
 
+// Get current lang from URL or prop
+const { lang = Astro.url.pathname.startsWith('/tr') ? 'tr' : 'en' } = Astro.props;
+
+const texts = {
+  en: {
+    desc: 'Study notes, exam solutions, and resources from my journey through Electrical and Electronics Engineering. Free for everyone.',
+    resources: 'Resources',
+    about: 'About',
+    legal: 'Legal',
+    submit: 'Submit Your Notes',
+    visitors: 'Global Visitors',
+    rights: 'All content shared freely.',
+    love: 'Made with ❤️ for fellow engineering students',
+    links: {
+      courses: 'All Courses',
+      archive: 'Course Archive',
+      tool: 'Equivalency Tool',
+      aboutMe: 'About Me',
+      blog: 'Blog',
+      contact: 'Contact',
+      privacy: 'Privacy Policy',
+      terms: 'Terms of Service'
+    }
+  },
+  tr: {
+    desc: 'Elektrik-Elektronik Mühendisliği yolculuğumdan ders notları, sınav çözümleri ve kaynaklar. Herkes için ücretsiz.',
+    resources: 'Kaynaklar',
+    about: 'Hakkımda',
+    legal: 'Yasal',
+    submit: 'Not Gönder',
+    visitors: 'Küresel Ziyaretçiler',
+    rights: 'Tüm notlar serbestçe paylaşılmıştır.',
+    love: 'Mühendis arkadaşlarıma ❤️ ile yapıldı',
+    links: {
+      courses: 'Tüm Dersler',
+      archive: 'Ders Arşivi',
+      tool: 'Eşdeğerlik Aracı',
+      aboutMe: 'Hakkımda',
+      blog: 'Blog',
+      contact: 'İletişim',
+      privacy: 'Gizlilik Politikası',
+      terms: 'Kullanım Şartları'
+    }
+  }
+};
+
+const t = texts[lang] || texts.en;
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+const isTr = lang === 'tr';
+const prefix = isTr ? '/tr' : '';
+
+const footerLinks = [
+  {
+    title: t.resources,
+    links: [
+      { name: t.links.courses, href: `${base}${prefix}/courses` },
+      { name: t.links.archive, href: `${base}${prefix}/courses` },
+      { name: t.links.tool, href: `${base}${prefix}/equivalency` },
+    ],
+  },
+  {
+    title: t.about,
+    links: [
+      { name: t.links.aboutMe, href: `${base}${prefix}/about` },
+      { name: t.links.blog, href: `${base}${prefix}/blog` }, // Assuming blog might not be localized yet, but link structure is safe
+      { name: t.links.contact, href: `${base}${prefix}/contact` },
+    ],
+  },
+  {
+    title: t.legal,
+    links: [
+      { name: t.links.privacy, href: `${base}/privacy` },
+      { name: t.links.terms, href: `${base}/terms` },
+    ],
+  },
+];
+
 const socialLinks = [
   { name: 'Twitter', href: '#', icon: 'twitter' },
   { name: 'LinkedIn', href: '#', icon: 'linkedin' },
   { name: 'GitHub', href: '#', icon: 'github' },
   { name: 'YouTube', href: '#', icon: 'youtube' },
-];
-
-const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
-
-const footerLinks = [
-  {
-    title: 'Resources',
-    links: [
-      { name: 'All Courses', href: `${base}/courses` },
-      { name: 'Course Archive', href: `${base}/courses` },
-      { name: 'Equivalency Tool', href: `${base}/equivalency` },
-    ],
-  },
-  {
-    title: 'About',
-    links: [
-      { name: 'About Me', href: `${base}/about` },
-      { name: 'Blog', href: `${base}/blog` },
-      { name: 'Contact', href: `${base}/contact` },
-    ],
-  },
-  {
-    title: 'Legal',
-    links: [
-      { name: 'Privacy Policy', href: `${base}/privacy` },
-      { name: 'Terms of Service', href: `${base}/terms` },
-    ],
-  },
 ];
 ---
 
@@ -41,12 +90,12 @@ const footerLinks = [
   <div class="container">
     <div class="footer-grid">
       <div class="footer-brand">
-        <a href={`${base}/`} class="footer-logo">
+        <a href={`${base}${prefix}/`} class="footer-logo">
           <span class="logo-icon">📚</span>
           <span class="logo-text">Anıl Çolak</span>
         </a>
         <p class="footer-description">
-          Study notes, exam solutions, and resources from my journey through Electrical and Electronics Engineering. Free for everyone.
+          {t.desc}
         </p>
         <div class="social-links">
           <a href="https://x.com/aaanilclk" class="social-link" aria-label="X (Twitter)" target="_blank">
@@ -81,21 +130,21 @@ const footerLinks = [
       ))}
 
       <div class="footer-map">
-        <h4 class="footer-links-title">Global Visitors</h4>
+        <h4 class="footer-links-title">{t.visitors}</h4>
         <div style="width: 100%; max-width: 250px;">
           <!-- RevolverMaps 3D Globe -->
           <script type="text/javascript" src="//rf.revolvermaps.com/0/0/6.js?i=5y3j6j5j5j5&amp;m=7&amp;c=e63100&amp;cr1=ffffff&amp;f=arial&amp;l=0&amp;bv=90&amp;lx=-420&amp;ly=420&amp;hi=20&amp;he=7&amp;hc=a8ddff&amp;rs=80" async="async"></script>
         </div>
         
         <a href="mailto:anil.colak@metu.edu.tr?subject=Notes%20Submission" class="btn-contribute">
-          <span>📤</span> Submit Your Notes
+          <span>📤</span> {t.submit}
         </a>
       </div>
     </div>
     
     <div class="footer-bottom">
-      <p class="copyright">© {currentYear} Anıl Çolak. All content shared freely.</p>
-      <p class="made-with">Made with ❤️ for fellow engineering students</p>
+      <p class="copyright">© {currentYear} Anıl Çolak. {t.rights}</p>
+      <p class="made-with">{t.love}</p>
     </div>
   </div>
 </footer>

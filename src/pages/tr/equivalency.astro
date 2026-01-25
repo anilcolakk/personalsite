@@ -1,45 +1,371 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
+import curriculaData from '../../data/curricula.json';
 
-const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+const universities = Object.entries(curriculaData.universities)
+  .filter(([key]) => key !== 'ODTU')
+  .map(([key, uni]) => ({
+    id: key, 
+    name: uni.name, 
+    shortName: uni.shortName || key,
+    courseCount: uni.courses.length,
+    logoColor: uni.color || 'var(--primary-600)' 
+  }));
 ---
 
-<BaseLayout title="Ders Eşleştirme" description="Ders karşılık bulucu aracı">
-  <section class="redirect-page">
-    <div class="container">
-      <div class="redirect-content">
-        <h1>🔄 Yönlendiriliyor...</h1>
-        <p>Ders Eşleştirme aracına yönlendiriliyorsunuz.</p>
-        <p class="hint">Otomatik yönlendirme çalışmazsa, <a href={`${base}/equivalency`}>buraya tıklayın</a>.</p>
+<BaseLayout title="Ders Eşleştirme" description="Yapay zeka ile ODTÜ EEE karşılıklarını bulun">
+  <section class="equivalency-page">
+    <div class="container-sm">
+      <div class="wizard-header">
+        <span class="wizard-badge">✨ Yapay Zeka Destekli</span>
+        <h1 class="wizard-title">Ders Karşılık Bulucu</h1>
+        <p class="wizard-subtitle">
+          Derslerinizin ODTÜ EEE karşılıklarını bulun. 
+          Başlamak için üniversitenizi seçin.
+        </p>
+      </div>
+      
+      <!-- Wizard Container -->
+      <div class="wizard-container">
+        
+        <!-- Step 1: University Selection -->
+        <div id="step-1" class="wizard-step active">
+          <div class="step-header">
+            <span class="step-number">01</span>
+            <h3>Üniversitenizi Seçin</h3>
+          </div>
+          
+          <div class="university-grid">
+            {universities.map((uni) => (
+              <button 
+                class="uni-card" 
+                data-uni-id={uni.id}
+                onclick={`selectUniversity('${uni.id}', '${uni.name}')`}
+              >
+                <div class="uni-avatar">{uni.shortName.substring(0, 2)}</div>
+                <div class="uni-info">
+                  <h4 class="uni-name">{uni.name}</h4>
+                  <span class="uni-meta">{uni.courseCount} Ders Mevcut</span>
+                </div>
+                <div class="uni-arrow">→</div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <!-- Step 2: Course Selection -->
+        <div id="step-2" class="wizard-step hidden">
+          <div class="step-header">
+             <button class="back-btn" onclick="prevStep(1)">← Geri</button>
+             <span class="step-number">02</span>
+             <h3><span id="selected-uni-name">...</span> Dersini Seçin</h3>
+          </div>
+
+          <div class="course-selection-box">
+            <div class="search-wrapper">
+              <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" id="course-search" class="course-search" placeholder="Ders kodu veya adı ara..." />
+            </div>
+            
+            <div id="course-list" class="course-list">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Analysis Result -->
+        <div id="step-3" class="wizard-step hidden">
+          <div class="step-header">
+             <button class="back-btn" onclick="prevStep(2)">← Geri</button>
+             <span class="step-number">03</span>
+             <h3>Eşdeğerlik Analizi</h3>
+          </div>
+
+          <div id="results-container">
+             <!-- Populated by JS -->
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
 </BaseLayout>
 
+<script is:inline>
+  // Simple state management
+  let state = {
+    uniId: null,
+    uniName: null,
+    courseCode: null,
+    courses: []
+  };
+
+  // Navigation
+  window.selectUniversity = (id, name) => {
+    state.uniId = id;
+    state.uniName = name;
+    document.getElementById('selected-uni-name').innerText = name;
+    
+    // Load courses for this uni
+    const uniData = window.CURRICULA_DATA.universities[id];
+    state.courses = uniData ? uniData.courses : [];
+    
+    renderCourses(state.courses);
+    goToStep(2);
+  };
+
+  window.prevStep = (targetStep) => {
+    goToStep(targetStep);
+  };
+
+  function goToStep(step) {
+    document.querySelectorAll('.wizard-step').forEach(el => el.classList.add('hidden'));
+    document.getElementById(`step-${step}`).classList.remove('hidden');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function renderCourses(courses) {
+    const list = document.getElementById('course-list');
+    list.innerHTML = courses.map(c => `
+      <button class="course-item" onclick="analyzeCourse('${c.code}')">
+        <span class="course-code">${c.code}</span>
+        <span class="course-name">${c.name}</span>
+        <span class="analyze-btn">Analiz Et →</span>
+      </button>
+    `).join('');
+  }
+
+  // Filter courses
+  document.getElementById('course-search')?.addEventListener('input', (e) => {
+    const term = e.target.value.toLowerCase();
+    const filtered = state.courses.filter(c => 
+      c.code.toLowerCase().includes(term) || 
+      c.name.toLowerCase().includes(term)
+    );
+    renderCourses(filtered);
+  });
+
+  window.analyzeCourse = (code) => {
+    state.courseCode = code;
+    const course = state.courses.find(c => c.code === code);
+    
+    // Perform Matching Logic (Frontend version of Matcher)
+    const match = findBestMatch(course);
+    renderResults(course, match);
+    goToStep(3);
+  };
+
+  function findBestMatch(sourceCourse) {
+     const metuCourses = window.CURRICULA_DATA.universities.ODTU.courses;
+     let bestMatch = null;
+     let maxScore = 0;
+
+     const sourceKeywords = [...(sourceCourse.topics || []), ...sourceCourse.name.split(' ')]
+        .map(k => k.toLowerCase().replace(/[^a-z0-9]/g, ''));
+
+     metuCourses.forEach(target => {
+        let score = 0;
+        const targetKeywords = [...(target.topics || []), ...target.name.split(' ')]
+          .map(k => k.toLowerCase().replace(/[^a-z0-9]/g, ''));
+        
+        sourceKeywords.forEach(sk => {
+           if (targetKeywords.some(tk => tk.includes(sk) || sk.includes(tk))) score += 10;
+        });
+
+        if (score > maxScore) {
+           maxScore = score;
+           bestMatch = target;
+        }
+     });
+
+     const matchPercent = Math.min(100, Math.round((maxScore / (sourceKeywords.length * 10)) * 100)) || 10;
+
+     return {
+        target: bestMatch,
+        score: matchPercent,
+        topics: bestMatch?.topics || []
+     };
+  }
+
+  function renderResults(source, match) {
+    const container = document.getElementById('results-container');
+    const { target, score } = match;
+    
+    if (!target) {
+      container.innerHTML = `<div class="p-4 text-center">Eşleşme bulunamadı.</div>`;
+      return;
+    }
+
+    const scoreColor = score > 80 ? '#10b981' : score > 50 ? '#f59e0b' : '#ef4444';
+
+    container.innerHTML = `
+      <div class="results-card">
+         <div class="match-summary">
+            <div class="course-pair">
+               <div class="c-node source">
+                  <span class="c-label">Dersiniz</span>
+                  <div class="c-val">${source.code}</div>
+               </div>
+               <div class="match-line">
+                  <span class="match-pill" style="background:${scoreColor}20; color:${scoreColor}">
+                    %${score} Eşleşme
+                  </span>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${scoreColor}" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+               </div>
+               <div class="c-node target">
+                  <span class="c-label">ODTÜ Karşılığı</span>
+                  <div class="c-val">${target.code}</div>
+               </div>
+            </div>
+            <h4 class="match-title">${target.name}</h4>
+         </div>
+
+         <div class="ai-actions">
+            <div class="ai-prompt-box">
+              <div class="ai-icon">🤖</div>
+              <div class="ai-text">
+                <strong>Nedenini öğrenmek ister misin?</strong>
+                <p>Müfredat farklarını Groq AI ile analiz et.</p>
+              </div>
+              <button class="btn-ai" onclick="runAIAnalysis('${source.code}', '${target.code}')">
+                Yapay Zeka ile Açıkla
+              </button>
+            </div>
+            <div id="ai-result-area" class="ai-result hidden">
+               Düşünüyorum...
+            </div>
+         </div>
+      </div>
+    `;
+  }
+
+  window.runAIAnalysis = async (sourceCode, targetCode) => {
+    const resultArea = document.getElementById('ai-result-area');
+    resultArea.classList.remove('hidden');
+    resultArea.innerHTML = '<div class="spinner-sm"></div> Müfredat analiz ediliyor...';
+
+    const apiKey = localStorage.getItem('groq_api_key');
+    if (!apiKey) {
+       resultArea.innerHTML = `
+         <p style="color:var(--error-600)">Yapay zeka anahtarı bulunamadı.</p>
+         <button class="btn-sm btn-outline" onclick="document.getElementById('ai-chat-trigger').click()">
+           Anahtar Eklemek İçin Sohbeti Aç
+         </button>
+       `;
+       return;
+    }
+
+    try {
+      const prompt = `Lütfen şu dersleri karşılaştır: "${sourceCode}" ve ODTÜ dersi "${targetCode}". 
+      Benzerlik ve farkları 3 maddede özetle. 
+      Kredi transferi için uygun mu? (Tahmini)`;
+      
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+           model: 'llama-3.3-70b-versatile',
+           messages: [{role: 'user', content: prompt}],
+           max_tokens: 300
+        })
+      });
+      
+      const data = await response.json();
+      const text = data.choices?.[0]?.message?.content || 'Analiz yapılamadı.';
+      resultArea.innerHTML = text.replace(/\n/g, '<br>');
+
+    } catch(err) {
+      resultArea.innerHTML = `Hata: ${err.message}`;
+    }
+  };
+</script>
+
+<script define:vars={{ curriculaData }}>
+  // Pass server-side data to client-side global
+  window.CURRICULA_DATA = curriculaData;
+</script>
+
 <style>
-  .redirect-page {
-    padding: var(--space-20) 0;
-    text-align: center;
-  }
-  .redirect-content h1 {
-    font-size: var(--text-3xl);
-    margin-bottom: var(--space-4);
-  }
-  .redirect-content p {
-    color: var(--text-secondary);
-    margin-bottom: var(--space-4);
-  }
-  .redirect-content .hint {
-    font-size: var(--text-sm);
-    color: var(--text-tertiary);
-  }
-  .redirect-content a {
-    color: var(--primary-600);
-    text-decoration: underline;
+  /* Base Layout & Typography */
+  .equivalency-page { padding: 4rem 0; font-family: var(--font-sans); }
+  .container-sm { max-width: 800px; margin: 0 auto; padding: 0 1rem; }
+  
+  .wizard-header { text-align: center; margin-bottom: 3rem; }
+  .wizard-badge { display: inline-block; background: linear-gradient(135deg, #a855f7, #6366f1); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem; }
+  .wizard-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-primary); }
+  .wizard-subtitle { color: var(--text-secondary); max-width: 500px; margin: 0 auto; font-size: 1.1rem; }
+
+  /* Wizard Steps */
+  .wizard-container { background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow-xl); overflow: hidden; min-height: 400px; }
+  .wizard-step { padding: 2rem; animation: fadeIn 0.3s ease; }
+  .hidden { display: none; }
+  
+  .step-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+  .step-number { font-size: 3rem; font-weight: 900; color: var(--bg-tertiary); line-height: 1; }
+  .step-header h3 { font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--text-primary); }
+  .back-btn { background: none; border: none; font-weight: 600; color: var(--text-tertiary); cursor: pointer; padding: 0; margin-right: auto; }
+  .back-btn:hover { color: var(--primary-600); }
+
+  /* Step 1: University Grid */
+  .university-grid { display: grid; gap: 1rem; }
+  .uni-card { display: flex; align-items: center; gap: 1rem; width: 100%; padding: 1.5rem; background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 16px; cursor: pointer; transition: all 0.2s; text-align: left; }
+  .uni-card:hover { border-color: var(--primary-500); transform: translateY(-2px); background: var(--primary-50); }
+  [data-theme="dark"] .uni-card:hover { background: rgba(59, 130, 246, 0.1); }
+  
+  .uni-avatar { width: 48px; height: 48px; background: var(--gradient-primary); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; flex-shrink: 0; }
+  .uni-info { flex: 1; }
+  .uni-name { font-size: 1.1rem; font-weight: 700; margin: 0 0 4px 0; color: var(--text-primary); }
+  .uni-meta { font-size: 0.85rem; color: var(--text-tertiary); }
+  .uni-arrow { font-size: 1.5rem; color: var(--text-tertiary); }
+
+  /* Step 2: Course List */
+  .search-wrapper { position: relative; margin-bottom: 1rem; }
+  .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-tertiary); }
+  .course-search { width: 100%; padding: 1rem 1rem 1rem 3rem; border-radius: 12px; border: 2px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 1rem; }
+  .course-search:focus { border-color: var(--primary-500); outline: none; }
+  
+  .course-list { max-height: 400px; overflow-y: auto; display: grid; gap: 0.5rem; padding-right: 0.5rem; }
+  .course-item { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 1rem; background: var(--bg-tertiary); border: 1px solid transparent; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+  .course-item:hover { background: var(--bg-primary); border-color: var(--primary-400); }
+  .course-code { font-family: monospace; font-weight: 700; color: var(--primary-600); background: rgba(37, 99, 235, 0.1); padding: 2px 6px; border-radius: 4px; margin-right: 1rem; }
+  .course-name { flex: 1; text-align: left; font-weight: 500; color: var(--text-primary); }
+  .analyze-btn { font-size: 0.85rem; font-weight: 600; color: var(--primary-600); }
+
+  /* Step 3: Results */
+  .results-card { background: var(--bg-primary); border-radius: 16px; padding: 2rem; text-align: center; }
+  .match-summary { margin-bottom: 2rem; }
+  .course-pair { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: 1rem; }
+  .c-node { text-align: center; }
+  .c-label { display: block; font-size: 0.75rem; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 4px; }
+  .c-val { font-size: 1.5rem; font-weight: 800; color: var(--text-primary); }
+  
+  .match-pill { display: block; font-size: 0.8rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 4px; }
+  .match-title { font-size: 1.25rem; font-weight: 600; color: var(--text-secondary); }
+
+  /* AI Section */
+  .ai-actions { background: linear-gradient(135deg, #f0f9ff, #e0f2fe); border-radius: 16px; padding: 1.5rem; border: 1px solid #bae6fd; }
+  [data-theme="dark"] .ai-actions { background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.2); }
+  
+  .ai-prompt-box { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; text-align: left; }
+  .ai-icon { font-size: 2rem; }
+  .ai-text { flex: 1; }
+  .ai-text strong { display: block; color: #0284c7; }
+  .ai-text p { margin: 0; font-size: 0.9rem; color: var(--text-secondary); }
+  
+  .btn-ai { background: #0284c7; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: transform 0.2s; }
+  .btn-ai:hover { background: #0369a1; transform: scale(1.05); }
+  
+  .ai-result { text-align: left; font-size: 0.95rem; line-height: 1.6; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.1); }
+  .spinner-sm { display: inline-block; width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin 1s infinite; margin-right: 8px; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  
+  @media (max-width: 640px) {
+    .course-pair { gap: 1rem; }
+    .c-val { font-size: 1.2rem; }
+    .ai-prompt-box { flex-direction: column; text-align: center; }
   }
 </style>
-
-<script define:vars={{ base }}>
-  // Redirect to English equivalency page
-  window.location.href = base + '/equivalency';
-</script>

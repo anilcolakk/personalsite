@@ -1,23 +1,40 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import CourseCard from '@components/CourseCard.astro';
-
 import { allCourses } from '../../../data/allCourses.js';
 
-const categories = ['Tümü', ...new Set(allCourses.map(c => c.category))];
+// Turkish Categories translation map
+const categoryMap = {
+  'Core': 'Temel',
+  'Mathematics': 'Matematik',
+  'Physics': 'Fizik',
+  'Circuits': 'Devreler',
+  'Electronics': 'Elektronik',
+  'Signals': 'Sinyaller',
+  'Digital Systems': 'Sayısal Sistemler',
+  'Fields': 'Alanlar',
+  'Power': 'Güç Sistemleri',
+  'Communications': 'Haberleşme',
+  'Control': 'Kontrol',
+  'Computer': 'Bilgisayar'
+};
+
+const categories = ['Tümü', ...new Set(allCourses.map(c => c.category).map(cat => categoryMap[cat] || cat))];
 const years = ['Tümü', 1, 2, 3, 4];
 ---
 
-<BaseLayout title="Ders Arşivi" description="Tüm ODTÜ EEE derslerini ve çalışma materyallerini keşfedin">
+<BaseLayout title="Ders Arşivi" description="ODTÜ EEE ders notlarını ve materyallerini inceleyin">
   <section class="courses-page">
     <div class="container">
+      <!-- Page Header -->
       <div class="page-header">
         <h1 class="page-title">Ders Arşivi</h1>
         <p class="page-description">
-          Derslere göre düzenlenmiş ders notları, sınav çözümleri ve çalışma materyallerinin kapsamlı koleksiyonumuzu keşfedin.
+          Ders notları, sınav çözümleri ve çalışma materyallerini derslere göre düzenlenmiş olarak keşfedin.
         </p>
       </div>
       
+      <!-- Search & Filters -->
       <div class="filters-section">
         <div class="search-box">
           <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -28,7 +45,7 @@ const years = ['Tümü', 1, 2, 3, 4];
             type="text" 
             id="search-input"
             class="search-input" 
-            placeholder="Ders adı veya kodu ile arayın..."
+            placeholder="Ders adı veya kodu ile ara..."
           />
         </div>
         
@@ -43,10 +60,10 @@ const years = ['Tümü', 1, 2, 3, 4];
           </div>
           
           <div class="filter-group">
-            <label class="filter-label">Yıl</label>
+            <label class="filter-label">Sınıf</label>
             <select id="year-filter" class="filter-select">
               {years.map((year) => (
-                <option value={year}>{year === 'Tümü' ? 'Tüm Yıllar' : `${year}. Yıl`}</option>
+                <option value={year}>{year === 'Tümü' ? 'Tüm Sınıflar' : `${year}. Sınıf`}</option>
               ))}
             </select>
           </div>
@@ -61,100 +78,242 @@ const years = ['Tümü', 1, 2, 3, 4];
         </div>
       </div>
       
+      <!-- Results Count -->
       <div class="results-info">
         <span id="results-count">{allCourses.length}</span> ders bulundu
       </div>
       
+      <!-- Courses Grid -->
       <div class="courses-grid" id="courses-grid">
         {allCourses.map((course) => (
           <div 
             class="course-item" 
-            data-category={course.category}
+            data-category={categoryMap[course.category] || course.category}
             data-year={course.year}
             data-name={course.name.toLowerCase()}
             data-code={course.code.toLowerCase()}
           >
-            <CourseCard {...course} isFree={true} />
+            <!-- Note: CourseCard itself needs localization ideally, but for now we render it. -->
+            <CourseCard {...course} />
           </div>
         ))}
+      </div>
+      
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <div class="empty-icon">📚</div>
+        <h3>Ders bulunamadı</h3>
+        <p>Filtreleri veya arama terimini değiştirmeyi deneyin</p>
+        <button id="clear-search" class="btn btn-secondary">Aramayı Temizle</button>
       </div>
     </div>
   </section>
 </BaseLayout>
 
 <style>
-  .courses-page { padding: var(--space-12) 0 var(--space-20); }
-  .page-header { text-align: center; margin-bottom: var(--space-10); }
-  .page-title { font-size: var(--text-4xl); font-weight: 800; margin-bottom: var(--space-4); }
-  .page-description { font-size: var(--text-lg); color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+  .courses-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
   
-  .filters-section { margin-bottom: var(--space-8); }
-  .search-box { position: relative; margin-bottom: var(--space-4); }
-  .search-icon { position: absolute; left: var(--space-4); top: 50%; transform: translateY(-50%); color: var(--text-tertiary); }
-  .search-input { width: 100%; padding: var(--space-4) var(--space-4) var(--space-4) var(--space-12); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); font-size: var(--text-base); }
-  .search-input:focus { outline: none; border-color: var(--primary-500); }
+  .page-header {
+    text-align: center;
+    margin-bottom: var(--space-10);
+  }
   
-  .filter-row { display: flex; gap: var(--space-4); align-items: end; }
-  .filter-group { display: flex; flex-direction: column; gap: var(--space-1); }
-  .filter-label { font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); }
-  .filter-select { padding: var(--space-3) var(--space-4); background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); font-size: var(--text-sm); min-width: 150px; }
+  .page-title {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    margin-bottom: var(--space-4);
+  }
   
-  .results-info { margin-bottom: var(--space-6); color: var(--text-secondary); }
+  .page-description {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+  }
   
-  .courses-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-6); }
-  .course-item.hidden { display: none; }
+  /* Filters */
+  .filters-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
   
-  @media (max-width: 1024px) { .courses-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 768px) { 
-    .courses-grid { grid-template-columns: 1fr; }
-    .filter-row { flex-direction: column; align-items: stretch; }
+  .search-box {
+    position: relative;
+    margin-bottom: var(--space-4);
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: var(--space-4) var(--space-4) var(--space-4) var(--space-12);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+  }
+  
+  .search-input:focus {
+    border-color: var(--primary-500);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--primary-100);
+  }
+  
+  [data-theme="dark"] .search-input:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+  
+  .filter-row {
+    display: flex;
+    gap: var(--space-4);
+    align-items: flex-end;
+  }
+  
+  .filter-group {
+    flex: 1;
+  }
+  
+  .filter-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+    color: var(--text-secondary);
+  }
+  
+  .filter-select {
+    width: 100%;
+    padding: var(--space-3);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    color: var(--text-primary);
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+  
+  .filter-select:focus {
+    border-color: var(--primary-500);
+    outline: none;
+  }
+  
+  .results-info {
+    margin-bottom: var(--space-6);
+    color: var(--text-tertiary);
+    font-size: var(--text-sm);
+  }
+  
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: var(--space-12);
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    border: 1px dashed var(--border-color);
+  }
+  
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-4);
+  }
+  
+  .empty-state h3 {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+  
+  .empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: var(--space-6);
+  }
+  
+  @media (max-width: 768px) {
+    .filter-row {
+      flex-direction: column;
+      align-items: stretch;
+    }
   }
 </style>
 
 <script>
-  const searchInput = document.getElementById('search-input') as HTMLInputElement;
-  const categoryFilter = document.getElementById('category-filter') as HTMLSelectElement;
-  const yearFilter = document.getElementById('year-filter') as HTMLSelectElement;
-  const resetBtn = document.getElementById('reset-filters');
-  const courseItems = document.querySelectorAll('.course-item');
-  const resultsCount = document.getElementById('results-count');
-  
-  function filterCourses() {
-    const search = searchInput.value.toLowerCase();
-    const category = categoryFilter.value;
-    const year = yearFilter.value;
-    let count = 0;
+  function initFilters() {
+    const searchInput = document.getElementById('search-input');
+    const categoryFilter = document.getElementById('category-filter');
+    const yearFilter = document.getElementById('year-filter');
+    const resetBtn = document.getElementById('reset-filters');
+    const clearBtn = document.getElementById('clear-search');
     
-    courseItems.forEach(item => {
-      const el = item as HTMLElement;
-      const name = el.dataset.name || '';
-      const code = el.dataset.code || '';
-      const itemCategory = el.dataset.category || '';
-      const itemYear = el.dataset.year || '';
+    if (!searchInput) return;
+    
+    const items = document.querySelectorAll('.course-item');
+    const resultsCount = document.getElementById('results-count');
+    const emptyState = document.getElementById('empty-state');
+    
+    function filterCourses() {
+      const searchTerm = searchInput.value.toLowerCase();
+      const category = categoryFilter.value;
+      const year = yearFilter.value;
       
-      const matchesSearch = name.includes(search) || code.includes(search);
-      const matchesCategory = category === 'Tümü' || itemCategory === category;
-      const matchesYear = year === 'Tümü' || itemYear === year;
+      let visibleCount = 0;
       
-      if (matchesSearch && matchesCategory && matchesYear) {
-        el.classList.remove('hidden');
-        count++;
-      } else {
-        el.classList.add('hidden');
-      }
+      items.forEach(item => {
+        const itemCategory = item.dataset.category;
+        const itemYear = item.dataset.year;
+        const itemName = item.dataset.name;
+        const itemCode = item.dataset.code;
+        
+        const matchesSearch = itemName.includes(searchTerm) || itemCode.includes(searchTerm);
+        const matchesCategory = category === 'Tümü' || itemCategory === category;
+        const matchesYear = year === 'Tümü' || itemYear === year;
+        
+        if (matchesSearch && matchesCategory && matchesYear) {
+          item.style.display = 'block';
+          visibleCount++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      
+      resultsCount.textContent = visibleCount;
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+    
+    if(searchInput) searchInput.addEventListener('input', filterCourses);
+    if(categoryFilter) categoryFilter.addEventListener('change', filterCourses);
+    if(yearFilter) yearFilter.addEventListener('change', filterCourses);
+    
+    if(resetBtn) resetBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      categoryFilter.value = 'Tümü';
+      yearFilter.value = 'Tümü';
+      filterCourses();
     });
     
-    if (resultsCount) resultsCount.textContent = String(count);
+    if(clearBtn) clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      filterCourses();
+    });
   }
   
-  searchInput?.addEventListener('input', filterCourses);
-  categoryFilter?.addEventListener('change', filterCourses);
-  yearFilter?.addEventListener('change', filterCourses);
-  
-  resetBtn?.addEventListener('click', () => {
-    searchInput.value = '';
-    categoryFilter.value = 'Tümü';
-    yearFilter.value = 'Tümü';
-    filterCourses();
-  });
+  document.addEventListener('DOMContentLoaded', initFilters);
+  document.addEventListener('astro:page-load', initFilters);
 </script>
