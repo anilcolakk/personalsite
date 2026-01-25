@@ -24,11 +24,18 @@ interface TwitterResponse {
 }
 
 export async function getPinnedTweet(username: string = 'aaanilclk'): Promise<string | null> {
-    const bearerToken = import.meta.env.TWITTER_BEARER_TOKEN;
+    let bearerToken = import.meta.env.TWITTER_BEARER_TOKEN;
 
     if (!bearerToken) {
         console.warn('Twitter Bearer Token not found in environment variables');
         return null;
+    }
+
+    // Decode URL-encoded token if necessary
+    try {
+        bearerToken = decodeURIComponent(bearerToken);
+    } catch (e) {
+        // Token wasn't URL-encoded, use as-is
     }
 
     try {
