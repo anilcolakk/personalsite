@@ -1,21 +1,46 @@
+import { getRelativeLocaleUrl } from 'astro:i18n';
+import { languages, defaultLang, ui } from '../i18n/utils';
+
 const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+const currentPath = Astro.url.pathname;
+const lang = currentPath.startsWith(`${base}/tr`) ? 'tr' : 'en';
+
+const t = ui[lang];
 
 const navigation = [
-  { name: 'Home', href: `${base}/` },
-  { name: 'Courses', href: `${base}/courses` },
-  { name: 'Equivalency Tool', href: `${base}/equivalency` },
-  { name: 'Blog', href: `${base}/blog` },
-  { name: 'About', href: `${base}/about` },
-  { name: 'Contact', href: `${base}/contact` },
+  { name: t['nav.home'], href: lang === 'en' ? `${base}/` : `${base}/tr/` },
+  { name: t['nav.courses'], href: lang === 'en' ? `${base}/courses` : `${base}/tr/courses` },
+  { name: t['nav.equivalency'], href: lang === 'en' ? `${base}/equivalency` : `${base}/tr/equivalency` },
+  { name: t['nav.blog'], href: lang === 'en' ? `${base}/blog` : `${base}/tr/blog` },
+  { name: t['nav.about'], href: lang === 'en' ? `${base}/about` : `${base}/tr/about` },
+  { name: t['nav.contact'], href: lang === 'en' ? `${base}/contact` : `${base}/tr/contact` },
 ];
 
-const currentPath = Astro.url.pathname;
+function getLangUrl(currentPath: string, targetLang: 'en' | 'tr') {
+  // Remove base if present to normalize
+  let path = currentPath;
+  if (base && path.startsWith(base)) {
+    path = path.substring(base.length);
+  }
+  
+  if (targetLang === 'tr') {
+    if (path.startsWith('/tr')) return `${base}${path}`;
+    return `${base}/tr${path === '/' ? '' : path}`;
+  } else {
+    if (path.startsWith('/tr')) return `${base}${path.substring(3) || '/'}`;
+    return `${base}${path}`;
+  }
+}
+
+const toggleLang = lang === 'en' ? 'tr' : 'en';
+const toggleUrl = getLangUrl(currentPath, toggleLang);
+
 ---
 
 <header class="header">
   <div class="container">
     <nav class="nav">
-      <a href="/" class="logo">
+      <a href={lang === 'en' ? `${base}/` : `${base}/tr/`} class="logo">
         <span class="logo-icon">⚡</span>
         <span class="logo-text">METU<span class="logo-accent">EE</span></span>
       </a>
@@ -25,7 +50,7 @@ const currentPath = Astro.url.pathname;
           <li>
             <a 
               href={item.href} 
-              class:list={['nav-link', { active: currentPath === item.href || (item.href !== '/' && currentPath.startsWith(item.href)) }]}
+              class:list={['nav-link', { active: currentPath === item.href || (item.href !== `${base}/` && item.href !== `${base}/tr/` && currentPath.startsWith(item.href)) }]}
             >
               {item.name}
             </a>
@@ -34,12 +59,17 @@ const currentPath = Astro.url.pathname;
       </ul>
       
       <div class="nav-actions">
+        <!-- Language Switcher -->
+        <a href={toggleUrl} class="lang-toggle" aria-label={`Switch to ${languages[toggleLang]}`}>
+          <span class="lang-text">{toggleLang.toUpperCase()}</span>
+        </a>
+
         <button id="search-trigger" class="search-trigger" aria-label="Search (Ctrl+K)">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
           </svg>
-          <span class="search-trigger__text">Search</span>
+          <span class="search-trigger__text">{t['nav.search']}</span>
           <kbd class="search-trigger__kbd">⌘K</kbd>
         </button>
         
@@ -159,6 +189,33 @@ const currentPath = Astro.url.pathname;
     display: flex;
     align-items: center;
     gap: var(--space-2);
+  }
+
+  .lang-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-2);
+    border-radius: var(--radius-lg);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    transition: all 0.2s;
+    text-decoration: none;
+    min-width: 40px;
+  }
+
+  .lang-toggle:hover {
+    border-color: var(--primary-400);
+    color: var(--primary-600);
+    background: var(--primary-50);
+  }
+
+  [data-theme="dark"] .lang-toggle:hover {
+    color: var(--primary-400);
+    background: rgba(59, 130, 246, 0.15);
   }
   
   .search-trigger {

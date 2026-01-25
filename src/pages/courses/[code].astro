@@ -1,0 +1,182 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import NoteCard from '@components/NoteCard.astro';
+import { getCollection } from 'astro:content';
+import { allCourses } from '../../data/allCourses.js';
+
+export async function getStaticPaths() {
+  return allCourses.map(course => ({
+    params: { code: course.code.toLowerCase() },
+    props: { course },
+  }));
+}
+
+const { course } = Astro.props;
+
+// Fetch ALL notes instead of specific collection filter first
+// to debug what content is actually available if needed
+const allNotes = await getCollection('notes');
+
+// Filter notes for this course
+const courseNotes = allNotes.filter(note => 
+  note.data.courseCode.toLowerCase() === course.code.toLowerCase()
+);
+
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<BaseLayout title={`${course.code} - ${course.name}`} description={course.description}>
+  <div class="course-detail-page">
+    <div class="container">
+      <div class="back-link">
+        <a href={`${base}/courses`} class="btn btn-ghost btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Courses
+        </a>
+      </div>
+
+      <header class="course-header">
+        <div class="header-badges">
+          <span class="badge badge-year">Year {course.year}</span>
+          <span class="badge badge-cat">{course.category}</span>
+        </div>
+        <h1 class="course-title">
+          <span class="code">{course.code}:</span> {course.name}
+        </h1>
+        <p class="course-description">{course.description}</p>
+      </header>
+
+      <section class="resources-section">
+        <h2 class="section-title">Lecture Notes & Resources</h2>
+        
+        {courseNotes.length > 0 ? (
+          <div class="notes-grid">
+            {courseNotes.map(note => (
+              <NoteCard
+                title={note.data.title}
+                description={note.data.description}
+                courseCode={note.data.courseCode}
+                courseName={note.data.courseName}
+                topic={note.data.topic}
+                year={note.data.year}
+                isPaid={note.data.isPaid}
+                slug={note.slug}
+                featured={note.data.featured}
+              />
+            ))}
+          </div>
+        ) : (
+          <div class="empty-state">
+            <div class="empty-icon">📂</div>
+            <h3>No resources yet</h3>
+            <p>We're working on adding notes for this course. Check back soon!</p>
+          </div>
+        )}
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .course-detail-page {
+    padding: var(--space-8) 0 var(--space-20);
+  }
+
+  .back-link {
+    margin-bottom: var(--space-8);
+  }
+
+  .course-header {
+    margin-bottom: var(--space-12);
+    padding-bottom: var(--space-8);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .header-badges {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .badge {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 600;
+  }
+
+  .badge-year {
+    background: var(--primary-100);
+    color: var(--primary-700);
+  }
+
+  .badge-cat {
+    background: var(--neutral-100);
+    color: var(--neutral-700);
+  }
+  
+  [data-theme="dark"] .badge-year {
+    background: rgba(59, 130, 246, 0.2);
+    color: var(--primary-400);
+  }
+  
+  [data-theme="dark"] .badge-cat {
+    background: var(--neutral-800);
+    color: var(--neutral-400);
+  }
+
+  .course-title {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    margin-bottom: var(--space-4);
+    color: var(--text-primary);
+  }
+
+  .code {
+    color: var(--primary-600);
+  }
+
+  .course-description {
+    font-size: var(--text-xl);
+    color: var(--text-secondary);
+    max-width: 800px;
+  }
+
+  .section-title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    margin-bottom: var(--space-8);
+  }
+
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: var(--space-16);
+    background: var(--bg-card);
+    border-radius: var(--radius-xl);
+    border: 2px dashed var(--border-color);
+  }
+
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-4);
+  }
+
+  h3 {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+
+  p {
+    color: var(--text-secondary);
+  }
+</style>
