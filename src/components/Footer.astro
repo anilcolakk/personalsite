@@ -65,6 +65,11 @@ const footerLinks = [
             </svg>
           </a>
         </div>
+        </div>
+        
+        <a href="https://forms.google.com/your-form-link" target="_blank" class="btn-contribute">
+          <span>📤</span> Submit Your Notes
+        </a>
       </div>
       
       {footerLinks.map((group) => (
@@ -78,7 +83,15 @@ const footerLinks = [
             ))}
           </ul>
         </div>
+        </div>
       ))}
+      
+      <div class="footer-map">
+        <h4 class="footer-links-title">Global Visitors</h4>
+        <div style="width: 100%; max-width: 250px;">
+          <script type="text/javascript" src="//rf.revolvermaps.com/0/0/6.js?i=5y3j6j5j5j5&amp;m=7&amp;c=e63100&amp;cr1=ffffff&amp;f=arial&amp;l=0&amp;bv=90&amp;lx=-420&amp;ly=420&amp;hi=20&amp;he=7&amp;hc=a8ddff&amp;rs=80" async="async"></script>
+        </div>
+      </div>
     </div>
     
     <div class="footer-bottom">
@@ -98,6 +111,47 @@ const footerLinks = [
   
   .footer-grid {
     display: grid;
+    grid-template-columns: 2fr repeat(2, 1fr) 1.5fr;
+    gap: var(--space-8);
+    margin-bottom: var(--space-12);
+  }
+
+  .btn-contribute {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 8px 16px;
+    background: var(--primary-600);
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: transform 0.2s;
+  }
+  
+  .btn-contribute:hover {
+    transform: translateY(-2px);
+    background: var(--primary-700);
+  }
+  
+  .footer-map {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  @media (max-width: 1024px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .footer-map {
+      grid-column: span 2;
+      align-items: flex-start;
+      margin-top: 2rem;
+    }
+  }
     grid-template-columns: 2fr 1fr 1fr 1fr;
     gap: var(--space-12);
     margin-bottom: var(--space-12);

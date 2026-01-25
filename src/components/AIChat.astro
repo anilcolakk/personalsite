@@ -367,34 +367,50 @@ const t = texts[lang];
   const widget = document.getElementById('ai-chat-widget');
   const lang = widget?.dataset.lang || 'en';
   
+  // Available notes for context
+  const siteNotes = [
+     { code: 'EE202', name: 'Circuit Analysis', desc: 'DC/AC circuits, nodal/mesh analysis' },
+     { code: 'EE301', name: 'Electronics I', desc: 'Diodes, BJTs, MOSFETs' },
+     { code: 'EE361', name: 'Signals & Systems', desc: 'Fourier, Laplace, Z-transform' },
+     { code: 'EE402', name: 'Discrete Time Systems', desc: 'DSP fundamentals' }
+  ];
+
   const texts = {
     en: {
       thinking: 'Thinking...',
       error: 'Error. Check your API key or try again.',
       noKey: 'Please add your free Groq API key first. Get one at console.groq.com',
       saved: 'API key saved! AI is ready.',
-      systemPrompt: `You are a helpful AI tutor for Electrical & Electronics Engineering students. You help with:
-- Circuit Analysis (Ohm's Law, Kirchhoff, Thévenin, Norton)
-- Electronics (diodes, transistors, op-amps)
-- Signals & Systems (Fourier, Laplace, convolution)
-- Math for Engineers
-- Study tips and exam preparation
+      systemPrompt: `You are a helpful AI tutor for Electrical & Electronics Engineering students. 
+You have access to the following study notes on this website:
+${siteNotes.map(n => `- ${n.code} (${n.name}): ${n.desc}`).join('\n')}
 
-Be concise, clear, and educational. Use formulas when helpful. Keep responses under 150 words unless complex derivation is needed.`
+When a user asks about a topic covered in these notes, explicitly recommend checking the "${n.code}" notes on this site.
+Otherwise, help them with:
+- Circuit Analysis
+- Electronics
+- Signals & Systems
+- Study tips
+
+Be concise. Use formulas when helpful.`
     },
     tr: {
       thinking: 'Düşünüyorum...',
       error: 'Hata. API anahtarını kontrol et veya tekrar dene.',
       noKey: 'Lütfen önce ücretsiz Groq API anahtarını ekle. console.groq.com adresinden al.',
       saved: 'API anahtarı kaydedildi! Yapay zeka hazır.',
-      systemPrompt: `Sen Elektrik-Elektronik Mühendisliği öğrencileri için yardımcı bir yapay zeka öğretmenisin. Şunlarda yardım ediyorsun:
-- Devre Analizi (Ohm Yasası, Kirchhoff, Thévenin, Norton)
-- Elektronik (diyotlar, transistörler, op-amp'ler)
-- Sinyaller ve Sistemler (Fourier, Laplace, konvolüsyon)
-- Mühendislik Matematiği
-- Çalışma ipuçları ve sınav hazırlığı
+      systemPrompt: `Sen Elektrik-Elektronik Mühendisliği öğrencileri için yardımcı bir yapay zeka öğretmenisin.
+Bu sitede aşağıdaki ders notları bulunmaktadır:
+${siteNotes.map(n => `- ${n.code} (${n.name}): ${n.desc}`).join('\n')}
 
-Kısa, net ve eğitici ol. Gerektiğinde formül kullan. Karmaşık türetmeler haricinde 150 kelimeden kısa tut.`
+Kullanıcı bu konulardan birini sorarsa, mutlaka bu sitedeki "${n.code}" notlarına bakmasını öner.
+Bunun dışında şunlarda yardım et:
+- Devre Analizi
+- Elektronik
+- Sinyaller ve Sistemler
+- Çalışma ipuçları
+
+Kısa ve net ol.`
     }
   };
   
