@@ -3,6 +3,7 @@
 ## 1. Prerequisites
 - A GitHub account.
 - The project is pushed to a GitHub repository.
+- **IMPORTANT**: Your repository must be **PUBLIC** if you are on a free GitHub plan. GitHub Pages for private repositories requires a paid GitHub Pro subscription.
 
 ## 2. Configuration Check
 Your project is already configured for GitHub Pages!
@@ -23,7 +24,10 @@ git push origin main
 1. Go to your repository on GitHub.
 2. Click on **Settings** > **Pages** (in the sidebar).
 3. Under **Build and deployment**:
-   - Source: Select **GitHub Actions** (This is crucial! Do not select "Deploy from a branch").
+   - Source: Ensure **GitHub Actions** is selected. Use the dropdown to select it if it's not.
+   - **Do NOT** click "Configure" on the suggested workflows (Static HTML or Jekyll).
+   - Since we already have a custom workflow (`.github/workflows/deploy.yml`), GitHub will automatically detect it once you push your code.
+
 4. The deployment workflow (`deploy.yml`) will automatically trigger when you push to `main`.
 
 ### Step 3: Verify Deployment

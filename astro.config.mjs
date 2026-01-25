@@ -2,8 +2,8 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-    site: 'https://aaanilclk.github.io', // Updated based on your username
-    base: '/',
+    site: 'https://anilcolakk.github.io',
+    base: '/personalsite',
     integrations: [sitemap()],
     output: 'static',
     build: {

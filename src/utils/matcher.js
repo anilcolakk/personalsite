@@ -3,7 +3,7 @@
  * Uses keyword-based similarity and Jaccard index for course equivalency matching
  */
 
-class CourseMatcher {
+export class CourseMatcher {
     constructor(curricula) {
         this.curricula = curricula;
         this.odtuCourses = curricula.universities.ODTU.courses;
@@ -162,37 +162,4 @@ class CourseMatcher {
             year: c.year
         }));
     }
-
-    /**
-     * Search across all universities for similar courses
-     */
-    searchByKeywords(keywords) {
-        const searchTerms = new Set(this.normalize(keywords));
-        const results = [];
-
-        Object.entries(this.curricula.universities).forEach(([uniId, uni]) => {
-            uni.courses.forEach(course => {
-                const courseKeywords = this.extractKeywords(course);
-                const overlap = this.jaccardSimilarity(searchTerms, courseKeywords);
-
-                if (overlap > 0.1) {
-                    results.push({
-                        university: uni.shortName,
-                        universityId: uniId,
-                        code: course.code,
-                        name: course.name,
-                        relevance: overlap
-                    });
-                }
-            });
-        });
-
-        results.sort((a, b) => b.relevance - a.relevance);
-        return results.slice(0, 10);
-    }
-}
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = CourseMatcher;
 }
