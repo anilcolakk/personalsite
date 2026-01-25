@@ -31,20 +31,9 @@ const { title = "Global Visitors" } = Astro.props;
   </div>
 
   <div class="map-container">
-    <div class="map-placeholder">
-      <!-- 
-        Replace this placeholder with the embed code from your preferred visitor map provider.
-        Examples: ClustrMaps, Map My Visitors, RevolverMaps
-      -->
-      <div class="placeholder-content">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="2" y1="12" x2="22" y2="12"></line>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
-        </svg>
-        <p>Visitor Map Widget</p>
-        <span class="instruction">Add embed code here</span>
-      </div>
+    <!-- RevolverMaps 3D Globe Embed -->
+    <div style="width: 100%; height: 100%; overflow: hidden; border-radius: inherit;">
+      <script type="text/javascript" src="//rf.revolvermaps.com/0/0/8.js?i=5y3x4w0z1a2&amp;m=0&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=33&amp;bv=0" async="async"></script>
     </div>
   </div>
 </div>

@@ -126,26 +126,36 @@ const toggleUrl = getLangUrl(currentPath, toggleLang);
   }
   
   [data-theme="dark"] .nav-link {
-    color: #ffffff !important;
+    color: #94a3b8 !important; /* Muted text for inactive */
   }
   
   [data-theme="dark"] .nav-link:hover {
-    background: #334155;
-    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.1);
+    color: #f8fafc !important; /* Bright white for active/hover */
   }
   
   [data-theme="dark"] .logo {
-    color: #ffffff !important;
+    color: #f8fafc !important;
   }
   
   [data-theme="dark"] .lang-toggle {
-    color: #ffffff !important;
-    border-color: #475569;
+    color: #94a3b8 !important;
+    border-color: #334155;
+  }
+  
+  [data-theme="dark"] .lang-toggle:hover {
+    color: #f8fafc !important;
+    border-color: #94a3b8;
   }
   
   [data-theme="dark"] .search-trigger {
-    color: #e2e8f0;
-    border-color: #475569;
+    color: #94a3b8;
+    border-color: #334155;
+  }
+  
+  [data-theme="dark"] .search-trigger:hover {
+    color: #f8fafc;
+    border-color: #94a3b8;
   }
   
   [data-theme="dark"] .theme-toggle {
