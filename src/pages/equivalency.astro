@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import curriculaData from '../data/curricula.json';
-import NoteSubmissionForm from '../components/NoteSubmissionForm.astro';
 
 const universities = Object.entries(curriculaData.universities)
   .filter(([key]) => key !== 'ODTU')
@@ -116,7 +115,6 @@ const universities = Object.entries(curriculaData.universities)
       </div>
     </div>
   </div>
-  <NoteSubmissionForm />
 </BaseLayout>
 
 <script define:vars={{ curriculaData }}>

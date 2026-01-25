@@ -21,11 +21,11 @@ const { course } = Astro.url.searchParams;
           <div class="form-grid">
             <!-- Course Selection -->
             <div class="form-group">
-              <label for="course">Course Code *</label>
+              <label for="course_code">Course Code *</label>
               <input 
                 type="text" 
-                id="course" 
-                name="course" 
+                id="course_code" 
+                name="course_code" 
                 placeholder="e.g., EE201" 
                 value={course || ''}
                 required 
@@ -49,8 +49,8 @@ const { course } = Astro.url.searchParams;
 
             <!-- Material Type -->
             <div class="form-group">
-              <label for="type">Material Type *</label>
-              <select id="type" name="type" required>
+              <label for="resource_type">Material Type *</label>
+              <select id="resource_type" name="resource_type" required>
                 <option value="Lecture Notes">Lecture Notes</option>
                 <option value="Exam Solutions">Exam Solutions</option>
                 <option value="PEQ">PEQ (Problem Set)</option>
@@ -65,16 +65,16 @@ const { course } = Astro.url.searchParams;
               <input type="text" id="topic" name="topic" placeholder="e.g., Op-Amp Circuits" required />
             </div>
 
-            <!-- User Email -->
+            <!-- User Name (Sync with from_name) -->
             <div class="form-group full-width">
-              <label for="email">Your Email (for credit) *</label>
-              <input type="email" id="email" name="email" placeholder="student@metu.edu.tr" required />
+              <label for="from_name">Your Name (for credit) *</label>
+              <input type="text" id="from_name" name="from_name" placeholder="John Doe" required />
             </div>
 
             <!-- Resource Link -->
             <div class="form-group full-width">
-              <label for="link">Resource Link (Google Drive / DropBox) *</label>
-              <input type="url" id="link" name="link" placeholder="https://drive.google.com/..." required />
+              <label for="resource_link">Resource Link (Google Drive / DropBox) *</label>
+              <input type="url" id="resource_link" name="resource_link" placeholder="https://drive.google.com/..." required />
               <p class="form-hint">Please make sure the link is accessible (Public or 'Anyone with link').</p>
             </div>
 

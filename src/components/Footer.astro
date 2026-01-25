@@ -136,9 +136,9 @@ const socialLinks = [
           <script type="text/javascript" id="mapmyvisitors-footer" src="//mapmyvisitors.com/map.js?d=JX3j1mu0S9P78iEO4g4stA6NDAXMFydVGv7oMBjB4Z0&cl=ffffff&w=a"></script>
         </div>
         
-        <a href="mailto:anil.colak@metu.edu.tr?subject=Notes%20Submission" class="btn-contribute">
+        <button onclick="window.openSubmissionModal()" class="btn-contribute">
           <span>📤</span> {t.submit}
-        </a>
+        </button>
       </div>
     </div>
     
@@ -283,6 +283,8 @@ const socialLinks = [
     font-weight: 600;
     font-size: 0.9rem;
     text-decoration: none;
+    border: none;
+    cursor: pointer;
     transition: transform 0.2s;
   }
   

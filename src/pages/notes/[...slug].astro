@@ -4,9 +4,6 @@
  * Dynamic route for viewing individual notes
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
-import BaseLayout from '@layouts/BaseLayout.astro';
-import LockedContent from '@components/LockedContent.astro';
-import NoteSubmissionForm from '@components/NoteSubmissionForm.astro';
 
 import { getCollection, type CollectionEntry } from 'astro:content';
 
@@ -181,8 +178,7 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
     </div>
   </article>
 
-  <!-- Submission Modal -->
-  <NoteSubmissionForm courseCode={note.data.courseCode} />
+  <!-- Submission Modal handled by BaseLayout -->
 </BaseLayout>
 
 <script>
