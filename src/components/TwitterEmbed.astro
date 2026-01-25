@@ -9,6 +9,8 @@ interface Props {
   username?: string;
   /** Tweet ID for single tweet embed */
   tweetId?: string;
+  /** Also supports 'id' for compatibility */
+  id?: string;
   /** Number of tweets to show in timeline (1-20) */
   limit?: number;
   /** Title for the section */
@@ -25,8 +27,6 @@ const {
 
 // Support both tweetId and id props
 const actualTweetId = tweetId || id;
-
-// Determine embed type
 const isTimeline = !actualTweetId && username;
 const isTweet = !!actualTweetId;
 ---
@@ -101,65 +101,65 @@ const isTweet = !!actualTweetId;
   }
 
   .twitter-embed:hover {
-    border-color: var(--border-color-hover);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-200);
+  }
+
+  [data-theme="dark"] .twitter-embed:hover {
+    border-color: var(--primary-800);
   }
 
   .twitter-embed__header {
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-4) var(--space-5);
+    padding: var(--space-4);
+    background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
-    background: var(--bg-tertiary);
   }
 
   .twitter-embed__icon {
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    background: var(--neutral-900);
+    background: var(--text-primary);
+    color: var(--bg-primary);
     border-radius: var(--radius-lg);
-    color: white;
   }
 
   [data-theme="dark"] .twitter-embed__icon {
-    background: var(--neutral-100);
-    color: var(--neutral-900);
+    background: white;
+    color: black;
   }
 
   .twitter-embed__title {
     flex: 1;
     font-size: var(--text-lg);
     font-weight: 700;
-    color: var(--text-primary);
     margin: 0;
   }
 
   .twitter-embed__follow {
-    padding: var(--space-2) var(--space-4);
-    background: var(--neutral-900);
-    color: white;
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     font-weight: 600;
+    padding: 6px 12px;
+    background: var(--text-primary);
+    color: var(--bg-primary);
     border-radius: var(--radius-full);
+    text-decoration: none;
     transition: all var(--transition-fast);
   }
 
   .twitter-embed__follow:hover {
-    background: var(--neutral-700);
+    opacity: 0.9;
     transform: translateY(-1px);
   }
 
   [data-theme="dark"] .twitter-embed__follow {
-    background: var(--neutral-100);
-    color: var(--neutral-900);
-  }
-
-  [data-theme="dark"] .twitter-embed__follow:hover {
-    background: var(--neutral-200);
+    background: white;
+    color: black;
   }
 
   .twitter-embed__content {
@@ -167,20 +167,25 @@ const isTweet = !!actualTweetId;
     min-height: 200px;
     max-height: 500px;
     overflow-y: auto;
+    position: relative;
   }
 
   .twitter-embed__placeholder {
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: var(--space-4);
+    background: var(--bg-card);
+    z-index: 1;
   }
 
-  .twitter-embed__content:has(.twitter-timeline-rendered) .twitter-embed__placeholder,
-  .twitter-embed__content:has(.twitter-tweet-rendered) .twitter-embed__placeholder {
-    display: none;
-  }
-
-  /* Tweet skeleton loader */
+  /* When content is loaded, hide placeholder via JS */
+  
   .tweet-skeleton {
     display: flex;
     gap: var(--space-3);
@@ -211,88 +216,65 @@ const isTweet = !!actualTweetId;
     border-radius: var(--radius-sm);
   }
 
-  .tweet-skeleton__line--short {
-    width: 40%;
-  }
-
-  .tweet-skeleton__line--medium {
-    width: 70%;
-  }
+  .tweet-skeleton__line--short { width: 40%; }
+  .tweet-skeleton__line--medium { width: 70%; }
 
   @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
   }
-
-  /* Twitter widget style overrides */
-  :global(.twitter-timeline),
-  :global(.twitter-tweet) {
-    margin: 0 !important;
-  }
-
-  :global(.twitter-tweet iframe) {
-    border-radius: var(--radius-lg) !important;
-  }
 </style>
 
-<script>
-  // Load Twitter widget script with better reliability
-  const loadTwitterWidget = () => {
-    // If widget is already loaded, just render
-    if ((window as any).twttr?.widgets) {
-      updateTwitterTheme();
-      (window as any).twttr.widgets.load();
-      return;
-    }
+<script is:inline>
+  // Robust Twitter Loader
+  window.twttr = (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0],
+      t = window.twttr || {};
+    if (d.getElementById(id)) return t;
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "https://platform.twitter.com/widgets.js";
+    fjs.parentNode.insertBefore(js, fjs);
 
-    if (document.getElementById('twitter-wjs')) return;
-    
-    const script = document.createElement('script');
-    script.id = 'twitter-wjs';
-    script.src = 'https://platform.twitter.com/widgets.js';
-    script.async = true;
-    script.charset = 'utf-8';
-    
-    script.onload = () => {
-      // Update theme based on current site theme
-      updateTwitterTheme();
+    t._e = [];
+    t.ready = function(f) {
+      t._e.push(f);
     };
-    
-    document.body.appendChild(script);
-  };
 
-  // Update Twitter embed theme to match site theme
-  const updateTwitterTheme = () => {
+    return t;
+  }(document, "script", "twitter-wjs"));
+
+  function initTwitter() {
+    const placeholder = document.getElementById('twitter-placeholder');
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const theme = isDark ? 'dark' : 'light';
     
-    const timeline = document.querySelector('.twitter-timeline');
-    const tweet = document.querySelector('.twitter-tweet');
-    
-    if (timeline) timeline.setAttribute('data-theme', theme);
-    if (tweet) tweet.setAttribute('data-theme', theme);
-    
-    // Force re-render if widgets exist
-    if ((window as any).twttr?.widgets) {
-      // Small timeout to ensure DOM is ready
-      setTimeout(() => {
-        (window as any).twttr.widgets.load();
-      }, 100);
-    }
-  };
-
-  // Listen for theme changes
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'data-theme') {
-        updateTwitterTheme();
-      }
+    // Update theme attrs
+    document.querySelectorAll('.twitter-timeline, .twitter-tweet').forEach(el => {
+       el.setAttribute('data-theme', isDark ? 'dark' : 'light');
     });
-  });
 
+    if (window.twttr && window.twttr.widgets) {
+       window.twttr.widgets.load();
+       // Hide placeholder after slight delay
+       setTimeout(() => {
+          if(placeholder) placeholder.style.opacity = '0';
+          setTimeout(() => placeholder?.remove(), 500);
+       }, 2000); 
+    }
+  }
+
+  // Observers
+  const observer = new MutationObserver((mutations) => {
+     mutations.forEach(m => {
+        if (m.attributeName === 'data-theme') initTwitter();
+     });
+  });
   observer.observe(document.documentElement, { attributes: true });
 
-  // Initialize immediately and after a short delay to handle race conditions
-  loadTwitterWidget();
-  setTimeout(loadTwitterWidget, 1000);
+  // Init
+  if (document.readyState === 'loading') {
+     document.addEventListener('DOMContentLoaded', initTwitter);
+  } else {
+     setTimeout(initTwitter, 500); // Slight delay for safety
+  }
 </script>

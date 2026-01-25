@@ -148,205 +148,226 @@ const t = texts[lang];
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
     flex-direction: column;
     overflow: hidden;
+    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
-  .ai-chat-panel.open { display: flex; }
-  
+
   [data-theme="dark"] .ai-chat-panel {
     background: #1e293b;
     border-color: #334155;
   }
   
-  .chat-header {
+  .ai-chat-panel.open {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 16px;
-    border-bottom: 1px solid var(--border-color, #e5e7eb);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
   }
   
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .chat-header {
+    padding: 16px;
+    background: var(--bg-secondary, #f8fafc);
+    border-bottom: 1px solid var(--border-color, #e5e7eb);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
   [data-theme="dark"] .chat-header {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.1));
+    background: #0f172a;
     border-color: #334155;
   }
   
-  .chat-title { display: flex; align-items: center; gap: 12px; }
-  .chat-avatar { font-size: 28px; }
+  .chat-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .chat-avatar {
+    font-size: 24px;
+    background: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
   
   .chat-title h4 {
     margin: 0;
     font-size: 16px;
     font-weight: 700;
-    color: var(--text-primary, #111);
+    color: var(--text-primary, #0f172a);
   }
-  
-  [data-theme="dark"] .chat-title h4 { color: #ffffff; }
+
+  [data-theme="dark"] .chat-title h4 { color: #f8fafc; }
   
   .chat-subtitle {
-    font-size: 11px;
-    color: #10b981;
-    font-weight: 500;
+    font-size: 12px;
+    color: var(--text-tertiary, #64748b);
   }
   
   .chat-close {
     background: none;
     border: none;
-    padding: 8px;
     cursor: pointer;
-    color: var(--text-tertiary, #6b7280);
-    border-radius: 8px;
+    color: var(--text-tertiary, #94a3b8);
+    padding: 4px;
   }
   
-  .chat-close:hover { background: var(--bg-tertiary, #f3f4f6); }
-  [data-theme="dark"] .chat-close:hover { background: #334155; }
+  .chat-close:hover { color: var(--text-primary, #0f172a); }
   
   .chat-messages {
     flex: 1;
-    overflow-y: auto;
     padding: 16px;
-    max-height: 280px;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
+    min-height: 200px;
   }
   
   .message {
+    max-width: 85%;
     padding: 12px 16px;
-    border-radius: 12px;
+    border-radius: 16px;
     font-size: 14px;
-    line-height: 1.6;
+    line-height: 1.5;
   }
   
   .message.assistant {
-    background: var(--bg-secondary, #f3f4f6);
-    color: var(--text-primary, #111);
+    background: var(--bg-secondary, #f1f5f9);
+    color: var(--text-primary, #334155);
+    border-bottom-left-radius: 4px;
+    align-self: flex-start;
   }
-  
+
   [data-theme="dark"] .message.assistant {
     background: #334155;
-    color: #e2e8f0;
+    color: #f8fafc;
   }
   
   .message.user {
-    background: linear-gradient(135deg, #10b981, #059669);
+    background: #10b981;
     color: white;
+    border-bottom-right-radius: 4px;
     align-self: flex-end;
-    max-width: 85%;
   }
   
-  .message.thinking {
-    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+  .message ul {
+    margin: 8px 0;
+    padding-left: 0;
+    list-style: none;
   }
   
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+  .message li { margin-bottom: 4px; }
+  
+  .hint {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-top: 8px;
+    font-style: italic;
   }
   
-  .message ul { margin: 8px 0; padding-left: 8px; list-style: none; }
-  .message li { margin: 4px 0; }
-  .message .hint { font-size: 12px; color: var(--text-tertiary, #6b7280); margin-top: 12px; font-style: italic; }
+  .thinking {
+    opacity: 0.7;
+    font-style: italic;
+  }
   
   .chat-api-section {
     padding: 12px 16px;
-    background: rgba(16, 185, 129, 0.05);
+    background: var(--bg-tertiary, #f8fafc);
     border-top: 1px solid var(--border-color, #e5e7eb);
   }
-  
+
   [data-theme="dark"] .chat-api-section {
-    background: rgba(16, 185, 129, 0.1);
+    background: #0f172a;
     border-color: #334155;
   }
   
   .chat-api-section.hidden { display: none; }
   
   .api-link {
+    display: block;
     font-size: 12px;
     color: #10b981;
-    text-decoration: none;
-    display: block;
     margin-bottom: 8px;
+    text-decoration: none;
   }
-  
-  .api-link:hover { text-decoration: underline; }
   
   .api-input-row {
     display: flex;
     gap: 8px;
   }
   
-  .api-input-row input {
+  #groq-api-key {
     flex: 1;
-    padding: 8px 12px;
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: 8px;
-    font-size: 13px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color, #cbd5e1);
+    font-size: 12px;
     background: var(--bg-primary, #fff);
-    color: var(--text-primary);
-  }
-  
-  [data-theme="dark"] .api-input-row input {
-    background: #0f172a;
-    border-color: #475569;
-    color: #fff;
+    color: var(--text-primary, #0f172a);
   }
   
   .btn-save {
-    padding: 8px 16px;
-    background: #10b981;
+    padding: 8px 12px;
+    background: #334155;
     color: white;
     border: none;
-    border-radius: 8px;
-    font-weight: 600;
+    border-radius: 6px;
+    font-size: 12px;
     cursor: pointer;
-    font-size: 13px;
   }
-  
-  .btn-save:hover { background: #059669; }
   
   .chat-input-form {
+    padding: 16px;
+    border-top: 1px solid var(--border-color, #e5e7eb);
     display: flex;
     gap: 8px;
-    padding: 12px 16px;
-    border-top: 1px solid var(--border-color, #e5e7eb);
-    background: var(--bg-primary, #fff);
+    background: var(--bg-card, #fff);
   }
-  
+
   [data-theme="dark"] .chat-input-form {
     background: #1e293b;
     border-color: #334155;
   }
   
-  .chat-input-form input {
+  #chat-input {
     flex: 1;
-    padding: 10px 14px;
-    border: 1px solid var(--border-color, #e5e7eb);
-    border-radius: 10px;
+    padding: 10px 16px;
+    border-radius: 24px;
+    border: 1px solid var(--border-color, #cbd5e1);
     font-size: 14px;
-    background: var(--bg-secondary, #f9fafb);
-    color: var(--text-primary, #111);
+    background: var(--bg-primary, #fff);
+    color: var(--text-primary, #0f172a);
   }
-  
-  [data-theme="dark"] .chat-input-form input {
+
+  [data-theme="dark"] #chat-input {
     background: #0f172a;
     border-color: #475569;
-    color: #ffffff;
+    color: white;
   }
   
-  .chat-input-form input:focus {
+  #chat-input:focus {
     outline: none;
     border-color: #10b981;
   }
   
   .chat-send {
-    padding: 10px 14px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     background: #10b981;
     color: white;
     border: none;
-    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: background 0.2s;
   }
@@ -360,170 +381,137 @@ const t = texts[lang];
   }
 </style>
 
-<script>
+<script is:inline>
   // Groq AI Integration - FREE!
   const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
   
-  const widget = document.getElementById('ai-chat-widget');
-  const lang = widget?.dataset.lang || 'en';
-  
-  // Available notes for context
-  const siteNotes = [
-     { code: 'EE202', name: 'Circuit Analysis', desc: 'DC/AC circuits, nodal/mesh analysis' },
-     { code: 'EE301', name: 'Electronics I', desc: 'Diodes, BJTs, MOSFETs' },
-     { code: 'EE361', name: 'Signals & Systems', desc: 'Fourier, Laplace, Z-transform' },
-     { code: 'EE402', name: 'Discrete Time Systems', desc: 'DSP fundamentals' }
-  ];
+  // Robust initialization
+  function initAIChat() {
+    const widget = document.getElementById('ai-chat-widget');
+    if (!widget) return; // Wait for next cycle if not ready
 
-  const texts = {
-    en: {
-      thinking: 'Thinking...',
-      error: 'Error. Check your API key or try again.',
-      noKey: 'Please add your free Groq API key first. Get one at console.groq.com',
-      saved: 'API key saved! AI is ready.',
-      systemPrompt: `You are a helpful AI tutor for Electrical & Electronics Engineering students. 
-You have access to the following study notes on this website:
-${siteNotes.map(n => `- ${n.code} (${n.name}): ${n.desc}`).join('\n')}
+    const lang = widget.dataset.lang || 'en';
+    
+    const siteNotes = [
+       { code: 'EE202', name: 'Circuit Analysis', desc: 'DC/AC circuits, nodal/mesh analysis' },
+       { code: 'EE301', name: 'Electronics I', desc: 'Diodes, BJTs, MOSFETs' },
+       { code: 'EE361', name: 'Signals & Systems', desc: 'Fourier, Laplace, Z-transform' },
+       { code: 'EE402', name: 'Discrete Time Systems', desc: 'DSP fundamentals' }
+    ];
 
-When a user asks about a topic covered in these notes, explicitly recommend checking the "${n.code}" notes on this site.
-Otherwise, help them with:
-- Circuit Analysis
-- Electronics
-- Signals & Systems
-- Study tips
-
-Be concise. Use formulas when helpful.`
-    },
-    tr: {
-      thinking: 'Düşünüyorum...',
-      error: 'Hata. API anahtarını kontrol et veya tekrar dene.',
-      noKey: 'Lütfen önce ücretsiz Groq API anahtarını ekle. console.groq.com adresinden al.',
-      saved: 'API anahtarı kaydedildi! Yapay zeka hazır.',
-      systemPrompt: `Sen Elektrik-Elektronik Mühendisliği öğrencileri için yardımcı bir yapay zeka öğretmenisin.
-Bu sitede aşağıdaki ders notları bulunmaktadır:
-${siteNotes.map(n => `- ${n.code} (${n.name}): ${n.desc}`).join('\n')}
-
-Kullanıcı bu konulardan birini sorarsa, mutlaka bu sitedeki "${n.code}" notlarına bakmasını öner.
-Bunun dışında şunlarda yardım et:
-- Devre Analizi
-- Elektronik
-- Sinyaller ve Sistemler
-- Çalışma ipuçları
-
-Kısa ve net ol.`
-    }
-  };
-  
-  const t = texts[lang as 'en' | 'tr'];
-  
-  // UI Elements
-  const trigger = document.getElementById('ai-chat-trigger');
-  const panel = document.getElementById('ai-chat-panel');
-  const closeBtn = document.getElementById('chat-close');
-  const form = document.getElementById('chat-form');
-  const input = document.getElementById('chat-input') as HTMLInputElement;
-  const messagesContainer = document.getElementById('chat-messages');
-  const apiSection = document.getElementById('chat-api-section');
-  const apiKeyInput = document.getElementById('groq-api-key') as HTMLInputElement;
-  const saveKeyBtn = document.getElementById('save-groq-key');
-  
-  // Check for saved key
-  const savedKey = localStorage.getItem('groq_api_key');
-  if (savedKey) {
-    apiSection?.classList.add('hidden');
-    if (apiKeyInput) apiKeyInput.value = savedKey;
-  }
-  
-  // Toggle panel
-  trigger?.addEventListener('click', () => panel?.classList.toggle('open'));
-  closeBtn?.addEventListener('click', () => panel?.classList.remove('open'));
-  
-  // Save API key
-  saveKeyBtn?.addEventListener('click', () => {
-    const key = apiKeyInput?.value.trim();
-    if (key && key.startsWith('gsk_')) {
-      localStorage.setItem('groq_api_key', key);
-      apiSection?.classList.add('hidden');
-      addMessage(t.saved, 'assistant');
-    } else {
-      addMessage('Invalid key format. It should start with "gsk_"', 'assistant');
-    }
-  });
-  
-  // Message history for context
-  let messageHistory: {role: string, content: string}[] = [];
-  
-  // Handle form submit
-  form?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const message = input.value.trim();
-    if (!message) return;
-    
-    const apiKey = localStorage.getItem('groq_api_key');
-    if (!apiKey) {
-      addMessage(t.noKey, 'assistant');
-      return;
-    }
-    
-    addMessage(message, 'user');
-    input.value = '';
-    
-    // Add thinking indicator
-    const thinkingDiv = document.createElement('div');
-    thinkingDiv.className = 'message assistant thinking';
-    thinkingDiv.innerHTML = `<p>${t.thinking}</p>`;
-    messagesContainer?.appendChild(thinkingDiv);
-    messagesContainer?.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
-    
-    // Add to history
-    messageHistory.push({ role: 'user', content: message });
-    
-    try {
-      const response = await fetch(GROQ_API_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          messages: [
-            { role: 'system', content: t.systemPrompt },
-            ...messageHistory.slice(-6) // Keep last 6 messages for context
-          ],
-          max_tokens: 500,
-          temperature: 0.7
-        })
-      });
-      
-      thinkingDiv.remove();
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'API error');
+    const texts = {
+      en: {
+        thinking: 'Thinking...',
+        error: 'Error. Check API key.',
+        noKey: 'Please add your free Groq API key first.',
+        saved: 'API key saved! AI is ready.',
+        systemPrompt: `You are a helpful AI tutor for EE students. Access to: ${siteNotes.map(n=>n.code).join(', ')}. Recommend notes explicitly.`
+      },
+      tr: {
+        thinking: 'Düşünüyorum...',
+        error: 'Hata. API anahtarını kontrol et.',
+        noKey: 'Lütfen önce API anahtarını ekle.',
+        saved: 'API anahtarı kaydedildi!',
+        systemPrompt: `EE öğrencileri için yapay zeka asistanısın. Şu notlara erişimin var: ${siteNotes.map(n=>n.code).join(', ')}. Notları öner.`
       }
-      
-      const data = await response.json();
-      const reply = data.choices?.[0]?.message?.content || 'No response';
-      
-      messageHistory.push({ role: 'assistant', content: reply });
-      addMessage(reply, 'assistant');
-      
-    } catch (err: any) {
-      thinkingDiv.remove();
-      addMessage(`${t.error} (${err.message})`, 'assistant');
+    };
+    
+    const t = texts[lang];
+    const trigger = document.getElementById('ai-chat-trigger');
+    const panel = document.getElementById('ai-chat-panel');
+    const closeBtn = document.getElementById('chat-close');
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('chat-input');
+    const messages = document.getElementById('chat-messages');
+    const apiSection = document.getElementById('chat-api-section');
+    const apiKeyInput = document.getElementById('groq-api-key');
+    const saveKeyBtn = document.getElementById('save-groq-key');
+    
+    // Load key
+    const savedKey = localStorage.getItem('groq_api_key');
+    if (savedKey) {
+      if(apiSection) apiSection.classList.add('hidden');
+      if(apiKeyInput) apiKeyInput.value = savedKey;
     }
-  });
-  
-  function addMessage(text: string, role: 'user' | 'assistant') {
-    const div = document.createElement('div');
-    div.className = `message ${role}`;
-    // Convert markdown-style formatting
-    const formatted = text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\n/g, '<br>');
-    div.innerHTML = `<p>${formatted}</p>`;
-    messagesContainer?.appendChild(div);
-    messagesContainer?.scrollTo({ top: messagesContainer.scrollHeight, behavior: 'smooth' });
+    
+    // Events
+    trigger.onclick = () => {
+       panel.classList.toggle('open');
+       if(panel.classList.contains('open')) setTimeout(() => input.focus(), 100);
+    };
+    
+    closeBtn.onclick = () => panel.classList.remove('open');
+    
+    saveKeyBtn.onclick = () => {
+      const key = apiKeyInput.value.trim();
+      if (key.startsWith('gsk_')) {
+        localStorage.setItem('groq_api_key', key);
+        if(apiSection) apiSection.classList.add('hidden');
+        addMsg(t.saved, 'assistant');
+      } else {
+        addMsg('Key must start with "gsk_"', 'assistant');
+      }
+    };
+
+    let history = [];
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const txt = input.value.trim();
+      if (!txt) return;
+
+      const key = localStorage.getItem('groq_api_key');
+      if (!key) { return addMsg(t.noKey, 'assistant'); }
+
+      addMsg(txt, 'user');
+      input.value = '';
+      
+      const loadId = 'loading-' + Date.now();
+      const div = document.createElement('div');
+      div.id = loadId;
+      div.className = 'message assistant thinking';
+      div.innerText = t.thinking;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      
+      history.push({ role: 'user', content: txt });
+
+      try {
+        const res = await fetch(GROQ_API_URL, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+           body: JSON.stringify({
+              model: 'llama-3.3-70b-versatile',
+              messages: [{role: 'system', content: t.systemPrompt}, ...history.slice(-5)],
+              max_tokens: 400
+           })
+        });
+        
+        document.getElementById(loadId)?.remove();
+        const json = await res.json();
+        const reply = json.choices?.[0]?.message?.content || 'Error';
+        
+        history.push({ role: 'assistant', content: reply });
+        addMsg(reply, 'assistant');
+      } catch(err) {
+        document.getElementById(loadId)?.remove();
+        addMsg(t.error, 'assistant');
+      }
+    };
+
+    function addMsg(txt, role) {
+       const div = document.createElement('div');
+       div.className = `message ${role}`;
+       div.innerHTML = `<p>${txt.replace(/\n/g, '<br>')}</p>`;
+       messages.appendChild(div);
+       messages.scrollTop = messages.scrollHeight;
+    }
+  }
+
+  // Init on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAIChat);
+  } else {
+    initAIChat();
   }
 </script>
