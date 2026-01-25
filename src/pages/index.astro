@@ -3,7 +3,6 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import CourseCard from '@components/CourseCard.astro';
 import TwitterEmbed from '@components/TwitterEmbed.astro';
 import VideoEmbed from '@components/VideoEmbed.astro';
-import { getPinnedTweet } from '../utils/twitter';
 
 const featuredCourses = [
   {
@@ -29,8 +28,8 @@ const featuredCourses = [
   },
 ];
 
-// Fetch pinned tweet ID at build time (falls back to hardcoded ID)
-const pinnedTweetId = await getPinnedTweet('aaanilclk') || '1881773099955745131';
+// Hardcoded pinned tweet ID (Twitter API requires paid tier for user lookup)
+const pinnedTweetId = '1881773099955745131';
 
 const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 ---
