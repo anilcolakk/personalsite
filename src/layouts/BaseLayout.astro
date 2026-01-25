@@ -80,10 +80,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <AIChat />
     
     <script is:inline>
-      // Theme initialization
+      // Theme initialization - default to light mode
       (function() {
-        const theme = localStorage.getItem('theme') || 
-          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const theme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', theme);
       })();
     </script>

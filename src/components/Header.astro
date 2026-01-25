@@ -125,11 +125,11 @@ const toggleUrl = getLangUrl(currentPath, toggleLang);
   }
   
   [data-theme="dark"] .nav-link {
-    color: #e2e8f0;
+    color: #ffffff;
   }
   
   [data-theme="dark"] .nav-link:hover {
-    background: #334155;
+    background: #475569;
     color: #ffffff;
   }
   
@@ -206,9 +206,33 @@ const toggleUrl = getLangUrl(currentPath, toggleLang);
   @media (max-width: 1024px) {
     .nav-links {
       display: none;
+      position: absolute;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: var(--bg-primary, #ffffff);
+      border-bottom: 1px solid var(--border-color, #e5e7eb);
+      flex-direction: column;
+      padding: 1rem;
+      gap: 0.5rem;
     }
+    
+    .nav-links.active {
+      display: flex;
+    }
+    
+    [data-theme="dark"] .nav-links {
+      background: #0f172a;
+      border-color: #334155;
+    }
+    
     .mobile-menu-btn {
       display: block;
+      color: var(--text-primary);
+    }
+    
+    [data-theme="dark"] .mobile-menu-btn {
+      color: #ffffff;
     }
   }
 </style>

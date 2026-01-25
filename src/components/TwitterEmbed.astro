@@ -236,8 +236,15 @@ const isTweet = !!actualTweetId;
 </style>
 
 <script>
-  // Load Twitter widget script
+  // Load Twitter widget script with better reliability
   const loadTwitterWidget = () => {
+    // If widget is already loaded, just render
+    if ((window as any).twttr?.widgets) {
+      updateTwitterTheme();
+      (window as any).twttr.widgets.load();
+      return;
+    }
+
     if (document.getElementById('twitter-wjs')) return;
     
     const script = document.createElement('script');
@@ -257,19 +264,20 @@ const isTweet = !!actualTweetId;
   // Update Twitter embed theme to match site theme
   const updateTwitterTheme = () => {
     const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const theme = isDark ? 'dark' : 'light';
+    
     const timeline = document.querySelector('.twitter-timeline');
     const tweet = document.querySelector('.twitter-tweet');
     
-    if (timeline) {
-      timeline.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    }
-    if (tweet) {
-      tweet.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    }
+    if (timeline) timeline.setAttribute('data-theme', theme);
+    if (tweet) tweet.setAttribute('data-theme', theme);
     
-    // Re-render widgets if Twitter API is available
+    // Force re-render if widgets exist
     if ((window as any).twttr?.widgets) {
-      (window as any).twttr.widgets.load();
+      // Small timeout to ensure DOM is ready
+      setTimeout(() => {
+        (window as any).twttr.widgets.load();
+      }, 100);
     }
   };
 
@@ -284,6 +292,7 @@ const isTweet = !!actualTweetId;
 
   observer.observe(document.documentElement, { attributes: true });
 
-  // Initialize
+  // Initialize immediately and after a short delay to handle race conditions
   loadTwitterWidget();
+  setTimeout(loadTwitterWidget, 1000);
 </script>

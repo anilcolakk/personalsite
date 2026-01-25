@@ -2,9 +2,6 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import curriculaData from '../data/curricula.json';
 
-// Get ODTU courses for reference on server side if needed, 
-// strictly we don't need this if we do everything on client, 
-// but it's good practice to have data available.
 const universities = Object.entries(curriculaData.universities)
   .filter(([key]) => key !== 'ODTU')
   .map(([key, uni]) => ({
@@ -18,7 +15,6 @@ const universities = Object.entries(curriculaData.universities)
 <BaseLayout title="AI Course Equivalency" description="AI-powered course matching and advice">
   <section class="equivalency-page">
     <div class="container">
-      <!-- Page Header -->
       <div class="page-header">
         <div class="header-badge">
           <span class="badge-icon">✨</span>
@@ -27,12 +23,10 @@ const universities = Object.entries(curriculaData.universities)
         <h1 class="page-title">Cross-University Course Mapper</h1>
         <p class="page-description">
           Find the closest METU EEE equivalents for your courses. 
-          Our dual-engine system uses keyword algorithms and AI analysis to give you 
-          accurate matches and personalized study advice.
+          Uses keyword algorithms and Groq AI to analyze syllabus compatibility.
         </p>
       </div>
       
-      <!-- Tool Card -->
       <div class="tool-card">
         <div class="tool-header">
           <h2>Find Course Equivalents</h2>
@@ -40,84 +34,91 @@ const universities = Object.entries(curriculaData.universities)
         </div>
         
         <div class="tool-content">
-          <!-- University Selector -->
-          <div class="university-selector">
-            <label class="selector-label">Select University</label>
-            <div class="university-grid" id="university-grid">
+          <!-- Step 1: University Selection -->
+          <div class="selection-step" id="step-university">
+            <label class="step-label">1. Select Your University</label>
+            <div class="university-grid">
               {universities.map((uni) => (
                 <button 
                   class="university-btn" 
                   data-university={uni.id}
+                  aria-label={`Select ${uni.name}`}
                 >
-                  <span class="uni-name">{uni.shortName} - {uni.name}</span>
-                  <span class="uni-count">{uni.courseCount} courses</span>
+                  <div class="uni-icon">{uni.shortName.substring(0, 2)}</div>
+                  <div class="uni-info">
+                    <span class="uni-name">{uni.name}</span>
+                    <span class="uni-count">{uni.courseCount} courses available</span>
+                  </div>
+                  <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </button>
               ))}
             </div>
           </div>
           
-          <!-- Course Selector (Hidden initially) -->
-          <div id="course-selection-area" class="course-selector-section" style="display: none; margin-top: 1.5rem;">
-            <label class="selector-label">Select Course from <span id="selected-uni-name"></span></label>
-            <select id="course-select" class="form-select">
-              <option value="">Choose a course...</option>
-            </select>
+          <!-- Step 2: Course Selection -->
+          <div id="step-course" class="selection-step hidden">
+            <label class="step-label">2. Select Course to Match</label>
+            <div class="select-wrapper">
+              <select id="course-select" class="form-select">
+                <option value="">Choose a course...</option>
+              </select>
+              <div class="select-arrow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </div>
+            </div>
             
-            <button id="find-match-btn" class="btn btn-primary" style="margin-top: 1rem; width: 100%;" disabled>
-              Find Equivalents & Get AI Advice
+            <button id="find-match-btn" class="btn btn-primary btn-block" disabled>
+              Find Equivalents
             </button>
           </div>
 
-          <!-- API Key Input (Collapsible) -->
-          <div class="api-section">
-            <details id="api-details">
-              <summary class="api-summary">
-                <span>🤖 Configure AI Advisor (Optional)</span>
-                <span id="api-status-badge" class="status-badge inactive">Inactive</span>
-              </summary>
-              <div class="api-content">
-                <p>Enter your OpenAI API Key to get personalized study advice and deeper analysis. 
-                   Without a key, we'll use our standard keyword matching engine.</p>
-                <div class="input-group">
-                  <input type="password" id="api-key-input" placeholder="sk-..." />
-                  <button id="save-api-btn" class="btn-sm btn-secondary">Save Key</button>
-                </div>
-                <p class="privacy-note">Your key is stored locally in your browser and never sent to our servers.</p>
-              </div>
-            </details>
-          </div>
-          
-          <!-- Loading State -->
-          <div id="loading-state" class="loading-state" style="display: none;">
+          <!-- Loading -->
+          <div id="loading-state" class="loading-state hidden">
             <div class="spinner"></div>
-            <p>Analyzing course content...</p>
+            <p>Analyzing course curriculum...</p>
           </div>
 
-          <!-- Results Section -->
-          <div id="results-section" class="results-section" style="display: none;">
+          <!-- Results -->
+          <div id="results-section" class="results-section hidden">
             <div class="results-header">
-              <h3 id="results-title">Analysis Results</h3>
+              <h3>Match Results</h3>
               <button id="reset-btn" class="btn btn-ghost btn-sm">Start Over</button>
             </div>
             
-            <!-- Best Match Card -->
-            <div id="best-match-card" class="match-card primary-match">
-                <!-- Populated by JS -->
+            <!-- AI Analysis Button (Dynamic) -->
+            <div id="ai-upsell" class="ai-upsell-card">
+              <div class="ai-upsell-content">
+                <span class="ai-icon">🤖</span>
+                <div class="ai-text">
+                  <h4>Get Detailed AI Analysis</h4>
+                  <p>Use Groq AI to explain <i>why</i> these courses match and get study tips.</p>
+                </div>
+              </div>
+              <button id="analyze-ai-btn" class="btn btn-ai-primary">
+                Analyze with Groq AI
+              </button>
             </div>
 
-            <!-- GPT Advice Section -->
-            <div id="gpt-advice-section" class="gpt-advice-box" style="display: none;">
-               <div class="ai-avatar">🤖</div>
-               <div class="ai-content">
-                 <h4>AI Advisor's Note</h4>
-                 <div id="gpt-explanation"></div>
-                 <div id="gpt-suggestions" class="study-tips"></div>
-               </div>
+            <!-- API Key Input (Hidden by default) -->
+            <div id="api-key-panel" class="api-key-panel hidden">
+              <p>Enter your free Groq API Key (<a href="https://console.groq.com/keys" target="_blank">Get one here</a>)</p>
+              <div class="input-group">
+                <input type="password" id="api-key-input" placeholder="gsk_..." />
+                <button id="save-api-btn" class="btn-sm btn-secondary">Save & Analyze</button>
+              </div>
+            </div>
+
+            <!-- AI Output -->
+            <div id="ai-output" class="ai-output-card hidden">
+              <div class="ai-header">
+                <span class="ai-icon">✨</span>
+                <h4>AI Advisor Analysis</h4>
+              </div>
+              <div id="ai-content" class="ai-body">Thinking...</div>
             </div>
             
-            <div id="equivalency-list" class="equivalency-list">
-              <!-- Dynamically populated by JS -->
-            </div>
+            <!-- Matches List -->
+            <div id="equivalency-list" class="equivalency-list"></div>
           </div>
         </div>
       </div>
@@ -125,578 +126,302 @@ const universities = Object.entries(curriculaData.universities)
   </section>
 </BaseLayout>
 
-<style>
-  /* Reuse and extend existing styles */
-  .equivalency-page { padding: var(--space-12) 0 var(--space-20); }
-  .page-header { text-align: center; margin-bottom: var(--space-10); }
-  .header-badge {
-    display: inline-flex; gap: var(--space-2); padding: var(--space-2) var(--space-4);
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
-    border: 1px solid rgba(139, 92, 246, 0.2); border-radius: var(--radius-full);
-    font-size: var(--text-sm); font-weight: 500; color: var(--secondary-600); margin-bottom: var(--space-4);
-  }
-  .page-title { font-size: var(--text-4xl); font-weight: 800; margin-bottom: var(--space-4); }
-  .page-description { font-size: var(--text-lg); color: var(--text-secondary); max-width: 700px; margin: 0 auto; }
-  
-  .tool-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-2xl); overflow: hidden; }
-  .tool-header { padding: var(--space-6); border-bottom: 1px solid var(--border-color); background: var(--bg-tertiary); }
-  .tool-content { padding: var(--space-6); }
-  
-  .selector-label { display: block; font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); margin-bottom: var(--space-3); }
-  .university-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--space-3); }
-  
-  .university-btn {
-    display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1);
-    padding: var(--space-4); background: var(--bg-primary); border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg); transition: all 0.2s; cursor: pointer; width: 100%;
-  }
-  .university-btn:hover { border-color: var(--primary-300); background: var(--primary-50); }
-  .university-btn.active { border-color: var(--primary-500); background: var(--primary-50); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2); }
-  
-  .form-select {
-    width: 100%; padding: var(--space-4); border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary);
-  }
-  
-  .btn-primary {
-    background: linear-gradient(135deg, var(--primary-600), var(--secondary-600)); color: white;
-    padding: var(--space-4); border-radius: var(--radius-lg); font-weight: 600; border: none; cursor: pointer;
-  }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-  
-  /* API Section */
-  .api-section { margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1rem; }
-  .api-summary { cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
-  .api-content { margin-top: 1rem; padding: 1rem; background: var(--bg-tertiary); border-radius: var(--radius-lg); }
-  .status-badge { font-size: 0.75rem; padding: 2px 8px; border-radius: 12px; }
-  .status-badge.active { background: #dcfce7; color: #166534; }
-  .status-badge.inactive { background: #f3f4f6; color: #6b7280; }
-  .input-group { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
-  .input-group input { flex: 1; padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); }
-  .privacy-note { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.5rem; }
-  
-  /* Loading */
-  .loading-state { text-align: center; padding: 2rem; }
-  .spinner { width: 30px; height: 30px; border: 3px solid #eee; border-top-color: var(--primary-500); border-radius: 50%; animation: spin 1s infinite; margin: 0 auto 1rem; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  
-  /* Results */
-  .match-card { padding: 1.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-xl); margin-bottom: 1rem; }
-  .primary-match { background: linear-gradient(to right, rgba(59, 130, 246, 0.05), transparent); border-color: var(--primary-300); }
-  .match-header { display: flex; justify-content: space-between; align-items: flex-start; }
-  .match-score { font-size: 1.5rem; font-weight: 800; color: var(--primary-600); }
-  .match-label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-tertiary); display: block; }
-  .topics-tag { display: inline-block; font-size: 0.75rem; background: var(--bg-tertiary); padding: 2px 6px; border-radius: 4px; margin-right: 4px; margin-top: 4px; }
-  
-  /* GPT Box */
-  .gpt-advice-box { 
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); 
-    border: 1px solid #86efac; border-radius: var(--radius-xl); 
-    padding: 1.5rem; margin-bottom: 2rem; display: flex; gap: 1rem; 
-  }
-  [data-theme="dark"] .gpt-advice-box {
-     background: linear-gradient(135deg, rgba(22, 101, 52, 0.2), rgba(21, 128, 61, 0.2));
-     border-color: rgba(34, 197, 94, 0.3);
-  }
-  .ai-avatar { font-size: 2rem; }
-  .ai-content h4 { font-weight: 700; color: var(--success-700); margin-bottom: 0.5rem; }
-  .study-tips { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(0,0,0,0.05); font-size: 0.9rem; font-style: italic; }
-  
-  .accordion-title { font-size: 0.9rem; font-weight: 600; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 0.5rem; }
-  /* Results Section */
-  .results-section {
-    animation: fadeInUp 0.4s ease;
-  }
-  
-  .results-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-6);
-  }
-  
-  .results-header h3 {
-    font-size: var(--text-xl);
-    font-weight: 700;
-  }
-  
-  /* Comparison Cards */
-  .equivalency-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-  
-  .equivalency-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
-    transition: all var(--transition-base);
-  }
-  
-  .equivalency-card:hover {
-    border-color: var(--primary-400);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
-  }
-  
-  .card-grid {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: var(--space-6);
-    align-items: center;
-    margin-bottom: var(--space-6);
-  }
-  
-  .card-column {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .column-label {
-    font-size: var(--text-xs);
-    font-weight: 600;
-    color: var(--text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    margin-bottom: var(--space-2);
-  }
-  
-  .course-box {
-    padding: var(--space-4);
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
-  }
-  
-  .course-code {
-    display: block;
-    font-family: var(--font-mono);
-    font-size: var(--text-base);
-    font-weight: 700;
-    color: var(--primary-600);
-    margin-bottom: var(--space-1);
-  }
-  
-  [data-theme="dark"] .course-code {
-    color: var(--primary-400);
-  }
-  
-  .course-name {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    line-height: 1.4;
-  }
-  
-  .connector {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--bg-tertiary);
-    color: var(--text-tertiary);
-  }
-  
-  /* Match Score */
-  .match-section {
-    padding-top: var(--space-4);
-    border-top: 1px solid var(--border-color);
-  }
-  
-  .match-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-2);
-  }
-  
-  .match-label {
-    font-size: var(--text-sm);
-    font-weight: 600;
-    color: var(--text-secondary);
-  }
-  
-  .match-badge {
-    font-size: var(--text-sm);
-    font-weight: 700;
-    padding: var(--space-1) var(--space-3);
-    border-radius: var(--radius-full);
-  }
-  
-  .match-high {
-    background: rgba(16, 185, 129, 0.15);
-    color: var(--success-600);
-  }
-  
-  .match-medium {
-    background: rgba(245, 158, 11, 0.15);
-    color: var(--warning-600);
-  }
-  
-  .match-low {
-    background: rgba(239, 68, 68, 0.15);
-    color: var(--error-600);
-  }
-  
-  .progress-bg {
-    height: 8px;
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-full);
-    overflow: hidden;
-  }
-  
-  .progress-bar {
-    height: 100%;
-    border-radius: var(--radius-full);
-    transition: width 1s ease;
-  }
-  
-  .bg-high { background: var(--success-500); }
-  .bg-medium { background: var(--warning-500); }
-  .bg-low { background: var(--error-500); }
-  
-  /* Empty State */
-  .empty-state {
-    text-align: center;
-    padding: var(--space-20) var(--space-6);
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-2xl);
-    border: 2px dashed var(--border-color);
-    transition: all var(--transition-base);
-  }
-  
-  .empty-state:hover {
-    border-color: var(--primary-300);
-    background: var(--bg-card);
-  }
-  
-  .empty-icon {
-    width: 64px;
-    height: 64px;
-    margin: 0 auto var(--space-6);
-    color: var(--primary-300);
-    background: var(--bg-primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .empty-state h3 {
-    font-size: var(--text-xl);
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: var(--space-2);
-  }
-  
-  .empty-state p {
-    color: var(--text-tertiary);
-    max-width: 300px;
-    margin: 0 auto;
-  }
-  
-  /* Info Section */
-  .info-section {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-6);
-  }
-  
-  .info-card {
-    display: flex;
-    gap: var(--space-4);
-    padding: var(--space-6);
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-xl);
-  }
-  
-  .info-icon {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    background: var(--primary-50);
-    border-radius: var(--radius-lg);
-    color: var(--primary-600);
-  }
-  
-  [data-theme="dark"] .info-icon {
-    background: rgba(59, 130, 246, 0.15);
-    color: var(--primary-400);
-  }
-  
-  .info-content h4 {
-    font-size: var(--text-base);
-    font-weight: 700;
-    margin-bottom: var(--space-2);
-  }
-  
-  .info-content p {
-    font-size: var(--text-sm);
-    color: var(--text-secondary);
-    line-height: 1.6;
-  }
-  
-  .info-content a {
-    color: var(--primary-600);
-    font-weight: 500;
-  }
-  
-  .info-content a:hover {
-    text-decoration: underline;
-  }
-  
-  @media (max-width: 1024px) {
-    .university-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .info-section {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  @media (max-width: 640px) {
-    .university-grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .card-grid {
-      grid-template-columns: 1fr;
-      gap: var(--space-4);
-      text-align: center;
-    }
-    
-    .connector {
-      margin: 0 auto;
-      transform: rotate(90deg);
-    }
-    
-    .column-label {
-      display: none;
-    }
-  }
-</style>
-
 <script>
   import { CourseMatcher } from '../utils/matcher.js';
-  import { GPTMatcher } from '../utils/gpt.js';
-  // Import JSON directly to use in class instantiation
   import curriculaData from '../data/curricula.json';
 
   // State
   let selectedUniId = null;
-  let selectedCourseCode = null;
-  
-  // Instance initialization
   const matcher = new CourseMatcher(curriculaData);
-  const gptMatcher = new GPTMatcher();
-  
-  // Check local storage for key
-  const savedKey = localStorage.getItem('openai_api_key');
-  if (savedKey) {
-    gptMatcher.setApiKey(savedKey);
-    document.getElementById('api-status-badge').textContent = 'Active';
-    document.getElementById('api-status-badge').classList.replace('inactive', 'active');
-    document.getElementById('api-key-input').value = savedKey;
-  }
+  const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-  // DOM Elements
+  // Elements
   const uniGrid = document.getElementById('university-grid');
-  const courseSection = document.getElementById('course-selection-area');
+  const stepCourse = document.getElementById('step-course');
   const courseSelect = document.getElementById('course-select');
-  const uniNameSpan = document.getElementById('selected-uni-name');
   const findBtn = document.getElementById('find-match-btn');
-  const resultsSection = document.getElementById('results-section');
-  const loadingState = document.getElementById('loading-state');
-  const apiSaveBtn = document.getElementById('save-api-btn');
-  
+  const loading = document.getElementById('loading-state');
+  const results = document.getElementById('results-section');
+  const resultsList = document.getElementById('equivalency-list');
+  const resetBtn = document.getElementById('reset-btn');
+  const analyzeBtn = document.getElementById('analyze-ai-btn');
+  const apiKeyPanel = document.getElementById('api-key-panel');
+  const keyInput = document.getElementById('api-key-input');
+  const saveKeyBtn = document.getElementById('save-api-btn');
+  const aiOutput = document.getElementById('ai-output');
+  const aiContent = document.getElementById('ai-content');
+  const aiUpsell = document.getElementById('ai-upsell');
+
   // Event Listeners
-  uniGrid.addEventListener('click', (e) => {
-    const btn = e.target.closest('.university-btn');
+  uniGrid?.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('.university-btn');
     if (!btn) return;
     
     // UI Update
     document.querySelectorAll('.university-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     
-    selectedUniId = btn.dataset.university;
-    const uniName = btn.querySelector('.uni-name').textContent;
-    uniNameSpan.textContent = uniName;
-    
-    // Populate Courses
+    // Logic
+    selectedUniId = (btn as HTMLElement).dataset.university;
     populateCourses(selectedUniId);
-    courseSection.style.display = 'block';
-    resultsSection.style.display = 'none';
+    stepCourse?.classList.remove('hidden');
+    
+    // Smooth scroll
+    stepCourse?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 
-  courseSelect.addEventListener('change', (e) => {
-    selectedCourseCode = e.target.value;
-    findBtn.disabled = !selectedCourseCode;
+  courseSelect?.addEventListener('change', (e) => {
+    const val = (e.target as HTMLSelectElement).value;
+    if (findBtn) (findBtn as HTMLButtonElement).disabled = !val;
   });
 
-  findBtn.addEventListener('click', async () => {
-    if (!selectedUniId || !selectedCourseCode) return;
+  findBtn?.addEventListener('click', () => {
+    const courseCode = (courseSelect as HTMLSelectElement).value;
+    if (!selectedUniId || !courseCode) return;
+
+    showLoading(true);
     
-    isLoading(true);
-    
-    try {
-      // 1. Keyword Match
-      const results = matcher.findMatches(selectedUniId, selectedCourseCode);
-      displayBasicResults(results);
+    // Simulate delay for feel
+    setTimeout(() => {
+      const matchResults = matcher.findMatches(selectedUniId, courseCode);
+      displayResults(matchResults);
+      showLoading(false);
+      results?.classList.remove('hidden');
+      results?.scrollIntoView({ behavior: 'smooth' });
       
-      // 2. GPT Match (if key exists)
-      if (gptMatcher.isConfigured()) {
-        document.getElementById('gpt-advice-section').style.display = 'flex';
-        document.getElementById('gpt-explanation').innerHTML = '<em>Thinking... AI is analyzing the curriculum...</em>';
-        document.getElementById('gpt-suggestions').innerHTML = '';
-        
-        const gptResult = await gptMatcher.getEnhancedMatch(results.sourceCourse, results.matches);
-        displayGPTResults(gptResult);
-      } else {
-         document.getElementById('gpt-advice-section').style.display = 'none';
+      // Reset AI section
+      if (aiOutput) aiOutput.classList.add('hidden');
+      if (aiUpsell) aiUpsell.classList.remove('hidden');
+      
+      // Auto-check key
+      const key = localStorage.getItem('groq_api_key');
+      if (key) {
+        if (apiKeyPanel) apiKeyPanel.classList.add('hidden');
+        if (keyInput) (keyInput as HTMLInputElement).value = key;
       }
-      
-    } catch (err) {
-      console.error(err);
-      alert('Something went wrong. Please try again.');
-    } finally {
-      isLoading(false);
-      resultsSection.style.display = 'block';
-      // Scroll to results
-      resultsSection.scrollIntoView({ behavior: 'smooth' });
-    }
+    }, 600);
   });
 
-  apiSaveBtn.addEventListener('click', () => {
-    const input = document.getElementById('api-key-input');
-    const key = input.value.trim();
-    if (key.startsWith('sk-')) {
-      localStorage.setItem('openai_api_key', key);
-      gptMatcher.setApiKey(key);
-      const badge = document.getElementById('api-status-badge');
-      badge.textContent = 'Active';
-      badge.classList.replace('inactive', 'active');
-      alert('API Key saved! AI features enabled.');
-      document.getElementById('api-details').removeAttribute('open');
-    } else {
-      alert('Please enter a valid OpenAI API key starting with sk-');
-    }
-  });
-
-  document.getElementById('reset-btn').addEventListener('click', () => {
-    resultsSection.style.display = 'none';
-    courseSection.style.display = 'none';
+  resetBtn?.addEventListener('click', () => {
+    results?.classList.add('hidden');
+    stepCourse?.classList.add('hidden');
     document.querySelectorAll('.university-btn').forEach(b => b.classList.remove('active'));
-    selectedUniId = null;
-    selectedCourseCode = null;
+    (courseSelect as HTMLSelectElement).value = "";
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  analyzeBtn?.addEventListener('click', () => {
+    const key = localStorage.getItem('groq_api_key');
+    if (key) {
+      runAIAnalysis(key);
+    } else {
+      aiUpsell?.classList.add('hidden');
+      apiKeyPanel?.classList.remove('hidden');
+    }
+  });
+
+  saveKeyBtn?.addEventListener('click', () => {
+    const key = (keyInput as HTMLInputElement).value.trim();
+    if (key.startsWith('gsk_')) {
+      localStorage.setItem('groq_api_key', key);
+      runAIAnalysis(key);
+      apiKeyPanel?.classList.add('hidden');
+    } else {
+      alert('Invalid Groq API Key. It should start with gsk_');
+    }
   });
 
   // Helpers
   function populateCourses(uniId) {
     const courses = matcher.getCourses(uniId);
-    courseSelect.innerHTML = '<option value="">Choose a course...</option>' + 
-      courses.map(c => `<option value="${c.code}">${c.code} - ${c.name}</option>`).join('');
+    if (courseSelect) {
+      courseSelect.innerHTML = '<option value="">Choose a course...</option>' + 
+        courses.map(c => `<option value="${c.code}">${c.code} - ${c.name}</option>`).join('');
+    }
   }
 
-  function isLoading(show) {
-    loadingState.style.display = show ? 'block' : 'none';
-    if (show) resultsSection.style.display = 'none';
+  function showLoading(show) {
+    if (show) {
+      loading?.classList.remove('hidden');
+      results?.classList.add('hidden');
+    } else {
+      loading?.classList.add('hidden');
+    }
   }
 
-  function displayBasicResults(data) {
-    const matches = data.matches;
-    const sourceCourse = data.sourceCourse;
-    const listContainer = document.getElementById('equivalency-list');
+  function displayResults(data) {
+    if (!resultsList) return;
     
-    // Hide legacy containers if they exist
-    const bestCard = document.getElementById('best-match-card');
-    if (bestCard) bestCard.style.display = 'none';
-    
-    const othersList = document.getElementById('other-matches-list');
-    if (othersList) othersList.style.display = 'none'; // logic to hide parent if needed
-
-    if (!matches || matches.length === 0) {
-      listContainer.innerHTML = '<div class="empty-state"><p>No good matches found.</p></div>';
+    if (data.matches.length === 0) {
+      resultsList.innerHTML = `
+        <div class="empty-state">
+          <p>No direct matches found. Try AI analysis for a deeper look.</p>
+        </div>`;
       return;
     }
 
-    listContainer.innerHTML = matches.map(match => {
-      const matchLevel = getMatchClass(match.similarityPercent);
+    resultsList.innerHTML = data.matches.map((match, index) => {
+      const isTop = index === 0;
+      const score = Math.round(match.similarityPercent);
+      const colorClass = score > 80 ? 'high' : score > 50 ? 'medium' : 'low';
       
       return `
-        <div class="equivalency-card">
-          <div class="card-grid">
-            <!-- Source Course -->
-            <div class="card-column">
-              <span class="column-label">Source Course</span>
-              <div class="course-box">
-                <span class="course-code">${sourceCourse.code}</span>
-                <span class="course-name">${sourceCourse.name}</span>
+        <div class="match-card ${isTop ? 'highlight' : ''}">
+          <div class="match-header">
+            <div class="match-info">
+              <div class="match-pair">
+                <span class="course-pill source">${data.sourceCourse.code}</span>
+                <span class="arrow">→</span>
+                <span class="course-pill target">${match.code}</span>
               </div>
+              <h4>${match.name}</h4>
             </div>
-            
-            <!-- Connector -->
-            <div class="connector">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </div>
-            
-            <!-- METU Course -->
-            <div class="card-column">
-              <span class="column-label">METU Equivalent</span>
-              <div class="course-box">
-                <span class="course-code">${match.code}</span>
-                <span class="course-name">${match.name}</span>
-              </div>
+            <div class="match-score ${colorClass}">
+              <span class="score-val">${score}%</span>
+              <span class="score-label">Match</span>
             </div>
           </div>
           
-          <!-- Match Score -->
-          <div class="match-section">
-            <div class="match-header">
-              <div>
-                 <span class="match-label">Match Similarity</span>
-                 <div style="font-size: 0.8rem; margin-top: 4px;">
-                    ${match.matchingTopics.slice(0, 3).map(t => `<span class="topics-tag">${t}</span>`).join('')}
-                 </div>
-              </div>
-              <span class="match-badge match-${matchLevel}">
-                ${match.similarityPercent}% Match
-              </span>
-            </div>
-            <div class="progress-bg">
-              <div class="progress-bar bg-${matchLevel}" style="width: ${match.similarityPercent}%"></div>
-            </div>
+          <div class="match-details">
+            <p class="match-topics"><strong>Matched Topics:</strong> 
+              ${match.matchingTopics.slice(0, 5).join(', ')}
+              ${match.matchingTopics.length > 5 ? `+${match.matchingTopics.length - 5} more` : ''}
+            </p>
           </div>
         </div>
       `;
     }).join('');
   }
 
-  function getMatchClass(score) {
-    if (score >= 90) return 'high';
-    if (score >= 80) return 'medium';
-    return 'low';
-  }
+  async function runAIAnalysis(apiKey) {
+    aiUpsell?.classList.add('hidden');
+    aiOutput?.classList.remove('hidden');
+    if (aiContent) aiContent.innerHTML = 'Thinking... (Analyzing syllabus)';
 
-  function displayGPTResults(gptData) {
-    const explanationDiv = document.getElementById('gpt-explanation');
-    const suggestionsDiv = document.getElementById('gpt-suggestions');
+    // Prepare context
+    const sourceCode = (courseSelect as HTMLSelectElement).value;
+    const uniId = selectedUniId;
+    // We need to re-fetch/find the current matches to send to AI
+    const matchData = matcher.findMatches(uniId, sourceCode);
     
-    explanationDiv.innerHTML = `<p>${gptData.explanation || 'Analysis complete.'}</p>`;
-    
-    if (gptData.studySuggestions) {
-      suggestionsDiv.innerHTML = `<strong>Study Tips:</strong> ${gptData.studySuggestions}`;
+    const prompt = `
+      Compare the course "${matchData.sourceCourse.code}: ${matchData.sourceCourse.name}" (${matchData.sourceCourse.topics?.join(', ') || 'No detailed topics'})
+      with its closest METU equivalent "${matchData.matches[0]?.code || 'None'}: ${matchData.matches[0]?.name || 'None'}" (${matchData.matches[0]?.topics?.join(', ') || ''}).
+      
+      1. Are they equivalent? Why/Why not?
+      2. What topics are missing or extra?
+      3. Give 1 study tip for the METU course.
+      
+      Keep it concise (bullet points).
+    `;
+
+    try {
+      const response = await fetch(GROQ_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [
+             { role: 'system', content: 'You are an academic course advisor.' },
+             { role: 'user', content: prompt }
+          ],
+          max_tokens: 400
+        })
+      });
+
+      const json = await response.json();
+      const text = json.choices?.[0]?.message?.content || 'No detailed analysis available.';
+      
+      if (aiContent) aiContent.innerHTML = text.replace(/\n/g, '<br>');
+      
+    } catch (e) {
+      if (aiContent) aiContent.innerHTML = `Error: ${e.message}. Check your API key.`;
+      aiUpsell?.classList.remove('hidden'); // Show button to try again
+      apiKeyPanel?.classList.remove('hidden'); // Show input
     }
   }
 </script>
+
+<style>
+  .equivalency-page { padding: var(--space-8) 0 var(--space-20); }
+  .page-header { text-align: center; margin-bottom: var(--space-10); }
+  .page-title { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #2563eb, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 1rem 0; }
+  .page-description { color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.6; }
+  
+  .tool-card { background: var(--bg-card); border-radius: 24px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: var(--shadow-xl); }
+  .tool-header { padding: 2rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); text-align: center; }
+  .tool-header h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .tool-content { padding: 2rem; }
+  
+  .step-label { display: block; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); margin-bottom: 1rem; }
+  
+  /* University Grid */
+  .university-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+  .university-btn {
+    display: flex; align-items: center; gap: 1rem; padding: 1rem;
+    background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 16px;
+    cursor: pointer; transition: all 0.2s; text-align: left; position: relative;
+  }
+  .university-btn:hover { border-color: var(--primary-400); transform: translateY(-2px); }
+  .university-btn.active { border-color: var(--primary-600); background: var(--primary-50); }
+  [data-theme="dark"] .university-btn.active { background: rgba(37, 99, 235, 0.2); }
+  
+  .uni-icon { width: 40px; height: 40px; background: var(--gradient-primary); color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+  .uni-info { flex: 1; display: flex; flex-direction: column; }
+  .uni-name { font-weight: 600; color: var(--text-primary); }
+  .uni-count { font-size: 0.8rem; color: var(--text-tertiary); }
+  .check-icon { color: var(--primary-600); opacity: 0; transition: opacity 0.2s; }
+  .university-btn.active .check-icon { opacity: 1; }
+  
+  /* Inputs */
+  .select-wrapper { position: relative; margin-bottom: 1.5rem; }
+  .form-select { width: 100%; padding: 1rem; padding-right: 3rem; border: 2px solid var(--border-color); border-radius: 12px; appearance: none; background: var(--bg-primary); font-size: 1rem; color: var(--text-primary); }
+  .select-arrow { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-tertiary); }
+  
+  .btn-block { width: 100%; padding: 1rem; border-radius: 12px; font-size: 1.1rem; }
+  .hidden { display: none !important; }
+  
+  /* Results */
+  .results-section { margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 2rem; }
+  .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  
+  .match-card { background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 16px; padding: 1.5rem; margin-bottom: 1rem; }
+  .match-card.highlight { border: 2px solid var(--primary-400); background: linear-gradient(to right, rgba(37, 99, 235, 0.05), transparent); }
+  
+  .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+  .match-pair { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .course-pill { font-family: monospace; font-weight: 700; padding: 2px 6px; border-radius: 4px; background: var(--bg-tertiary); font-size: 0.9rem; }
+  .arrow { color: var(--text-tertiary); }
+  
+  .match-score { text-align: right; }
+  .score-val { display: block; font-size: 1.5rem; font-weight: 800; line-height: 1; }
+  .score-label { font-size: 0.7rem; text-transform: uppercase; font-weight: 600; opacity: 0.7; }
+  .high { color: #10b981; } .medium { color: #f59e0b; } .low { color: #ef4444; }
+  
+  /* AI Section */
+  .ai-upsell-card { background: linear-gradient(135deg, #4f46e5, #7c3aed); color: white; padding: 1.5rem; border-radius: 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; }
+  .ai-upsell-content { display: flex; align-items: center; gap: 1rem; }
+  .ai-icon { font-size: 2rem; }
+  .ai-text h4 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+  .ai-text p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+  
+  .btn-ai-primary { background: white; color: #4f46e5; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: transform 0.2s; white-space: nowrap; }
+  .btn-ai-primary:hover { transform: scale(1.05); }
+  
+  .api-key-panel { background: var(--bg-tertiary); padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px dashed var(--border-color); }
+  .input-group { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+  .input-group input { flex: 1; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color); }
+  
+  .ai-output-card { background: var(--bg-tertiary); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid #7c3aed; }
+  .ai-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-weight: 700; color: #7c3aed; }
+  .ai-body { line-height: 1.6; font-size: 0.95rem; }
+  
+  @media (max-width: 640px) {
+    .ai-upsell-card { flex-direction: column; text-align: center; }
+    .ai-upsell-content { flex-direction: column; }
+    .btn-ai-primary { width: 100%; }
+  }
+</style>
