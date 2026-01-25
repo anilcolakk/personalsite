@@ -1,0 +1,225 @@
+---
+/**
+ * LockedContent Component
+ * Displays a blurred preview with purchase CTA for paid content
+ */
+interface Props {
+  preview?: string;
+  price: number;
+  productId: string;
+  noteTitle: string;
+}
+
+const { preview, price, productId, noteTitle } = Astro.props;
+---
+
+<div class="locked-content">
+  <div class="locked-content__preview">
+    {preview && <p class="locked-content__text">{preview}</p>}
+    <div class="locked-content__blur"></div>
+  </div>
+  
+  <div class="locked-content__overlay">
+    <div class="locked-content__icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        <circle cx="12" cy="16" r="1"/>
+      </svg>
+    </div>
+    
+    <h3 class="locked-content__title">Premium Content</h3>
+    <p class="locked-content__description">
+      Unlock full access to "{noteTitle}" and download the complete resource.
+    </p>
+    
+    <div class="locked-content__price-box">
+      <span class="locked-content__price">₺{price.toFixed(2)}</span>
+      <span class="locked-content__price-label">One-time purchase</span>
+    </div>
+    
+    <a href={`/purchase/${productId}`} class="btn btn-purchase">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+      Purchase Now
+    </a>
+    
+    <div class="locked-content__features">
+      <div class="locked-content__feature">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span>Instant download access</span>
+      </div>
+      <div class="locked-content__feature">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span>PDF format</span>
+      </div>
+      <div class="locked-content__feature">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        <span>Lifetime access</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .locked-content {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+  }
+  
+  .locked-content__preview {
+    position: relative;
+    padding: var(--space-6);
+    min-height: 200px;
+  }
+  
+  .locked-content__text {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-size: var(--text-base);
+  }
+  
+  .locked-content__blur {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(255, 255, 255, 0.5) 30%,
+      var(--bg-card) 100%
+    );
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  [data-theme="dark"] .locked-content__blur {
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(15, 23, 42, 0.5) 30%,
+      var(--bg-card) 100%
+    );
+  }
+  
+  .locked-content__overlay {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-8);
+    background: linear-gradient(
+      145deg,
+      rgba(168, 85, 247, 0.05) 0%,
+      rgba(236, 72, 153, 0.05) 100%
+    );
+    border-top: 1px solid var(--border-color);
+  }
+  
+  [data-theme="dark"] .locked-content__overlay {
+    background: linear-gradient(
+      145deg,
+      rgba(168, 85, 247, 0.1) 0%,
+      rgba(236, 72, 153, 0.1) 100%
+    );
+  }
+  
+  .locked-content__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--secondary-500), var(--primary-500));
+    color: white;
+    margin-bottom: var(--space-4);
+    box-shadow: 0 10px 40px -10px var(--secondary-500);
+  }
+  
+  .locked-content__title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+  
+  .locked-content__description {
+    color: var(--text-secondary);
+    max-width: 400px;
+    margin-bottom: var(--space-6);
+  }
+  
+  .locked-content__price-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: var(--space-6);
+  }
+  
+  .locked-content__price {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    font-family: var(--font-heading);
+    background: linear-gradient(135deg, var(--secondary-500), var(--primary-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .locked-content__price-label {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+  }
+  
+  .btn-purchase {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-8);
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, var(--secondary-500) 0%, var(--primary-500) 100%);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 10px 30px -10px var(--secondary-500);
+    transition: all var(--transition-base);
+    margin-bottom: var(--space-6);
+  }
+  
+  .btn-purchase:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 15px 40px -10px var(--secondary-500);
+  }
+  
+  .locked-content__features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+  
+  .locked-content__feature {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+  
+  .locked-content__feature svg {
+    color: var(--success-500);
+  }
+</style>

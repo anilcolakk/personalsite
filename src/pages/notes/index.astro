@@ -1,0 +1,256 @@
+---
+/**
+ * Notes Archive Page
+ * Lists all lecture notes with filtering capabilities
+ */
+import BaseLayout from '@layouts/BaseLayout.astro';
+import NoteCard from '@components/NoteCard.astro';
+import ContentFilter from '@components/ContentFilter.astro';
+import { getCollection } from 'astro:content';
+
+// Get query parameters for filtering
+const url = new URL(Astro.request.url);
+const yearFilter = url.searchParams.get('year') || '';
+const courseFilter = url.searchParams.get('course') || '';
+const topicFilter = url.searchParams.get('topic') || '';
+const typeFilter = url.searchParams.get('type') || '';
+
+// Get all notes
+let notes = await getCollection('notes');
+
+// Apply filters
+if (yearFilter) {
+  notes = notes.filter(note => note.data.year === yearFilter);
+}
+if (courseFilter) {
+  notes = notes.filter(note => note.data.courseCode === courseFilter);
+}
+if (topicFilter) {
+  notes = notes.filter(note => note.data.topic === topicFilter);
+}
+if (typeFilter === 'free') {
+  notes = notes.filter(note => !note.data.isPaid);
+} else if (typeFilter === 'premium') {
+  notes = notes.filter(note => note.data.isPaid);
+}
+
+// Sort by featured first, then by date
+notes.sort((a, b) => {
+  if (a.data.featured && !b.data.featured) return -1;
+  if (!a.data.featured && b.data.featured) return 1;
+  return b.data.createdAt.getTime() - a.data.createdAt.getTime();
+});
+
+// Count stats
+const totalNotes = notes.length;
+const freeNotes = notes.filter(n => !n.data.isPaid).length;
+const premiumNotes = notes.filter(n => n.data.isPaid).length;
+---
+
+<BaseLayout 
+  title="Course Notes Archive" 
+  description="Browse and download comprehensive lecture notes for METU Electrical and Electronics Engineering courses."
+>
+  <section class="notes-hero">
+    <div class="container">
+      <h1 class="notes-hero__title">
+        <span class="gradient-text-animated">Course Notes</span> Archive
+      </h1>
+      <p class="notes-hero__subtitle">
+        Comprehensive lecture notes from four years of EEE at METU. 
+        Find exactly what you need with our filtering system.
+      </p>
+      <div class="notes-hero__stats">
+        <div class="stat">
+          <span class="stat__number">{totalNotes}</span>
+          <span class="stat__label">Total Notes</span>
+        </div>
+        <div class="stat">
+          <span class="stat__number">{freeNotes}</span>
+          <span class="stat__label">Free Resources</span>
+        </div>
+        <div class="stat">
+          <span class="stat__number">{premiumNotes}</span>
+          <span class="stat__label">Premium Bundles</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="notes-content section">
+    <div class="container">
+      <div class="notes-layout">
+        <!-- Sidebar with Filters -->
+        <aside class="notes-sidebar">
+          <ContentFilter 
+            selectedYear={yearFilter}
+            selectedCourse={courseFilter}
+            selectedTopic={topicFilter}
+          />
+        </aside>
+        
+        <!-- Notes Grid -->
+        <div class="notes-main">
+          {notes.length > 0 ? (
+            <div class="notes-grid">
+              {notes.map(note => (
+                <NoteCard
+                  title={note.data.title}
+                  description={note.data.description}
+                  courseCode={note.data.courseCode}
+                  courseName={note.data.courseName}
+                  topic={note.data.topic}
+                  year={note.data.year}
+                  isPaid={note.data.isPaid}
+                  price={note.data.price}
+                  slug={note.slug}
+                  featured={note.data.featured}
+                />
+              ))}
+            </div>
+          ) : (
+            <div class="notes-empty">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="9" y1="15" x2="15" y2="15"/>
+              </svg>
+              <h3>No notes found</h3>
+              <p>Try adjusting your filters or check back later for new content.</p>
+              <a href="/notes" class="btn btn-secondary">Clear Filters</a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .notes-hero {
+    background: linear-gradient(180deg, var(--bg-tertiary) 0%, var(--bg-primary) 100%);
+    padding: var(--space-16) 0 var(--space-12);
+    text-align: center;
+  }
+  
+  .notes-hero__title {
+    font-size: var(--text-5xl);
+    font-weight: 800;
+    margin-bottom: var(--space-4);
+  }
+  
+  .notes-hero__subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto var(--space-8);
+  }
+  
+  .notes-hero__stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-12);
+    flex-wrap: wrap;
+  }
+  
+  .stat {
+    text-align: center;
+  }
+  
+  .stat__number {
+    display: block;
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    font-family: var(--font-heading);
+    color: var(--primary-600);
+  }
+  
+  [data-theme="dark"] .stat__number {
+    color: var(--primary-400);
+  }
+  
+  .stat__label {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .notes-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: var(--space-8);
+    align-items: start;
+  }
+  
+  .notes-sidebar {
+    position: sticky;
+    top: var(--space-6);
+  }
+  
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-6);
+  }
+  
+  .notes-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--space-16);
+    background: var(--bg-card);
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-xl);
+    color: var(--text-tertiary);
+  }
+  
+  .notes-empty svg {
+    margin-bottom: var(--space-4);
+    opacity: 0.5;
+  }
+  
+  .notes-empty h3 {
+    font-size: var(--text-xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+  
+  .notes-empty p {
+    margin-bottom: var(--space-6);
+  }
+  
+  @media (max-width: 1024px) {
+    .notes-layout {
+      grid-template-columns: 1fr;
+    }
+    
+    .notes-sidebar {
+      position: static;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .notes-hero {
+      padding: var(--space-12) 0 var(--space-8);
+    }
+    
+    .notes-hero__title {
+      font-size: var(--text-3xl);
+    }
+    
+    .notes-hero__stats {
+      gap: var(--space-6);
+    }
+    
+    .stat__number {
+      font-size: var(--text-2xl);
+    }
+    
+    .notes-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

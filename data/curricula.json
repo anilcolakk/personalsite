@@ -1,0 +1,1293 @@
+{
+    "universities": {
+        "ODTU": {
+            "id": "odtu",
+            "name": "Orta Doğu Teknik Üniversitesi",
+            "shortName": "ODTÜ",
+            "department": "Elektrik-Elektronik Mühendisliği",
+            "website": "https://eee.metu.edu.tr",
+            "courses": [
+                {
+                    "code": "EE201",
+                    "name": "Circuit Theory",
+                    "nameTR": "Devre Teorisi",
+                    "topics": [
+                        "circuit analysis",
+                        "Kirchhoff laws",
+                        "nodal analysis",
+                        "mesh analysis",
+                        "Thevenin",
+                        "Norton",
+                        "superposition",
+                        "capacitors",
+                        "inductors",
+                        "first order circuits",
+                        "second order circuits"
+                    ],
+                    "description": "Analysis of electrical circuits including resistive, capacitive, and inductive elements. Transient and steady-state analysis.",
+                    "credits": 4,
+                    "year": 2,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "DC Circuit Analysis",
+                        "Transient Response",
+                        "AC Steady State"
+                    ]
+                },
+                {
+                    "code": "EE202",
+                    "name": "Circuit Theory II",
+                    "nameTR": "Devre Teorisi II",
+                    "topics": [
+                        "AC analysis",
+                        "phasors",
+                        "impedance",
+                        "frequency response",
+                        "Bode plots",
+                        "resonance",
+                        "filters",
+                        "two-port networks",
+                        "transformers"
+                    ],
+                    "description": "Continuation of circuit analysis with focus on AC circuits, frequency domain analysis, and two-port networks.",
+                    "credits": 4,
+                    "year": 2,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "Phasor Analysis",
+                        "Frequency Response",
+                        "Filter Design"
+                    ]
+                },
+                {
+                    "code": "EE203",
+                    "name": "Electronic Circuit Design",
+                    "nameTR": "Elektronik Devre Tasarımı",
+                    "topics": [
+                        "diodes",
+                        "BJT",
+                        "MOSFET",
+                        "amplifiers",
+                        "biasing",
+                        "small signal analysis",
+                        "frequency response",
+                        "differential amplifiers"
+                    ],
+                    "description": "Design and analysis of electronic circuits using semiconductor devices.",
+                    "credits": 4,
+                    "year": 2,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "Diode Circuits",
+                        "BJT Amplifiers",
+                        "MOSFET Circuits"
+                    ]
+                },
+                {
+                    "code": "EE301",
+                    "name": "Signals and Systems I",
+                    "nameTR": "İşaretler ve Sistemler I",
+                    "topics": [
+                        "continuous-time signals",
+                        "discrete-time signals",
+                        "LTI systems",
+                        "convolution",
+                        "Fourier series",
+                        "Fourier transform",
+                        "Laplace transform",
+                        "transfer function",
+                        "frequency response"
+                    ],
+                    "description": "Analysis of continuous and discrete-time signals and linear time-invariant systems.",
+                    "credits": 4,
+                    "year": 3,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "Signal Classification",
+                        "Convolution",
+                        "Fourier Analysis",
+                        "Laplace Transform"
+                    ]
+                },
+                {
+                    "code": "EE302",
+                    "name": "Signals and Systems II",
+                    "nameTR": "İşaretler ve Sistemler II",
+                    "topics": [
+                        "Z-transform",
+                        "discrete Fourier transform",
+                        "DFT",
+                        "FFT",
+                        "sampling",
+                        "aliasing",
+                        "digital filters",
+                        "state-space"
+                    ],
+                    "description": "Continuation with discrete-time systems, sampling theory, and digital signal processing fundamentals.",
+                    "credits": 4,
+                    "year": 3,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "Z-Transform",
+                        "Sampling Theory",
+                        "DFT and FFT"
+                    ]
+                },
+                {
+                    "code": "EE303",
+                    "name": "Electromagnetic Field Theory",
+                    "nameTR": "Elektromanyetik Alan Teorisi",
+                    "topics": [
+                        "vector calculus",
+                        "electrostatics",
+                        "magnetostatics",
+                        "Maxwell equations",
+                        "electromagnetic waves",
+                        "transmission lines",
+                        "waveguides",
+                        "antennas"
+                    ],
+                    "description": "Fundamentals of electromagnetic fields and waves, Maxwell's equations, and wave propagation.",
+                    "credits": 4,
+                    "year": 3,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "Electrostatics",
+                        "Magnetostatics",
+                        "Maxwell Equations",
+                        "Wave Propagation"
+                    ]
+                },
+                {
+                    "code": "EE304",
+                    "name": "Control Systems",
+                    "nameTR": "Kontrol Sistemleri",
+                    "topics": [
+                        "feedback systems",
+                        "stability",
+                        "Routh-Hurwitz",
+                        "root locus",
+                        "Bode plot",
+                        "Nyquist",
+                        "PID control",
+                        "state-space",
+                        "controllability",
+                        "observability"
+                    ],
+                    "description": "Analysis and design of linear feedback control systems.",
+                    "credits": 4,
+                    "year": 3,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "System Modeling",
+                        "Stability Analysis",
+                        "Root Locus",
+                        "Frequency Response Design"
+                    ]
+                },
+                {
+                    "code": "EE305",
+                    "name": "Electronics II",
+                    "nameTR": "Elektronik II",
+                    "topics": [
+                        "operational amplifiers",
+                        "op-amp circuits",
+                        "feedback",
+                        "oscillators",
+                        "power amplifiers",
+                        "analog filters",
+                        "comparators",
+                        "ADC",
+                        "DAC"
+                    ],
+                    "description": "Advanced analog electronics including op-amp applications and power electronics.",
+                    "credits": 4,
+                    "year": 3,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "Op-Amp Fundamentals",
+                        "Feedback Circuits",
+                        "Oscillators"
+                    ]
+                },
+                {
+                    "code": "EE306",
+                    "name": "Digital Electronics",
+                    "nameTR": "Sayısal Elektronik",
+                    "topics": [
+                        "Boolean algebra",
+                        "logic gates",
+                        "combinational circuits",
+                        "sequential circuits",
+                        "flip-flops",
+                        "counters",
+                        "registers",
+                        "FSM",
+                        "VHDL",
+                        "Verilog"
+                    ],
+                    "description": "Design of digital circuits and systems, logic design, and HDL programming.",
+                    "credits": 4,
+                    "year": 3,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "Combinational Logic",
+                        "Sequential Logic",
+                        "FSM Design",
+                        "HDL Basics"
+                    ]
+                },
+                {
+                    "code": "EE401",
+                    "name": "Communication Systems",
+                    "nameTR": "Haberleşme Sistemleri",
+                    "topics": [
+                        "amplitude modulation",
+                        "AM",
+                        "frequency modulation",
+                        "FM",
+                        "phase modulation",
+                        "digital modulation",
+                        "ASK",
+                        "FSK",
+                        "PSK",
+                        "QAM",
+                        "noise",
+                        "channel capacity"
+                    ],
+                    "description": "Analog and digital communication systems, modulation techniques, and channel characteristics.",
+                    "credits": 4,
+                    "year": 4,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "Analog Modulation",
+                        "Digital Modulation",
+                        "Noise Analysis"
+                    ]
+                },
+                {
+                    "code": "EE402",
+                    "name": "Digital Signal Processing",
+                    "nameTR": "Sayısal İşaret İşleme",
+                    "topics": [
+                        "digital filters",
+                        "FIR",
+                        "IIR",
+                        "filter design",
+                        "windowing",
+                        "spectral analysis",
+                        "multirate processing",
+                        "DSP applications"
+                    ],
+                    "description": "Design and implementation of digital signal processing algorithms.",
+                    "credits": 4,
+                    "year": 4,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "FIR Filter Design",
+                        "IIR Filter Design",
+                        "DSP Applications"
+                    ]
+                },
+                {
+                    "code": "EE403",
+                    "name": "Power Electronics",
+                    "nameTR": "Güç Elektroniği",
+                    "topics": [
+                        "power semiconductor devices",
+                        "rectifiers",
+                        "DC-DC converters",
+                        "buck",
+                        "boost",
+                        "inverters",
+                        "PWM",
+                        "motor drives"
+                    ],
+                    "description": "Power electronic converters and their applications.",
+                    "credits": 4,
+                    "year": 4,
+                    "notes_available": true,
+                    "notes_sections": [
+                        "Rectifiers",
+                        "DC-DC Converters",
+                        "Inverters"
+                    ]
+                }
+            ]
+        },
+        "ITU": {
+            "id": "itu",
+            "name": "İstanbul Teknik Üniversitesi",
+            "shortName": "İTÜ",
+            "department": "Elektrik-Elektronik Mühendisliği",
+            "website": "https://eee.itu.edu.tr",
+            "courses": [
+                {
+                    "code": "EHB231",
+                    "name": "Circuit Theory",
+                    "nameTR": "Devre Teorisi",
+                    "topics": [
+                        "circuit analysis",
+                        "Kirchhoff laws",
+                        "nodal analysis",
+                        "mesh analysis",
+                        "Thevenin",
+                        "Norton",
+                        "superposition",
+                        "capacitors",
+                        "inductors"
+                    ],
+                    "description": "Fundamental circuit analysis methods and techniques.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EHB232",
+                    "name": "Circuit Theory II",
+                    "nameTR": "Devre Teorisi II",
+                    "topics": [
+                        "AC circuits",
+                        "phasors",
+                        "impedance",
+                        "frequency response",
+                        "filters",
+                        "resonance",
+                        "two-port networks"
+                    ],
+                    "description": "AC circuit analysis and frequency domain methods.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EHB321",
+                    "name": "Signals and Systems",
+                    "nameTR": "İşaretler ve Sistemler",
+                    "topics": [
+                        "continuous signals",
+                        "discrete signals",
+                        "LTI systems",
+                        "convolution",
+                        "Fourier transform",
+                        "Laplace transform",
+                        "Z-transform"
+                    ],
+                    "description": "Analysis of signals and linear systems in time and frequency domains.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EHB341",
+                    "name": "Electronics I",
+                    "nameTR": "Elektronik I",
+                    "topics": [
+                        "diodes",
+                        "BJT",
+                        "MOSFET",
+                        "amplifiers",
+                        "biasing",
+                        "small signal analysis"
+                    ],
+                    "description": "Semiconductor devices and basic electronic circuits.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EHB342",
+                    "name": "Electronics II",
+                    "nameTR": "Elektronik II",
+                    "topics": [
+                        "operational amplifiers",
+                        "feedback",
+                        "oscillators",
+                        "power amplifiers",
+                        "analog filters"
+                    ],
+                    "description": "Advanced analog circuits and op-amp applications.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EHB351",
+                    "name": "Electromagnetic Fields",
+                    "nameTR": "Elektromanyetik Alanlar",
+                    "topics": [
+                        "electrostatics",
+                        "magnetostatics",
+                        "Maxwell equations",
+                        "electromagnetic waves",
+                        "transmission lines"
+                    ],
+                    "description": "Electromagnetic field theory and wave propagation.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EHB361",
+                    "name": "Control Systems",
+                    "nameTR": "Kontrol Sistemleri",
+                    "topics": [
+                        "feedback",
+                        "stability",
+                        "root locus",
+                        "Bode plot",
+                        "PID control",
+                        "state-space"
+                    ],
+                    "description": "Analysis and design of feedback control systems.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EHB371",
+                    "name": "Digital Circuits",
+                    "nameTR": "Sayısal Devreler",
+                    "topics": [
+                        "logic gates",
+                        "Boolean algebra",
+                        "combinational circuits",
+                        "sequential circuits",
+                        "VHDL"
+                    ],
+                    "description": "Digital logic design and implementation.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EHB421",
+                    "name": "Communication Systems",
+                    "nameTR": "Haberleşme Sistemleri",
+                    "topics": [
+                        "AM",
+                        "FM",
+                        "digital modulation",
+                        "PSK",
+                        "QAM",
+                        "channel coding"
+                    ],
+                    "description": "Principles of analog and digital communication.",
+                    "credits": 4,
+                    "year": 4
+                }
+            ]
+        },
+        "Bilkent": {
+            "id": "bilkent",
+            "name": "Bilkent Üniversitesi",
+            "shortName": "Bilkent",
+            "department": "Elektrik-Elektronik Mühendisliği",
+            "website": "https://ee.bilkent.edu.tr",
+            "courses": [
+                {
+                    "code": "EEE211",
+                    "name": "Analog Electronics",
+                    "nameTR": "Analog Elektronik",
+                    "topics": [
+                        "diodes",
+                        "BJT",
+                        "MOSFET",
+                        "amplifiers",
+                        "biasing",
+                        "frequency response"
+                    ],
+                    "description": "Semiconductor devices and analog circuit design.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EEE212",
+                    "name": "Microprocessors",
+                    "nameTR": "Mikroişlemciler",
+                    "topics": [
+                        "microprocessor architecture",
+                        "assembly programming",
+                        "memory",
+                        "I/O",
+                        "interrupts"
+                    ],
+                    "description": "Microprocessor systems and assembly programming.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EEE224",
+                    "name": "Circuit Theory",
+                    "nameTR": "Devre Teorisi",
+                    "topics": [
+                        "circuit analysis",
+                        "Kirchhoff",
+                        "nodal analysis",
+                        "AC circuits",
+                        "phasors",
+                        "frequency response"
+                    ],
+                    "description": "Electric circuit analysis fundamentals.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EEE311",
+                    "name": "Signals and Systems",
+                    "nameTR": "İşaretler ve Sistemler",
+                    "topics": [
+                        "signals",
+                        "LTI systems",
+                        "convolution",
+                        "Fourier",
+                        "Laplace",
+                        "Z-transform"
+                    ],
+                    "description": "Signal and system analysis in continuous and discrete time.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EEE313",
+                    "name": "Electronics II",
+                    "nameTR": "Elektronik II",
+                    "topics": [
+                        "op-amps",
+                        "feedback",
+                        "oscillators",
+                        "power amplifiers",
+                        "filters"
+                    ],
+                    "description": "Advanced analog electronics.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EEE321",
+                    "name": "Electromagnetics",
+                    "nameTR": "Elektromanyetik",
+                    "topics": [
+                        "Maxwell equations",
+                        "electrostatics",
+                        "magnetostatics",
+                        "waves",
+                        "transmission lines"
+                    ],
+                    "description": "Electromagnetic field theory.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EEE351",
+                    "name": "Feedback Control Systems",
+                    "nameTR": "Geri Beslemeli Kontrol Sistemleri",
+                    "topics": [
+                        "feedback",
+                        "stability",
+                        "root locus",
+                        "Nyquist",
+                        "Bode",
+                        "PID"
+                    ],
+                    "description": "Control system analysis and design.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EEE391",
+                    "name": "Digital Electronics",
+                    "nameTR": "Sayısal Elektronik",
+                    "topics": [
+                        "digital logic",
+                        "combinational",
+                        "sequential",
+                        "FSM",
+                        "FPGA"
+                    ],
+                    "description": "Digital circuit design.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EEE411",
+                    "name": "Digital Signal Processing",
+                    "nameTR": "Sayısal İşaret İşleme",
+                    "topics": [
+                        "digital filters",
+                        "FIR",
+                        "IIR",
+                        "DFT",
+                        "FFT",
+                        "filter design"
+                    ],
+                    "description": "DSP algorithms and applications.",
+                    "credits": 4,
+                    "year": 4
+                }
+            ]
+        },
+        "Bogazici": {
+            "id": "bogazici",
+            "name": "Boğaziçi Üniversitesi",
+            "shortName": "Boğaziçi",
+            "department": "Elektrik-Elektronik Mühendisliği",
+            "website": "https://ee.boun.edu.tr",
+            "courses": [
+                {
+                    "code": "EE201",
+                    "name": "Circuit Theory I",
+                    "nameTR": "Devre Teorisi I",
+                    "topics": [
+                        "resistive circuits",
+                        "Kirchhoff",
+                        "nodal analysis",
+                        "mesh analysis",
+                        "Thevenin",
+                        "Norton"
+                    ],
+                    "description": "Fundamentals of electric circuit analysis.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EE202",
+                    "name": "Circuit Theory II",
+                    "nameTR": "Devre Teorisi II",
+                    "topics": [
+                        "transients",
+                        "AC circuits",
+                        "phasors",
+                        "frequency response",
+                        "two-port"
+                    ],
+                    "description": "Transient and AC circuit analysis.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EE203",
+                    "name": "Electronic Circuits I",
+                    "nameTR": "Elektronik Devreler I",
+                    "topics": [
+                        "diodes",
+                        "BJT",
+                        "MOSFET",
+                        "amplifiers",
+                        "biasing"
+                    ],
+                    "description": "Semiconductor devices and basic amplifiers.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EE301",
+                    "name": "Signals and Systems",
+                    "nameTR": "İşaretler ve Sistemler",
+                    "topics": [
+                        "continuous signals",
+                        "discrete signals",
+                        "LTI",
+                        "convolution",
+                        "Fourier",
+                        "Laplace"
+                    ],
+                    "description": "Signal and system fundamentals.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE303",
+                    "name": "Electronic Circuits II",
+                    "nameTR": "Elektronik Devreler II",
+                    "topics": [
+                        "op-amps",
+                        "feedback",
+                        "oscillators",
+                        "analog filters"
+                    ],
+                    "description": "Advanced analog circuits.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE304",
+                    "name": "Electromagnetic Field Theory",
+                    "nameTR": "Elektromanyetik Alan Teorisi",
+                    "topics": [
+                        "electrostatics",
+                        "magnetostatics",
+                        "Maxwell",
+                        "waves",
+                        "transmission lines"
+                    ],
+                    "description": "Electromagnetic fields and waves.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE305",
+                    "name": "Control Systems",
+                    "nameTR": "Kontrol Sistemleri",
+                    "topics": [
+                        "feedback",
+                        "stability",
+                        "root locus",
+                        "Bode",
+                        "Nyquist",
+                        "PID"
+                    ],
+                    "description": "Feedback control system design.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE306",
+                    "name": "Digital Design",
+                    "nameTR": "Sayısal Tasarım",
+                    "topics": [
+                        "logic gates",
+                        "combinational",
+                        "sequential",
+                        "VHDL",
+                        "FPGA"
+                    ],
+                    "description": "Digital logic and system design.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE401",
+                    "name": "Communication Theory",
+                    "nameTR": "Haberleşme Teorisi",
+                    "topics": [
+                        "modulation",
+                        "AM",
+                        "FM",
+                        "digital modulation",
+                        "noise"
+                    ],
+                    "description": "Communication system principles.",
+                    "credits": 4,
+                    "year": 4
+                }
+            ]
+        },
+        "Hacettepe": {
+            "id": "hacettepe",
+            "name": "Hacettepe Üniversitesi",
+            "shortName": "Hacettepe",
+            "department": "Elektrik-Elektronik Mühendisliği",
+            "website": "https://ee.hacettepe.edu.tr",
+            "courses": [
+                {
+                    "code": "ELE201",
+                    "name": "Electric Circuits I",
+                    "nameTR": "Elektrik Devreleri I",
+                    "topics": [
+                        "circuit analysis",
+                        "Kirchhoff",
+                        "nodal",
+                        "mesh",
+                        "Thevenin",
+                        "Norton"
+                    ],
+                    "description": "Basic electric circuit analysis.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "ELE202",
+                    "name": "Electric Circuits II",
+                    "nameTR": "Elektrik Devreleri II",
+                    "topics": [
+                        "AC circuits",
+                        "phasors",
+                        "frequency response",
+                        "filters",
+                        "resonance"
+                    ],
+                    "description": "AC circuit analysis.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "ELE221",
+                    "name": "Electronics I",
+                    "nameTR": "Elektronik I",
+                    "topics": [
+                        "diodes",
+                        "BJT",
+                        "MOSFET",
+                        "amplifiers",
+                        "biasing"
+                    ],
+                    "description": "Semiconductor devices and circuits.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "ELE301",
+                    "name": "Signals and Systems",
+                    "nameTR": "İşaretler ve Sistemler",
+                    "topics": [
+                        "signals",
+                        "LTI systems",
+                        "convolution",
+                        "Fourier",
+                        "Laplace",
+                        "Z-transform"
+                    ],
+                    "description": "Signal and system analysis.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELE311",
+                    "name": "Electromagnetic Fields",
+                    "nameTR": "Elektromanyetik Alanlar",
+                    "topics": [
+                        "electrostatics",
+                        "magnetostatics",
+                        "Maxwell",
+                        "waves"
+                    ],
+                    "description": "Electromagnetic theory.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELE321",
+                    "name": "Electronics II",
+                    "nameTR": "Elektronik II",
+                    "topics": [
+                        "op-amps",
+                        "feedback",
+                        "oscillators",
+                        "power amplifiers"
+                    ],
+                    "description": "Advanced analog electronics.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELE331",
+                    "name": "Control Systems",
+                    "nameTR": "Kontrol Sistemleri",
+                    "topics": [
+                        "feedback",
+                        "stability",
+                        "root locus",
+                        "Bode",
+                        "PID"
+                    ],
+                    "description": "Control system analysis.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELE341",
+                    "name": "Digital Electronics",
+                    "nameTR": "Sayısal Elektronik",
+                    "topics": [
+                        "logic gates",
+                        "combinational",
+                        "sequential",
+                        "FSM"
+                    ],
+                    "description": "Digital circuit design.",
+                    "credits": 4,
+                    "year": 3
+                }
+            ]
+        },
+        "Koc": {
+            "id": "koc",
+            "name": "Koç Üniversitesi",
+            "shortName": "Koç",
+            "department": "Elektrik-Elektronik Mühendisliği",
+            "website": "https://ee.ku.edu.tr",
+            "courses": [
+                {
+                    "code": "ELEC201",
+                    "name": "Circuit Analysis",
+                    "nameTR": "Devre Analizi",
+                    "topics": [
+                        "circuit analysis",
+                        "Kirchhoff",
+                        "nodal",
+                        "mesh",
+                        "Thevenin",
+                        "AC circuits",
+                        "phasors"
+                    ],
+                    "description": "Electric circuit analysis fundamentals.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "ELEC204",
+                    "name": "Digital Design",
+                    "nameTR": "Sayısal Tasarım",
+                    "topics": [
+                        "Boolean algebra",
+                        "logic gates",
+                        "combinational",
+                        "sequential",
+                        "VHDL"
+                    ],
+                    "description": "Digital logic design.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "ELEC301",
+                    "name": "Electronics I",
+                    "nameTR": "Elektronik I",
+                    "topics": [
+                        "diodes",
+                        "BJT",
+                        "MOSFET",
+                        "amplifiers",
+                        "biasing",
+                        "frequency response"
+                    ],
+                    "description": "Semiconductor devices and amplifiers.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELEC302",
+                    "name": "Electronics II",
+                    "nameTR": "Elektronik II",
+                    "topics": [
+                        "op-amps",
+                        "feedback",
+                        "oscillators",
+                        "filters"
+                    ],
+                    "description": "Advanced analog circuits.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELEC303",
+                    "name": "Signals and Systems",
+                    "nameTR": "İşaretler ve Sistemler",
+                    "topics": [
+                        "signals",
+                        "LTI",
+                        "convolution",
+                        "Fourier",
+                        "Laplace",
+                        "sampling"
+                    ],
+                    "description": "Signal and system analysis.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELEC311",
+                    "name": "Electromagnetics",
+                    "nameTR": "Elektromanyetik",
+                    "topics": [
+                        "electrostatics",
+                        "magnetostatics",
+                        "Maxwell",
+                        "waves",
+                        "transmission lines"
+                    ],
+                    "description": "Electromagnetic field theory.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELEC321",
+                    "name": "Feedback Control",
+                    "nameTR": "Geri Beslemeli Kontrol",
+                    "topics": [
+                        "feedback",
+                        "stability",
+                        "root locus",
+                        "Bode",
+                        "Nyquist",
+                        "PID"
+                    ],
+                    "description": "Control system design.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELEC401",
+                    "name": "Digital Communications",
+                    "nameTR": "Sayısal Haberleşme",
+                    "topics": [
+                        "digital modulation",
+                        "PSK",
+                        "QAM",
+                        "coding",
+                        "noise"
+                    ],
+                    "description": "Digital communication systems.",
+                    "credits": 4,
+                    "year": 4
+                }
+            ]
+        },
+        "Sabanci": {
+            "id": "sabanci",
+            "name": "Sabancı Üniversitesi",
+            "shortName": "Sabancı",
+            "department": "Elektronik Mühendisliği",
+            "website": "https://ee.sabanciuniv.edu",
+            "courses": [
+                {
+                    "code": "EE201",
+                    "name": "Circuit Theory",
+                    "nameTR": "Devre Teorisi",
+                    "topics": [
+                        "circuit analysis",
+                        "Kirchhoff",
+                        "nodal",
+                        "mesh",
+                        "Thevenin",
+                        "AC circuits"
+                    ],
+                    "description": "Electric circuit fundamentals.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EE203",
+                    "name": "Electronics I",
+                    "nameTR": "Elektronik I",
+                    "topics": [
+                        "diodes",
+                        "BJT",
+                        "MOSFET",
+                        "amplifiers",
+                        "biasing"
+                    ],
+                    "description": "Semiconductor devices.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "EE301",
+                    "name": "Signals and Systems",
+                    "nameTR": "İşaretler ve Sistemler",
+                    "topics": [
+                        "signals",
+                        "LTI",
+                        "convolution",
+                        "Fourier",
+                        "Laplace",
+                        "Z-transform"
+                    ],
+                    "description": "Signal analysis.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE303",
+                    "name": "Electronics II",
+                    "nameTR": "Elektronik II",
+                    "topics": [
+                        "op-amps",
+                        "feedback",
+                        "oscillators",
+                        "filters"
+                    ],
+                    "description": "Analog circuit design.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE305",
+                    "name": "Electromagnetics",
+                    "nameTR": "Elektromanyetik",
+                    "topics": [
+                        "Maxwell",
+                        "electrostatics",
+                        "magnetostatics",
+                        "waves"
+                    ],
+                    "description": "Electromagnetic theory.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE307",
+                    "name": "Control Systems",
+                    "nameTR": "Kontrol Sistemleri",
+                    "topics": [
+                        "feedback",
+                        "stability",
+                        "root locus",
+                        "Bode",
+                        "PID"
+                    ],
+                    "description": "Feedback control.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE309",
+                    "name": "Digital Systems",
+                    "nameTR": "Sayısal Sistemler",
+                    "topics": [
+                        "logic design",
+                        "combinational",
+                        "sequential",
+                        "FPGA"
+                    ],
+                    "description": "Digital design.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "EE401",
+                    "name": "Communication Systems",
+                    "nameTR": "Haberleşme Sistemleri",
+                    "topics": [
+                        "modulation",
+                        "AM",
+                        "FM",
+                        "digital modulation"
+                    ],
+                    "description": "Communication theory.",
+                    "credits": 4,
+                    "year": 4
+                }
+            ]
+        },
+        "YTU": {
+            "id": "ytu",
+            "name": "Yıldız Teknik Üniversitesi",
+            "shortName": "YTÜ",
+            "department": "Elektrik-Elektronik Mühendisliği",
+            "website": "https://eef.yildiz.edu.tr",
+            "courses": [
+                {
+                    "code": "ELK2101",
+                    "name": "Circuit Theory I",
+                    "nameTR": "Devre Teorisi I",
+                    "topics": [
+                        "circuit analysis",
+                        "Kirchhoff",
+                        "nodal",
+                        "mesh",
+                        "Thevenin",
+                        "Norton"
+                    ],
+                    "description": "Basic circuit analysis.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "ELK2102",
+                    "name": "Circuit Theory II",
+                    "nameTR": "Devre Teorisi II",
+                    "topics": [
+                        "AC circuits",
+                        "phasors",
+                        "frequency response",
+                        "filters"
+                    ],
+                    "description": "AC circuit analysis.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "ELK2201",
+                    "name": "Electronics I",
+                    "nameTR": "Elektronik I",
+                    "topics": [
+                        "diodes",
+                        "BJT",
+                        "MOSFET",
+                        "amplifiers"
+                    ],
+                    "description": "Semiconductor electronics.",
+                    "credits": 4,
+                    "year": 2
+                },
+                {
+                    "code": "ELK3101",
+                    "name": "Signals and Systems",
+                    "nameTR": "İşaretler ve Sistemler",
+                    "topics": [
+                        "signals",
+                        "LTI",
+                        "Fourier",
+                        "Laplace",
+                        "Z-transform"
+                    ],
+                    "description": "Signal processing fundamentals.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELK3201",
+                    "name": "Electronics II",
+                    "nameTR": "Elektronik II",
+                    "topics": [
+                        "op-amps",
+                        "feedback",
+                        "oscillators"
+                    ],
+                    "description": "Advanced electronics.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELK3301",
+                    "name": "Electromagnetic Fields",
+                    "nameTR": "Elektromanyetik Alanlar",
+                    "topics": [
+                        "electrostatics",
+                        "magnetostatics",
+                        "Maxwell",
+                        "waves"
+                    ],
+                    "description": "Electromagnetic theory.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELK3401",
+                    "name": "Control Systems",
+                    "nameTR": "Kontrol Sistemleri",
+                    "topics": [
+                        "feedback",
+                        "stability",
+                        "root locus",
+                        "Bode"
+                    ],
+                    "description": "Control engineering.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELK3501",
+                    "name": "Digital Electronics",
+                    "nameTR": "Sayısal Elektronik",
+                    "topics": [
+                        "logic gates",
+                        "combinational",
+                        "sequential"
+                    ],
+                    "description": "Digital circuits.",
+                    "credits": 4,
+                    "year": 3
+                },
+                {
+                    "code": "ELK4101",
+                    "name": "Communication Systems",
+                    "nameTR": "Haberleşme Sistemleri",
+                    "topics": [
+                        "AM",
+                        "FM",
+                        "digital modulation",
+                        "noise"
+                    ],
+                    "description": "Communication theory.",
+                    "credits": 4,
+                    "year": 4
+                }
+            ]
+        }
+    }
+}

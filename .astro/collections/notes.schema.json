@@ -1,0 +1,128 @@
+{
+  "$ref": "#/definitions/notes",
+  "definitions": {
+    "notes": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "preview": {
+          "type": "string",
+          "description": "Preview text shown for locked content",
+          "markdownDescription": "Preview text shown for locked content"
+        },
+        "driveLink": {
+          "type": "string",
+          "format": "uri",
+          "description": "Google Drive link to the resource",
+          "markdownDescription": "Google Drive link to the resource"
+        },
+        "year": {
+          "type": "string",
+          "enum": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "description": "Academic year (1st through 4th)",
+          "markdownDescription": "Academic year (1st through 4th)"
+        },
+        "courseCode": {
+          "type": "string",
+          "description": "Course code e.g., EE101, EE202",
+          "markdownDescription": "Course code e.g., EE101, EE202"
+        },
+        "courseName": {
+          "type": "string",
+          "description": "Full course name",
+          "markdownDescription": "Full course name"
+        },
+        "topic": {
+          "type": "string",
+          "description": "Topic or chapter name",
+          "markdownDescription": "Topic or chapter name"
+        },
+        "isPaid": {
+          "type": "boolean",
+          "default": false
+        },
+        "price": {
+          "type": "number",
+          "description": "Price in TRY",
+          "markdownDescription": "Price in TRY"
+        },
+        "shopierProductId": {
+          "type": "string",
+          "description": "Shopier product ID for payment",
+          "markdownDescription": "Shopier product ID for payment"
+        },
+        "createdAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "updatedAt": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            },
+            {
+              "type": "integer",
+              "format": "unix-time"
+            }
+          ]
+        },
+        "featured": {
+          "type": "boolean",
+          "default": false
+        },
+        "downloadCount": {
+          "type": "number",
+          "default": 0
+        },
+        "keywords": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "$schema": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "driveLink",
+        "year",
+        "courseCode",
+        "courseName",
+        "topic",
+        "createdAt"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

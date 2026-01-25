@@ -1,0 +1,594 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+// Turkish universities with EEE programs
+const universities = [
+  { id: 'bilkent', name: 'Bilkent University' },
+  { id: 'bogazici', name: 'Boğaziçi University' },
+  { id: 'itu', name: 'İstanbul Technical University (İTÜ)' },
+  { id: 'hacettepe', name: 'Hacettepe University' },
+  { id: 'ytu', name: 'Yıldız Technical University' },
+  { id: 'gazi', name: 'Gazi University' },
+  { id: 'ege', name: 'Ege University' },
+  { id: 'dokuz_eylul', name: 'Dokuz Eylül University' },
+];
+
+// Sample equivalency data - maps courses from other universities to METU equivalents
+const equivalencyData = {
+  bilkent: [
+    { sourceCode: 'EEE102', sourceName: 'Circuits I', metuCode: 'EE202', metuName: 'Circuit Analysis', similarity: 95 },
+    { sourceCode: 'EEE211', sourceName: 'Analog Electronics', metuCode: 'EE301', metuName: 'Electronics I', similarity: 88 },
+    { sourceCode: 'EEE321', sourceName: 'Signals & Systems', metuCode: 'EE361', metuName: 'Signals and Systems', similarity: 92 },
+    { sourceCode: 'EEE241', sourceName: 'Digital Logic Design', metuCode: 'EE230', metuName: 'Digital Logic Design', similarity: 90 },
+  ],
+  bogazici: [
+    { sourceCode: 'EE211', sourceName: 'Electric Circuits', metuCode: 'EE202', metuName: 'Circuit Analysis', similarity: 94 },
+    { sourceCode: 'EE301', sourceName: 'Electronics I', metuCode: 'EE301', metuName: 'Electronics I', similarity: 96 },
+    { sourceCode: 'EE313', sourceName: 'Signals & Systems', metuCode: 'EE361', metuName: 'Signals and Systems', similarity: 93 },
+    { sourceCode: 'EE361', sourceName: 'Control Systems', metuCode: 'EE402', metuName: 'Control Systems', similarity: 91 },
+  ],
+  itu: [
+    { sourceCode: 'EHB231', sourceName: 'Devre Teorisi', metuCode: 'EE202', metuName: 'Circuit Analysis', similarity: 89 },
+    { sourceCode: 'EHB261', sourceName: 'Dijital Devreler', metuCode: 'EE230', metuName: 'Digital Logic Design', similarity: 87 },
+    { sourceCode: 'EHB331', sourceName: 'Elektronik I', metuCode: 'EE301', metuName: 'Electronics I', similarity: 90 },
+    { sourceCode: 'EHB351', sourceName: 'Sinyaller ve Sistemler', metuCode: 'EE361', metuName: 'Signals and Systems', similarity: 91 },
+  ],
+  hacettepe: [
+    { sourceCode: 'ELE201', sourceName: 'Elektrik Devreleri', metuCode: 'EE202', metuName: 'Circuit Analysis', similarity: 86 },
+    { sourceCode: 'ELE301', sourceName: 'Elektronik I', metuCode: 'EE301', metuName: 'Electronics I', similarity: 85 },
+    { sourceCode: 'ELE321', sourceName: 'Sinyaller ve Sistemler', metuCode: 'EE361', metuName: 'Signals and Systems', similarity: 88 },
+    { sourceCode: 'ELE401', sourceName: 'Kontrol Sistemleri', metuCode: 'EE402', metuName: 'Control Systems', similarity: 87 },
+  ],
+};
+---
+
+<BaseLayout title="Course Equivalency Tool" description="Find equivalent METU EEE courses from other Turkish universities">
+  <section class="equivalency-page">
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="header-badge">
+          <span class="badge-icon">🔄</span>
+          <span>AI-Powered Matching</span>
+        </div>
+        <h1 class="page-title">Cross-University Equivalency Tool</h1>
+        <p class="page-description">
+          Transferring or comparing courses? Find equivalent METU EEE courses from other Turkish universities. 
+          Our tool analyzes course syllabi and content to provide similarity scores.
+        </p>
+      </div>
+      
+      <!-- Tool Card -->
+      <div class="tool-card">
+        <div class="tool-header">
+          <h2>Find Course Equivalents</h2>
+          <p>Select a university to see how their courses map to METU EEE curriculum</p>
+        </div>
+        
+        <div class="tool-content">
+          <div class="university-selector">
+            <label class="selector-label">Select University</label>
+            <div class="university-grid" id="university-grid">
+              {universities.map((uni) => (
+                <button 
+                  class="university-btn" 
+                  data-university={uni.id}
+                  disabled={!equivalencyData[uni.id as keyof typeof equivalencyData]}
+                >
+                  <span class="uni-name">{uni.name}</span>
+                  {equivalencyData[uni.id as keyof typeof equivalencyData] ? (
+                    <span class="uni-count">{equivalencyData[uni.id as keyof typeof equivalencyData]?.length} courses</span>
+                  ) : (
+                    <span class="uni-coming">Coming soon</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <!-- Results Section -->
+          <div id="results-section" class="results-section" style="display: none;">
+            <div class="results-header">
+              <h3 id="results-title">Course Equivalencies</h3>
+              <button id="clear-selection" class="btn btn-ghost btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                Clear
+              </button>
+            </div>
+            
+            <div class="equivalency-table">
+              <div class="table-header">
+                <div class="col-source">Source Course</div>
+                <div class="col-arrow"></div>
+                <div class="col-metu">METU Equivalent</div>
+                <div class="col-similarity">Match</div>
+              </div>
+              <div id="equivalency-list" class="table-body">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+          </div>
+          
+          <!-- Empty State -->
+          <div id="empty-state" class="empty-state">
+            <div class="empty-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+              </svg>
+            </div>
+            <h3>Select a University</h3>
+            <p>Choose a university above to see how their courses match with METU EEE curriculum</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Info Section -->
+      <div class="info-section">
+        <div class="info-card">
+          <div class="info-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+          <div class="info-content">
+            <h4>How does this work?</h4>
+            <p>
+              Our equivalency tool analyzes course syllabi, learning outcomes, and content to determine 
+              similarity scores. Courses with 85%+ similarity are typically accepted for credit transfer. 
+              Always confirm with your academic advisor for official decisions.
+            </p>
+          </div>
+        </div>
+        
+        <div class="info-card">
+          <div class="info-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+          </div>
+          <div class="info-content">
+            <h4>Request a Course Addition</h4>
+            <p>
+              Don't see your university or a specific course? <a href="/contact">Contact us</a> and we'll 
+              work on adding it to the database.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .equivalency-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: var(--space-10);
+  }
+  
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.1));
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--secondary-600);
+    margin-bottom: var(--space-4);
+  }
+  
+  [data-theme="dark"] .header-badge {
+    color: var(--secondary-400);
+  }
+  
+  .badge-icon {
+    font-size: var(--text-lg);
+  }
+  
+  .page-title {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    margin-bottom: var(--space-4);
+  }
+  
+  .page-description {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  /* Tool Card */
+  .tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    margin-bottom: var(--space-10);
+  }
+  
+  .tool-header {
+    padding: var(--space-6);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+  }
+  
+  .tool-header h2 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-1);
+  }
+  
+  .tool-header p {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+  }
+  
+  .tool-content {
+    padding: var(--space-6);
+  }
+  
+  /* University Selector */
+  .selector-label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-3);
+  }
+  
+  .university-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+  
+  .university-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+  }
+  
+  .university-btn:not(:disabled):hover {
+    border-color: var(--primary-300);
+    background: var(--primary-50);
+  }
+  
+  [data-theme="dark"] .university-btn:not(:disabled):hover {
+    border-color: var(--primary-700);
+    background: rgba(59, 130, 246, 0.1);
+  }
+  
+  .university-btn.active {
+    border-color: var(--primary-500);
+    background: var(--primary-50);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+  
+  [data-theme="dark"] .university-btn.active {
+    background: rgba(59, 130, 246, 0.15);
+  }
+  
+  .university-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .uni-name {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+  }
+  
+  .uni-count {
+    font-size: var(--text-xs);
+    color: var(--primary-600);
+  }
+  
+  .uni-coming {
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+    font-style: italic;
+  }
+  
+  /* Results Section */
+  .results-section {
+    animation: fadeInUp 0.4s ease;
+  }
+  
+  .results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+  }
+  
+  .results-header h3 {
+    font-size: var(--text-lg);
+    font-weight: 700;
+  }
+  
+  /* Equivalency Table */
+  .equivalency-table {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  
+  .table-header {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr 100px;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    background: var(--bg-tertiary);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .table-body {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  .equivalency-row {
+    display: grid;
+    grid-template-columns: 1fr 40px 1fr 100px;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--border-color);
+    align-items: center;
+    transition: background var(--transition-fast);
+  }
+  
+  .equivalency-row:last-child {
+    border-bottom: none;
+  }
+  
+  .equivalency-row:hover {
+    background: var(--bg-tertiary);
+  }
+  
+  .course-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  
+  .course-code {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--primary-600);
+  }
+  
+  [data-theme="dark"] .course-code {
+    color: var(--primary-400);
+  }
+  
+  .course-name {
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+  }
+  
+  .col-arrow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-tertiary);
+  }
+  
+  .similarity-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    border-radius: var(--radius-full);
+  }
+  
+  .similarity-high {
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--success-600);
+  }
+  
+  .similarity-medium {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--warning-600);
+  }
+  
+  .similarity-low {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--error-600);
+  }
+  
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: var(--space-16);
+    color: var(--text-tertiary);
+  }
+  
+  .empty-icon {
+    margin-bottom: var(--space-4);
+    color: var(--text-tertiary);
+    opacity: 0.5;
+  }
+  
+  .empty-state h3 {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-2);
+  }
+  
+  /* Info Section */
+  .info-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+  
+  .info-card {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-6);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+  }
+  
+  .info-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: var(--primary-50);
+    border-radius: var(--radius-lg);
+    color: var(--primary-600);
+  }
+  
+  [data-theme="dark"] .info-icon {
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--primary-400);
+  }
+  
+  .info-content h4 {
+    font-size: var(--text-base);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+  
+  .info-content p {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  
+  .info-content a {
+    color: var(--primary-600);
+    font-weight: 500;
+  }
+  
+  .info-content a:hover {
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 1024px) {
+    .university-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .info-section {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .university-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .table-header,
+    .equivalency-row {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+    }
+    
+    .col-arrow {
+      display: none;
+    }
+    
+    .table-header .col-arrow,
+    .table-header .col-similarity {
+      display: none;
+    }
+  }
+</style>
+
+<script define:vars={{ equivalencyData }}>
+  const universityBtns = document.querySelectorAll('.university-btn');
+  const resultsSection = document.getElementById('results-section');
+  const emptyState = document.getElementById('empty-state');
+  const equivalencyList = document.getElementById('equivalency-list');
+  const resultsTitle = document.getElementById('results-title');
+  const clearBtn = document.getElementById('clear-selection');
+  
+  function showResults(universityId, universityName) {
+    const data = equivalencyData[universityId];
+    if (!data) return;
+    
+    // Update UI state
+    universityBtns.forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`[data-university="${universityId}"]`)?.classList.add('active');
+    
+    // Show results
+    emptyState.style.display = 'none';
+    resultsSection.style.display = 'block';
+    resultsTitle.textContent = `${universityName} → METU Equivalencies`;
+    
+    // Populate table
+    equivalencyList.innerHTML = data.map(item => `
+      <div class="equivalency-row">
+        <div class="course-info">
+          <span class="course-code">${item.sourceCode}</span>
+          <span class="course-name">${item.sourceName}</span>
+        </div>
+        <div class="col-arrow">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+        <div class="course-info">
+          <span class="course-code">${item.metuCode}</span>
+          <span class="course-name">${item.metuName}</span>
+        </div>
+        <div>
+          <span class="similarity-badge ${item.similarity >= 90 ? 'similarity-high' : item.similarity >= 80 ? 'similarity-medium' : 'similarity-low'}">
+            ${item.similarity}%
+          </span>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  function clearSelection() {
+    universityBtns.forEach(btn => btn.classList.remove('active'));
+    resultsSection.style.display = 'none';
+    emptyState.style.display = 'block';
+  }
+  
+  universityBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const universityId = btn.getAttribute('data-university');
+      const universityName = btn.querySelector('.uni-name')?.textContent || '';
+      showResults(universityId, universityName);
+    });
+  });
+  
+  clearBtn?.addEventListener('click', clearSelection);
+</script>

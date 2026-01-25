@@ -1,0 +1,180 @@
+---
+/**
+ * ShopierButton Component
+ * Handles Shopier payment integration for paid resources
+ * 
+ * This component generates a form that redirects to Shopier's payment page.
+ * After payment, Shopier will redirect the user back to the success page.
+ */
+interface Props {
+  productId: string;
+  productName: string;
+  price: number;
+  buyerEmail?: string;
+  className?: string;
+  variant?: 'primary' | 'secondary';
+}
+
+const { 
+  productId, 
+  productName, 
+  price, 
+  buyerEmail = '', 
+  className = '',
+  variant = 'primary'
+} = Astro.props;
+
+// Shopier configuration - Replace with your actual credentials
+const SHOPIER_API_KEY = import.meta.env.SHOPIER_API_KEY || 'YOUR_API_KEY';
+const SITE_URL = import.meta.env.SITE_URL || 'https://yourdomain.com';
+const CALLBACK_URL = `${SITE_URL}/purchase/success`;
+
+// Generate a unique order ID
+const orderId = `ORDER_${productId}_${Date.now()}`;
+---
+
+<div class={`shopier-button ${className}`}>
+  <form 
+    id={`shopier-form-${productId}`}
+    action="https://www.shopier.com/ShowProductNew/api_pay.php" 
+    method="POST"
+    class="shopier-form"
+  >
+    <!-- Hidden fields for Shopier API -->
+    <input type="hidden" name="api_key" value={SHOPIER_API_KEY} />
+    <input type="hidden" name="product_name" value={productName} />
+    <input type="hidden" name="product_price" value={price.toString()} />
+    <input type="hidden" name="order_id" value={orderId} />
+    <input type="hidden" name="currency" value="TRY" />
+    <input type="hidden" name="callback_url" value={CALLBACK_URL} />
+    <input type="hidden" name="buyer_email" value={buyerEmail} id={`buyer-email-${productId}`} />
+    
+    <!-- Email input for buyer (optional, can be pre-filled) -->
+    <div class="shopier-email-input" id={`email-section-${productId}`}>
+      <label for={`email-input-${productId}`} class="shopier-label">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        Email for download link
+      </label>
+      <input 
+        type="email" 
+        id={`email-input-${productId}`}
+        placeholder="your@email.com"
+        required
+        class="input shopier-input"
+      />
+    </div>
+    
+    <button 
+      type="submit" 
+      class={`btn shopier-submit ${variant === 'primary' ? 'btn-shopier-primary' : 'btn-shopier-secondary'}`}
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+        <line x1="1" y1="10" x2="23" y2="10"/>
+      </svg>
+      <span>Pay ₺{price.toFixed(2)} with Shopier</span>
+    </button>
+    
+    <p class="shopier-secure">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      Secure payment via Shopier
+    </p>
+  </form>
+</div>
+
+<script define:vars={{ productId }}>
+  // Sync email input with hidden field
+  const emailInput = document.getElementById(`email-input-${productId}`);
+  const buyerEmailField = document.getElementById(`buyer-email-${productId}`);
+  
+  if (emailInput && buyerEmailField) {
+    emailInput.addEventListener('input', (e) => {
+      buyerEmailField.value = e.target.value;
+    });
+  }
+</script>
+
+<style>
+  .shopier-button {
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .shopier-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  
+  .shopier-email-input {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  
+  .shopier-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+  
+  .shopier-input {
+    width: 100%;
+  }
+  
+  .shopier-submit {
+    width: 100%;
+    padding: var(--space-4) var(--space-6);
+    font-size: var(--text-base);
+    font-weight: 700;
+  }
+  
+  .btn-shopier-primary {
+    background: linear-gradient(135deg, #FF6B00 0%, #FF8C00 100%);
+    color: white;
+    border: none;
+    border-radius: var(--radius-xl);
+    box-shadow: 0 8px 25px -8px rgba(255, 107, 0, 0.5);
+    transition: all var(--transition-base);
+  }
+  
+  .btn-shopier-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px -8px rgba(255, 107, 0, 0.6);
+  }
+  
+  .btn-shopier-secondary {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    transition: all var(--transition-base);
+  }
+  
+  .btn-shopier-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-color-hover);
+  }
+  
+  .shopier-secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-size: var(--text-xs);
+    color: var(--text-tertiary);
+  }
+  
+  .shopier-secure svg {
+    color: var(--success-500);
+  }
+</style>

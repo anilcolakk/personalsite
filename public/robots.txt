@@ -1,0 +1,6 @@
+# METU EE Resources
+
+User-agent: *
+Allow: /
+
+Sitemap: https://aaanilclk.github.io/sitemap-index.xml

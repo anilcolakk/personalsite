@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Content Manager | METU EE Resources</title>
+
+    <!-- Decap CMS (formerly Netlify CMS) -->
+    <link href="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.css" rel="stylesheet" />
+
+    <!-- Custom styles for the admin interface -->
+    <style>
+        /* Override default styles for better UX */
+        [data-slate-editor] {
+            -webkit-user-modify: read-write !important;
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #0f172a;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Decap CMS will insert the app here -->
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+
+    <!-- Custom preview styles -->
+    <script>
+        // Register custom preview templates if needed
+        CMS.registerPreviewStyle('/styles/preview.css');
+    </script>
+</body>
+
+</html>

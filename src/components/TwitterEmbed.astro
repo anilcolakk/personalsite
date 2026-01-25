@@ -1,0 +1,285 @@
+---
+/**
+ * TwitterEmbed Component
+ * Embeds a Twitter/X timeline or single tweet
+ * Supports dark mode and responsive design
+ */
+interface Props {
+  /** Twitter username for timeline embed (without @) */
+  username?: string;
+  /** Tweet ID for single tweet embed */
+  tweetId?: string;
+  /** Number of tweets to show in timeline (1-20) */
+  limit?: number;
+  /** Title for the section */
+  title?: string;
+}
+
+const { 
+  username = 'meaboringlife', 
+  tweetId, 
+  limit = 3,
+  title = 'Latest Updates'
+} = Astro.props;
+
+// Determine embed type
+const isTimeline = !tweetId && username;
+const isTweet = !!tweetId;
+---
+
+<div class="twitter-embed" data-theme-aware>
+  <div class="twitter-embed__header">
+    <div class="twitter-embed__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+      </svg>
+    </div>
+    <h3 class="twitter-embed__title">{title}</h3>
+    <a 
+      href={`https://twitter.com/${username}`} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      class="twitter-embed__follow"
+    >
+      Follow @{username}
+    </a>
+  </div>
+
+  <div class="twitter-embed__content" id="twitter-embed-content">
+    {isTimeline && (
+      <a 
+        class="twitter-timeline" 
+        data-lang="en"
+        data-theme="light"
+        data-tweet-limit={limit}
+        data-chrome="noheader nofooter noborders transparent"
+        href={`https://twitter.com/${username}?ref_src=twsrc%5Etfw`}
+      >
+        Loading tweets...
+      </a>
+    )}
+    
+    {isTweet && (
+      <blockquote class="twitter-tweet" data-theme="light">
+        <a href={`https://twitter.com/x/status/${tweetId}`}>Loading tweet...</a>
+      </blockquote>
+    )}
+    
+    <!-- Placeholder while loading -->
+    <div class="twitter-embed__placeholder" id="twitter-placeholder">
+      <div class="tweet-skeleton">
+        <div class="tweet-skeleton__avatar"></div>
+        <div class="tweet-skeleton__content">
+          <div class="tweet-skeleton__line tweet-skeleton__line--short"></div>
+          <div class="tweet-skeleton__line"></div>
+          <div class="tweet-skeleton__line tweet-skeleton__line--medium"></div>
+        </div>
+      </div>
+      <div class="tweet-skeleton">
+        <div class="tweet-skeleton__avatar"></div>
+        <div class="tweet-skeleton__content">
+          <div class="tweet-skeleton__line tweet-skeleton__line--short"></div>
+          <div class="tweet-skeleton__line tweet-skeleton__line--medium"></div>
+          <div class="tweet-skeleton__line"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .twitter-embed {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: all var(--transition-base);
+  }
+
+  .twitter-embed:hover {
+    border-color: var(--border-color-hover);
+    box-shadow: var(--shadow-md);
+  }
+
+  .twitter-embed__header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+  }
+
+  .twitter-embed__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--neutral-900);
+    border-radius: var(--radius-lg);
+    color: white;
+  }
+
+  [data-theme="dark"] .twitter-embed__icon {
+    background: var(--neutral-100);
+    color: var(--neutral-900);
+  }
+
+  .twitter-embed__title {
+    flex: 1;
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .twitter-embed__follow {
+    padding: var(--space-2) var(--space-4);
+    background: var(--neutral-900);
+    color: white;
+    font-size: var(--text-sm);
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+  }
+
+  .twitter-embed__follow:hover {
+    background: var(--neutral-700);
+    transform: translateY(-1px);
+  }
+
+  [data-theme="dark"] .twitter-embed__follow {
+    background: var(--neutral-100);
+    color: var(--neutral-900);
+  }
+
+  [data-theme="dark"] .twitter-embed__follow:hover {
+    background: var(--neutral-200);
+  }
+
+  .twitter-embed__content {
+    padding: var(--space-4);
+    min-height: 200px;
+    max-height: 500px;
+    overflow-y: auto;
+  }
+
+  .twitter-embed__placeholder {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .twitter-embed__content:has(.twitter-timeline-rendered) .twitter-embed__placeholder,
+  .twitter-embed__content:has(.twitter-tweet-rendered) .twitter-embed__placeholder {
+    display: none;
+  }
+
+  /* Tweet skeleton loader */
+  .tweet-skeleton {
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-lg);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .tweet-skeleton__avatar {
+    width: 48px;
+    height: 48px;
+    background: var(--border-color);
+    border-radius: var(--radius-full);
+    flex-shrink: 0;
+  }
+
+  .tweet-skeleton__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .tweet-skeleton__line {
+    height: 12px;
+    background: var(--border-color);
+    border-radius: var(--radius-sm);
+  }
+
+  .tweet-skeleton__line--short {
+    width: 40%;
+  }
+
+  .tweet-skeleton__line--medium {
+    width: 70%;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Twitter widget style overrides */
+  :global(.twitter-timeline),
+  :global(.twitter-tweet) {
+    margin: 0 !important;
+  }
+
+  :global(.twitter-tweet iframe) {
+    border-radius: var(--radius-lg) !important;
+  }
+</style>
+
+<script>
+  // Load Twitter widget script
+  const loadTwitterWidget = () => {
+    if (document.getElementById('twitter-wjs')) return;
+    
+    const script = document.createElement('script');
+    script.id = 'twitter-wjs';
+    script.src = 'https://platform.twitter.com/widgets.js';
+    script.async = true;
+    script.charset = 'utf-8';
+    
+    script.onload = () => {
+      // Update theme based on current site theme
+      updateTwitterTheme();
+    };
+    
+    document.body.appendChild(script);
+  };
+
+  // Update Twitter embed theme to match site theme
+  const updateTwitterTheme = () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const timeline = document.querySelector('.twitter-timeline');
+    const tweet = document.querySelector('.twitter-tweet');
+    
+    if (timeline) {
+      timeline.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    }
+    if (tweet) {
+      tweet.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    }
+    
+    // Re-render widgets if Twitter API is available
+    if ((window as any).twttr?.widgets) {
+      (window as any).twttr.widgets.load();
+    }
+  };
+
+  // Listen for theme changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'data-theme') {
+        updateTwitterTheme();
+      }
+    });
+  });
+
+  observer.observe(document.documentElement, { attributes: true });
+
+  // Initialize
+  loadTwitterWidget();
+</script>

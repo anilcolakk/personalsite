@@ -1,0 +1,683 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import CourseCard from '@components/CourseCard.astro';
+import TwitterEmbed from '@components/TwitterEmbed.astro';
+import VideoEmbed from '@components/VideoEmbed.astro';
+
+const featuredCourses = [
+  {
+    code: 'EE101',
+    name: 'Introduction to Electrical Engineering',
+    category: 'Core',
+    resourceCount: 24,
+    description: 'Foundational concepts in electrical engineering'
+  },
+  {
+    code: 'EE202',
+    name: 'Circuit Analysis',
+    category: 'Circuits',
+    resourceCount: 32,
+    description: 'DC and AC circuit analysis techniques'
+  },
+  {
+    code: 'EE301',
+    name: 'Electronics I',
+    category: 'Electronics',
+    resourceCount: 28,
+    description: 'Semiconductor devices and basic circuits'
+  },
+  {
+    code: 'EE361',
+    name: 'Signals and Systems',
+    category: 'Signal Processing',
+    resourceCount: 36,
+    description: 'Continuous and discrete-time signal analysis'
+  },
+  {
+    code: 'EE430',
+    name: 'Digital Signal Processing',
+    category: 'Signal Processing',
+    resourceCount: 22,
+    description: 'Advanced DSP techniques and applications'
+  },
+  {
+    code: 'EE402',
+    name: 'Control Systems',
+    category: 'Control',
+    resourceCount: 30,
+    description: 'Feedback control system design and analysis'
+  },
+];
+
+const stats = [
+  { value: '50+', label: 'Courses' },
+  { value: '500+', label: 'Resources' },
+  { value: '2000+', label: 'Students Helped' },
+  { value: '4.9', label: 'Avg Rating' },
+];
+---
+
+<BaseLayout title="Home">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-gradient"></div>
+      <div class="hero-grid"></div>
+    </div>
+    <div class="container hero-content">
+      <div class="hero-badge animate-fade-in">
+        <span class="badge-icon">🎓</span>
+        <span>ODTÜ Elektrik-Elektronik Mühendisliği</span>
+      </div>
+      
+      <h1 class="hero-title animate-fade-in-up">
+        Your Complete Guide to
+        <span class="gradient-text-animated">METU EEE</span>
+        Success
+      </h1>
+      
+      <p class="hero-description animate-fade-in-up delay-100">
+        Access comprehensive lecture notes, exam solutions, and study materials 
+        from the Electrical and Electronics Engineering program. Join thousands 
+        of students who've elevated their academic performance.
+      </p>
+      
+      <div class="hero-cta animate-fade-in-up delay-200">
+        <a href="/courses" class="btn btn-primary btn-lg">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          Browse All Resources
+        </a>
+      </div>
+      
+      <!-- Stats -->
+      <div class="hero-stats animate-fade-in-up delay-300">
+        {stats.map((stat) => (
+          <div class="stat-item">
+            <span class="stat-value">{stat.value}</span>
+            <span class="stat-label">{stat.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features section">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2 class="section-title">Everything You Need to Excel</h2>
+        <p class="section-subtitle">
+          Curated resources from top-performing students to help you succeed in your courses
+        </p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Comprehensive Notes</h3>
+          <p class="feature-description">
+            Detailed lecture notes covering all topics, with explanations, examples, and solved problems.
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <line x1="10" y1="9" x2="8" y2="9"></line>
+            </svg>
+          </div>
+          <h3 class="feature-title">Exam Solutions</h3>
+          <p class="feature-description">
+            Past exam papers with step-by-step solutions to help you prepare effectively.
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.35-4.35"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Smart Search</h3>
+          <p class="feature-description">
+            Find exactly what you need with powerful filtering by course, topic, and resource type.
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Verified Quality</h3>
+          <p class="feature-description">
+            All materials are reviewed for accuracy and aligned with current curriculum.
+          </p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <h3 class="feature-title">Equivalency Tool</h3>
+          <p class="feature-description">
+            Transfer students can find equivalent courses at other Turkish universities.
+          </p>
+        </div>
+        
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Courses Section -->
+  <section class="courses-section section-sm">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Popular Courses</h2>
+          <p class="section-subtitle">Most accessed resources by students</p>
+        </div>
+        <a href="/courses" class="btn btn-secondary">
+          View All Courses
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </a>
+      </div>
+      
+      <div class="courses-grid">
+        {featuredCourses.map((course) => (
+          <CourseCard {...course} />
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Section -->
+  <section class="social-section section">
+    <div class="container">
+      <div class="section-header text-center">
+        <h2 class="section-title">Stay Connected</h2>
+        <p class="section-subtitle">
+          Follow for updates, tips, and behind-the-scenes content
+        </p>
+      </div>
+      
+      <div class="social-grid">
+        <!-- Twitter Feed -->
+        <div class="social-grid__twitter">
+          <TwitterEmbed 
+            username="aaanilclk" 
+            limit={3}
+            title="Latest Updates"
+          />
+        </div>
+        
+        <!-- Video Content -->
+        <div class="social-grid__videos">
+          <h3 class="videos-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            Featured Videos
+          </h3>
+          <div class="videos-grid">
+            <!-- Replace with your actual video IDs -->
+            <VideoEmbed 
+              platform="youtube" 
+              videoId="dQw4w9WgXcQ"
+              title="Study Tips for EEE Students"
+              aspectRatio="vertical"
+            />
+            <VideoEmbed 
+              platform="youtube" 
+              videoId="dQw4w9WgXcQ"
+              title="Circuit Analysis Made Easy"
+              aspectRatio="vertical"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section section">
+    <div class="container">
+      <div class="cta-card">
+        <div class="cta-content">
+          <h2 class="cta-title">Ready to Boost Your Grades?</h2>
+          <p class="cta-description">
+            Get instant access to comprehensive study materials and join our community of successful EEE students.
+          </p>
+          <div class="cta-buttons">
+            <a href="/courses" class="btn btn-primary btn-lg">Start Learning Now</a>
+          </div>
+        </div>
+        <div class="cta-decoration">
+          <div class="cta-circle"></div>
+          <div class="cta-circle"></div>
+          <div class="cta-circle"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Hero Section */
+  .hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: var(--space-20) 0;
+  }
+  
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  
+  .hero-gradient {
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-hero);
+    opacity: 0.08;
+  }
+  
+  [data-theme="dark"] .hero-gradient {
+    opacity: 0.3;
+  }
+  
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  
+  .hero-content {
+    text-align: center;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-6);
+  }
+  
+  .badge-icon {
+    font-size: var(--text-lg);
+  }
+  
+  .hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: var(--space-6);
+  }
+  
+  .hero-description {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto var(--space-8);
+    line-height: 1.7;
+  }
+  
+  .hero-cta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-12);
+  }
+  
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-10);
+    padding-top: var(--space-8);
+    border-top: 1px solid var(--border-color);
+  }
+  
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .stat-value {
+    font-family: var(--font-heading);
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    color: var(--text-primary);
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .stat-label {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  
+  /* Section Headers */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: var(--space-10);
+  }
+  
+  .section-header.text-center {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .section-title {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    margin-bottom: var(--space-2);
+  }
+  
+  .section-subtitle {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+  }
+  
+  /* Features Grid */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+  
+  .feature-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    transition: all var(--transition-base);
+  }
+  
+  .feature-card:hover {
+    border-color: var(--primary-200);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+  }
+  
+  [data-theme="dark"] .feature-card:hover {
+    border-color: var(--primary-800);
+  }
+  
+  .feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--primary-100), var(--secondary-100));
+    border-radius: var(--radius-lg);
+    color: var(--primary-600);
+    margin-bottom: var(--space-4);
+  }
+  
+  [data-theme="dark"] .feature-icon {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(139, 92, 246, 0.2));
+    color: var(--primary-400);
+  }
+  
+  .feature-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+  
+  .feature-description {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  
+  /* Courses Grid */
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+  
+  /* CTA Section */
+  .cta-section {
+    padding-bottom: var(--space-24);
+  }
+  
+  .cta-card {
+    position: relative;
+    background: var(--gradient-hero);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-16);
+    overflow: hidden;
+    text-align: center;
+  }
+  
+  .cta-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .cta-title {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    color: white;
+    margin-bottom: var(--space-4);
+  }
+  
+  .cta-description {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.85);
+    max-width: 500px;
+    margin: 0 auto var(--space-8);
+  }
+  
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-4);
+  }
+  
+  .cta-card .btn-primary {
+    background: white;
+    color: var(--primary-700);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  .cta-card .btn-primary:hover {
+    background: var(--neutral-100);
+  }
+  
+  .cta-card .btn-ghost {
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .cta-card .btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .cta-decoration {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  
+  .cta-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .cta-circle:nth-child(1) {
+    width: 400px;
+    height: 400px;
+    top: -200px;
+    right: -100px;
+  }
+  
+  .cta-circle:nth-child(2) {
+    width: 300px;
+    height: 300px;
+    bottom: -150px;
+    left: -50px;
+  }
+  
+  .cta-circle:nth-child(3) {
+    width: 200px;
+    height: 200px;
+    top: 50%;
+    left: 60%;
+  }
+  
+  /* Responsive */
+  @media (max-width: 1024px) {
+    .features-grid,
+    .courses-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .hero {
+      min-height: auto;
+      padding: var(--space-16) 0;
+    }
+    
+    .hero-stats {
+      flex-wrap: wrap;
+      gap: var(--space-6);
+    }
+    
+    .stat-item {
+      flex: 1 1 40%;
+    }
+    
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+    
+    .features-grid,
+    .courses-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .cta-card {
+      padding: var(--space-10);
+    }
+    
+    .cta-buttons {
+      flex-direction: column;
+    }
+  }
+
+  /* Social Section */
+  .social-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+    align-items: start;
+  }
+
+  .social-grid__twitter {
+    min-height: 400px;
+  }
+
+  .social-grid__videos {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .videos-title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+  }
+
+  .videos-title svg {
+    color: var(--error-500);
+  }
+
+  .videos-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 1024px) {
+    .social-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .social-grid__twitter {
+      order: 2;
+    }
+
+    .social-grid__videos {
+      order: 1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .videos-grid {
+      grid-template-columns: 1fr;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+  }
+</style>

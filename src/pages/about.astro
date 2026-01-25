@@ -1,0 +1,475 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const skills = [
+  { name: 'Circuit Design', level: 95 },
+  { name: 'VLSI Design', level: 90 },
+  { name: 'MATLAB', level: 85 },
+  { name: 'Python Programming', level: 88 },
+  { name: 'Robotics', level: 85 },
+  { name: 'PCB Design', level: 80 },
+];
+
+const timeline = [
+  { year: '2021', title: 'Started at METU EEE', description: 'Began my journey in Electrical and Electronics Engineering' },
+  { year: '2021', title: 'Started Creating Notes', description: 'Developed comprehensive study materials for core courses' },
+  { year: '2024', title: 'Started Physics Double Major', description: 'Started my double major in Physics' },
+  { year: '2025', title: 'Candidate Engineer at ASELSAN', description: 'Joined ASELSAN as VLSI Design Candidate Engineer' },
+  { year: '2026', title: 'Launched This Platform', description: 'Made my resources available to help fellow EEE students' },
+  { year: '2027', title: 'Expected Graduation', description: 'HOPEFULLY...' },
+  
+];
+---
+
+<BaseLayout title="About Me" description="Learn more about the creator of METU EE Resources">
+  <section class="about-page">
+    <div class="container">
+      <!-- Hero Section -->
+      <div class="about-hero">
+        <div class="profile-section">
+          <div class="profile-image-wrapper">
+            <div class="profile-image">
+              <div class="profile-placeholder">
+                <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+            </div>
+            <div class="profile-status">
+              <span class="status-dot"></span>
+              <span>Available for collaboration</span>
+            </div>
+          </div>
+          
+          <div class="profile-info">
+            <h1 class="profile-name">Anıl Salih Colak</h1>
+            <p class="profile-title">Electrical & Electronics Engineering Student</p>
+            <p class="profile-subtitle">METU (ODTÜ) • Class of 2021</p>
+            
+            <p class="profile-bio">
+              Passionate about electronics, robotics, and helping fellow students succeed. 
+              I've created this platform to share the study materials that helped me excel in my courses, 
+              making quality education more accessible to everyone.
+            </p>
+            
+            <div class="profile-stats">
+              <div class="stat">
+                <span class="stat-number">3.3+</span>
+                <span class="stat-label">GPA</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">50+</span>
+                <span class="stat-label">Courses</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">100+</span>
+                <span class="stat-label">Students Helped</span>
+              </div>
+            </div>
+            
+            <div class="profile-actions">
+              <a href="/contact" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                Get in Touch
+              </a>
+              <a href="https://www.linkedin.com/in/an%C4%B1l-salih-%C3%A7olak-554793153/" target="_blank" class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+                LinkedIn
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Skills Section -->
+      <div class="skills-section">
+        <h2 class="section-title">Skills & Expertise</h2>
+        <div class="skills-grid">
+          {skills.map((skill) => (
+            <div class="skill-card">
+              <div class="skill-header">
+                <span class="skill-name">{skill.name}</span>
+                <span class="skill-level">{skill.level}%</span>
+              </div>
+              <div class="skill-bar">
+                <div class="skill-progress" style={`width: ${skill.level}%`}></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <!-- Timeline Section -->
+      <div class="timeline-section">
+        <h2 class="section-title">My Journey</h2>
+        <div class="timeline">
+          {timeline.map((item, index) => (
+            <div class="timeline-item">
+              <div class="timeline-marker">
+                <div class="timeline-dot"></div>
+                {index < timeline.length - 1 && <div class="timeline-line"></div>}
+              </div>
+              <div class="timeline-content">
+                <span class="timeline-year">{item.year}</span>
+                <h3 class="timeline-title">{item.title}</h3>
+                <p class="timeline-description">{item.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <!-- Mission Section -->
+      <div class="mission-section">
+        <div class="mission-card">
+          <div class="mission-icon">💡</div>
+          <h2>My Mission</h2>
+          <p>
+            Education should be accessible to everyone. I believe that quality study materials 
+            shouldn't be hidden behind expensive barriers. That's why I've made most of my resources 
+            completely free, with premium bundles available for those who want comprehensive support.
+          </p>
+          <p>
+            Every note, every solution, every guide on this platform is crafted with care — 
+            because I remember how challenging these courses can be, and I want to make your 
+            journey a little easier.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .about-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
+  
+  /* Hero Section */
+  .about-hero {
+    margin-bottom: var(--space-16);
+  }
+  
+  .profile-section {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--space-12);
+    align-items: start;
+  }
+  
+  .profile-image-wrapper {
+    position: sticky;
+    top: 100px;
+  }
+  
+  .profile-image {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--gradient-hero);
+    border-radius: var(--radius-2xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--space-4);
+    overflow: hidden;
+  }
+  
+  .profile-placeholder {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  
+  .profile-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+  
+  .status-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--success-500);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+  
+  .profile-name {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    margin-bottom: var(--space-2);
+  }
+  
+  .profile-title {
+    font-size: var(--text-xl);
+    color: var(--primary-600);
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+  }
+  
+  [data-theme="dark"] .profile-title {
+    color: var(--primary-400);
+  }
+  
+  .profile-subtitle {
+    font-size: var(--text-base);
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-6);
+  }
+  
+  .profile-bio {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-8);
+  }
+  
+  .profile-stats {
+    display: flex;
+    gap: var(--space-8);
+    margin-bottom: var(--space-8);
+    padding: var(--space-6);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+  }
+  
+  .stat {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .stat-number {
+    font-family: var(--font-heading);
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+  
+  .stat-label {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+  }
+  
+  .profile-actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+  
+  /* Skills Section */
+  .skills-section {
+    margin-bottom: var(--space-16);
+  }
+  
+  .section-title {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    margin-bottom: var(--space-8);
+  }
+  
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-6);
+  }
+  
+  .skill-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+  }
+  
+  .skill-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-3);
+  }
+  
+  .skill-name {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  
+  .skill-level {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--primary-600);
+  }
+  
+  .skill-bar {
+    height: 8px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+  }
+  
+  .skill-progress {
+    height: 100%;
+    background: var(--gradient-hero);
+    border-radius: var(--radius-full);
+    transition: width 1s ease;
+  }
+  
+  /* Timeline Section */
+  .timeline-section {
+    margin-bottom: var(--space-16);
+  }
+  
+  .timeline {
+    position: relative;
+  }
+  
+  .timeline-item {
+    display: flex;
+    gap: var(--space-6);
+    padding-bottom: var(--space-8);
+  }
+  
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  
+  .timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  
+  .timeline-dot {
+    width: 16px;
+    height: 16px;
+    background: var(--gradient-hero);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px var(--bg-primary), 0 0 0 5px var(--primary-200);
+  }
+  
+  [data-theme="dark"] .timeline-dot {
+    box-shadow: 0 0 0 4px var(--bg-primary), 0 0 0 5px var(--primary-800);
+  }
+  
+  .timeline-line {
+    width: 2px;
+    flex-grow: 1;
+    background: var(--border-color);
+    margin-top: var(--space-2);
+  }
+  
+  .timeline-content {
+    flex: 1;
+    padding-bottom: var(--space-2);
+  }
+  
+  .timeline-year {
+    display: inline-block;
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--primary-600);
+    background: var(--primary-50);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-2);
+  }
+  
+  [data-theme="dark"] .timeline-year {
+    color: var(--primary-400);
+    background: rgba(59, 130, 246, 0.15);
+  }
+  
+  .timeline-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-1);
+  }
+  
+  .timeline-description {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+  }
+  
+  /* Mission Section */
+  .mission-card {
+    background: var(--gradient-hero);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-12);
+    text-align: center;
+    color: white;
+  }
+  
+  .mission-icon {
+    font-size: 3rem;
+    margin-bottom: var(--space-4);
+  }
+  
+  .mission-card h2 {
+    font-size: var(--text-3xl);
+    font-weight: 800;
+    margin-bottom: var(--space-6);
+    color: white;
+  }
+  
+  .mission-card p {
+    font-size: var(--text-lg);
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.8;
+    max-width: 700px;
+    margin: 0 auto var(--space-4);
+  }
+  
+  .mission-card p:last-child {
+    margin-bottom: 0;
+  }
+  
+  @media (max-width: 1024px) {
+    .profile-section {
+      grid-template-columns: 1fr;
+    }
+    
+    .profile-image-wrapper {
+      position: static;
+      max-width: 250px;
+      margin: 0 auto;
+    }
+    
+    .profile-info {
+      text-align: center;
+    }
+    
+    .profile-stats {
+      justify-content: center;
+    }
+    
+    .profile-actions {
+      justify-content: center;
+    }
+    
+    .skills-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .profile-stats {
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-4);
+    }
+    
+    .profile-actions {
+      flex-direction: column;
+    }
+    
+    .mission-card {
+      padding: var(--space-8);
+    }
+  }
+</style>

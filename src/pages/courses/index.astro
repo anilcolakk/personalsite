@@ -1,0 +1,364 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import CourseCard from '@components/CourseCard.astro';
+
+// Sample course data - this would typically come from a data file or CMS
+const allCourses = [
+  // Year 1
+  { code: 'EE101', name: 'Introduction to Electrical Engineering', category: 'Core', year: 1, semester: 'Fall', resourceCount: 24, description: 'Foundational concepts in electrical engineering' },
+  { code: 'MATH101', name: 'Calculus I', category: 'Mathematics', year: 1, semester: 'Fall', resourceCount: 32, description: 'Limits, derivatives, and integrals' },
+  { code: 'PHYS101', name: 'Physics I - Mechanics', category: 'Physics', year: 1, semester: 'Fall', resourceCount: 28, description: 'Classical mechanics and thermodynamics' },
+  { code: 'EE102', name: 'Programming Fundamentals', category: 'Programming', year: 1, semester: 'Spring', resourceCount: 30, description: 'Introduction to programming with C' },
+  { code: 'MATH102', name: 'Calculus II', category: 'Mathematics', year: 1, semester: 'Spring', resourceCount: 26, description: 'Advanced integration and series' },
+  
+  // Year 2
+  { code: 'EE202', name: 'Circuit Analysis', category: 'Circuits', year: 2, semester: 'Fall', resourceCount: 36, description: 'DC and AC circuit analysis techniques' },
+  { code: 'EE230', name: 'Digital Logic Design', category: 'Digital Systems', year: 2, semester: 'Fall', resourceCount: 28, description: 'Boolean algebra and digital circuits' },
+  { code: 'MATH261', name: 'Linear Algebra', category: 'Mathematics', year: 2, semester: 'Fall', resourceCount: 22, description: 'Vectors, matrices, and linear transformations' },
+  { code: 'EE212', name: 'Electromagnetic Theory', category: 'Electromagnetics', year: 2, semester: 'Spring', resourceCount: 34, description: 'Maxwell equations and wave propagation' },
+  { code: 'EE241', name: 'Probability and Statistics', category: 'Mathematics', year: 2, semester: 'Spring', resourceCount: 20, description: 'Probability theory for engineers' },
+  
+  // Year 3
+  { code: 'EE301', name: 'Electronics I', category: 'Electronics', year: 3, semester: 'Fall', resourceCount: 38, description: 'Semiconductor devices and basic circuits' },
+  { code: 'EE361', name: 'Signals and Systems', category: 'Signal Processing', year: 3, semester: 'Fall', resourceCount: 42, description: 'Continuous and discrete-time signal analysis' },
+  { code: 'EE302', name: 'Electronics II', category: 'Electronics', year: 3, semester: 'Spring', resourceCount: 32, description: 'Operational amplifiers and analog circuits' },
+  { code: 'EE362', name: 'Communication Systems', category: 'Communications', year: 3, semester: 'Spring', resourceCount: 30, description: 'Analog and digital communication' },
+  
+  // Year 4
+  { code: 'EE402', name: 'Control Systems', category: 'Control', year: 4, semester: 'Fall', resourceCount: 36, description: 'Feedback control system design' },
+  { code: 'EE430', name: 'Digital Signal Processing', category: 'Signal Processing', year: 4, semester: 'Fall', resourceCount: 28, description: 'Advanced DSP techniques' },
+  { code: 'EE491', name: 'Senior Design Project I', category: 'Project', year: 4, semester: 'Fall', resourceCount: 15, description: 'Capstone project - design phase' },
+  { code: 'EE441', name: 'Power Electronics', category: 'Power', year: 4, semester: 'Spring', resourceCount: 24, description: 'Power conversion and control' },
+  { code: 'EE492', name: 'Senior Design Project II', category: 'Project', year: 4, semester: 'Spring', resourceCount: 12, description: 'Capstone project - implementation' },
+];
+
+const categories = ['All', ...new Set(allCourses.map(c => c.category))];
+const years = ['All', 1, 2, 3, 4];
+---
+
+<BaseLayout title="Course Archive" description="Browse all METU EEE courses and study materials">
+  <section class="courses-page">
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Course Archive</h1>
+        <p class="page-description">
+          Explore our comprehensive collection of lecture notes, exam solutions, and study materials organized by course.
+        </p>
+      </div>
+      
+      <!-- Search & Filters -->
+      <div class="filters-section">
+        <div class="search-box">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <input 
+            type="text" 
+            id="search-input"
+            class="search-input" 
+            placeholder="Search courses by name or code..."
+          />
+        </div>
+        
+        <div class="filter-row">
+          <div class="filter-group">
+            <label class="filter-label">Category</label>
+            <select id="category-filter" class="filter-select">
+              {categories.map((cat) => (
+                <option value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label class="filter-label">Year</label>
+            <select id="year-filter" class="filter-select">
+              {years.map((year) => (
+                <option value={year}>{year === 'All' ? 'All Years' : `Year ${year}`}</option>
+              ))}
+            </select>
+          </div>
+          
+          <button id="reset-filters" class="btn btn-ghost">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+              <path d="M3 3v5h5"></path>
+            </svg>
+            Reset
+          </button>
+        </div>
+      </div>
+      
+      <!-- Results Count -->
+      <div class="results-info">
+        <span id="results-count">{allCourses.length}</span> courses found
+      </div>
+      
+      <!-- Courses Grid -->
+      <div class="courses-grid" id="courses-grid">
+        {allCourses.map((course) => (
+          <div 
+            class="course-item" 
+            data-category={course.category}
+            data-year={course.year}
+            data-name={course.name.toLowerCase()}
+            data-code={course.code.toLowerCase()}
+          >
+            <CourseCard {...course} />
+          </div>
+        ))}
+      </div>
+      
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state" style="display: none;">
+        <div class="empty-icon">📚</div>
+        <h3>No courses found</h3>
+        <p>Try adjusting your filters or search term</p>
+        <button id="clear-search" class="btn btn-secondary">Clear Search</button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .courses-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: var(--space-10);
+  }
+  
+  .page-title {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    margin-bottom: var(--space-4);
+  }
+  
+  .page-description {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  /* Filters */
+  .filters-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    margin-bottom: var(--space-6);
+  }
+  
+  .search-box {
+    position: relative;
+    margin-bottom: var(--space-4);
+  }
+  
+  .search-icon {
+    position: absolute;
+    left: var(--space-4);
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-tertiary);
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: var(--space-4) var(--space-4) var(--space-4) var(--space-12);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    transition: all var(--transition-fast);
+  }
+  
+  .search-input:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+  
+  .search-input::placeholder {
+    color: var(--text-tertiary);
+  }
+  
+  .filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    align-items: flex-end;
+  }
+  
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .filter-label {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .filter-select {
+    padding: var(--space-3) var(--space-4);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    font-size: var(--text-sm);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+  
+  .filter-select:focus {
+    outline: none;
+    border-color: var(--primary-500);
+  }
+  
+  .results-info {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-6);
+  }
+  
+  #results-count {
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  
+  /* Courses Grid */
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+  
+  .course-item {
+    transition: opacity var(--transition-base), transform var(--transition-base);
+  }
+  
+  .course-item.hidden {
+    display: none;
+  }
+  
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: var(--space-16);
+  }
+  
+  .empty-icon {
+    font-size: 4rem;
+    margin-bottom: var(--space-4);
+  }
+  
+  .empty-state h3 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--space-2);
+  }
+  
+  .empty-state p {
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-6);
+  }
+  
+  @media (max-width: 1024px) {
+    .courses-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .courses-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .filter-row {
+      flex-direction: column;
+    }
+    
+    .filter-group {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  // Filter functionality
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const categoryFilter = document.getElementById('category-filter') as HTMLSelectElement;
+  const yearFilter = document.getElementById('year-filter') as HTMLSelectElement;
+  const resetBtn = document.getElementById('reset-filters');
+  const clearSearchBtn = document.getElementById('clear-search');
+  const coursesGrid = document.getElementById('courses-grid');
+  const courseItems = document.querySelectorAll('.course-item');
+  const resultsCount = document.getElementById('results-count');
+  const emptyState = document.getElementById('empty-state');
+  
+  function filterCourses() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const category = categoryFilter.value;
+    const year = yearFilter.value;
+    
+    let visibleCount = 0;
+    
+    courseItems.forEach((item) => {
+      const itemCategory = item.getAttribute('data-category');
+      const itemYear = item.getAttribute('data-year');
+      const itemName = item.getAttribute('data-name');
+      const itemCode = item.getAttribute('data-code');
+      
+      const matchesSearch = !searchTerm || 
+        itemName?.includes(searchTerm) || 
+        itemCode?.includes(searchTerm);
+      const matchesCategory = category === 'All' || itemCategory === category;
+      const matchesYear = year === 'All' || itemYear === year;
+      
+      if (matchesSearch && matchesCategory && matchesYear) {
+        item.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        item.classList.add('hidden');
+      }
+    });
+    
+    if (resultsCount) {
+      resultsCount.textContent = visibleCount.toString();
+    }
+    
+    if (emptyState && coursesGrid) {
+      if (visibleCount === 0) {
+        emptyState.style.display = 'block';
+        coursesGrid.style.display = 'none';
+      } else {
+        emptyState.style.display = 'none';
+        coursesGrid.style.display = 'grid';
+      }
+    }
+  }
+  
+  function resetFilters() {
+    searchInput.value = '';
+    categoryFilter.value = 'All';
+    yearFilter.value = 'All';
+    filterCourses();
+  }
+  
+  searchInput?.addEventListener('input', filterCourses);
+  categoryFilter?.addEventListener('change', filterCourses);
+  yearFilter?.addEventListener('change', filterCourses);
+  resetBtn?.addEventListener('click', resetFilters);
+  clearSearchBtn?.addEventListener('click', resetFilters);
+</script>

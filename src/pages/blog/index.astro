@@ -1,0 +1,559 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+// Sample blog posts
+const blogPosts = [
+  {
+    slug: 'how-to-study-for-ee-exams',
+    title: 'How to Study Effectively for EE Exams',
+    excerpt: 'My proven strategies for tackling the most challenging electrical engineering exams at METU. From time management to practice techniques.',
+    date: '2024-01-15',
+    readTime: '8 min read',
+    category: 'Study Tips',
+    image: null,
+  },
+  {
+    slug: 'understanding-laplace-transforms',
+    title: 'Understanding Laplace Transforms: A Visual Guide',
+    excerpt: 'Laplace transforms don\'t have to be scary. Here\'s an intuitive approach to understanding this powerful mathematical tool.',
+    date: '2024-01-08',
+    readTime: '12 min read',
+    category: 'Tutorial',
+    image: null,
+  },
+  {
+    slug: 'best-resources-for-circuit-analysis',
+    title: 'Best Resources for Circuit Analysis',
+    excerpt: 'A curated list of textbooks, videos, and online resources that helped me master circuit analysis.',
+    date: '2024-01-01',
+    readTime: '6 min read',
+    category: 'Resources',
+    image: null,
+  },
+  {
+    slug: 'my-journey-through-ee',
+    title: 'My Journey Through Electrical Engineering',
+    excerpt: 'Reflections on four years of studying EE at METU - the challenges, the victories, and everything in between.',
+    date: '2023-12-20',
+    readTime: '10 min read',
+    category: 'Personal',
+    image: null,
+  },
+  {
+    slug: 'tips-for-senior-design-project',
+    title: '10 Tips for Your Senior Design Project',
+    excerpt: 'Everything I wish I knew before starting my capstone project. From team dynamics to technical decisions.',
+    date: '2023-12-10',
+    readTime: '15 min read',
+    category: 'Advice',
+    image: null,
+  },
+  {
+    slug: 'matlab-vs-python-for-engineers',
+    title: 'MATLAB vs Python: Which Should You Learn?',
+    excerpt: 'A comparison of the two most popular tools for engineering students. Spoiler: you need both.',
+    date: '2023-12-01',
+    readTime: '9 min read',
+    category: 'Programming',
+    image: null,
+  },
+];
+
+const categories = ['All', ...new Set(blogPosts.map(p => p.category))];
+
+function formatDate(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+}
+---
+
+<BaseLayout title="Blog" description="Weekly thoughts, study tips, and insights from an EE student">
+  <section class="blog-page">
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Blog & Weekly Thoughts</h1>
+        <p class="page-description">
+          Study tips, course insights, engineering tutorials, and personal reflections 
+          from my journey through electrical engineering.
+        </p>
+      </div>
+      
+      <!-- Category Filter -->
+      <div class="category-filter" id="category-filter">
+        {categories.map((category) => (
+          <button 
+            class:list={['category-btn', { active: category === 'All' }]}
+            data-category={category}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+      
+      <!-- Featured Post -->
+      <div class="featured-post" data-category={blogPosts[0].category}>
+        <div class="featured-content">
+          <div class="post-meta">
+            <span class="post-category">{blogPosts[0].category}</span>
+            <span class="post-date">{formatDate(blogPosts[0].date)}</span>
+          </div>
+          <h2 class="featured-title">
+            <a href={`/blog/${blogPosts[0].slug}`}>{blogPosts[0].title}</a>
+          </h2>
+          <p class="featured-excerpt">{blogPosts[0].excerpt}</p>
+          <div class="post-footer">
+            <span class="read-time">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              {blogPosts[0].readTime}
+            </span>
+            <a href={`/blog/${blogPosts[0].slug}`} class="read-more">
+              Read Article
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          </div>
+        </div>
+        <div class="featured-image">
+          <div class="image-placeholder">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <line x1="10" y1="9" x2="8" y2="9"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Posts Grid -->
+      <div class="posts-grid" id="posts-grid">
+        {blogPosts.slice(1).map((post) => (
+          <article class="post-card" data-category={post.category}>
+            <div class="post-image">
+              <div class="image-placeholder small">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+              </div>
+            </div>
+            <div class="post-content">
+              <div class="post-meta">
+                <span class="post-category">{post.category}</span>
+                <span class="post-date">{formatDate(post.date)}</span>
+              </div>
+              <h3 class="post-title">
+                <a href={`/blog/${post.slug}`}>{post.title}</a>
+              </h3>
+              <p class="post-excerpt">{post.excerpt}</p>
+              <div class="post-footer">
+                <span class="read-time">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  {post.readTime}
+                </span>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+      
+      <!-- Newsletter CTA -->
+      <div class="newsletter-section">
+        <div class="newsletter-card">
+          <div class="newsletter-content">
+            <h3>📬 Stay Updated</h3>
+            <p>Get notified when I publish new articles, study guides, or course materials.</p>
+          </div>
+          <form class="newsletter-form" id="newsletter-form">
+            <input 
+              type="email" 
+              placeholder="your@email.com" 
+              class="newsletter-input"
+              required
+            />
+            <button type="submit" class="btn btn-primary">Subscribe</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .blog-page {
+    padding: var(--space-12) 0 var(--space-20);
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: var(--space-10);
+  }
+  
+  .page-title {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    margin-bottom: var(--space-4);
+  }
+  
+  .page-description {
+    font-size: var(--text-lg);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  /* Category Filter */
+  .category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-bottom: var(--space-10);
+  }
+  
+  .category-btn {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+  }
+  
+  .category-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-color-hover);
+  }
+  
+  .category-btn.active {
+    color: white;
+    background: var(--primary-600);
+    border-color: var(--primary-600);
+  }
+  
+  /* Featured Post */
+  .featured-post {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+    margin-bottom: var(--space-12);
+    padding: var(--space-8);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-2xl);
+  }
+  
+  .featured-content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+  
+  .post-category {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--primary-600);
+    background: var(--primary-50);
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  [data-theme="dark"] .post-category {
+    color: var(--primary-400);
+    background: rgba(59, 130, 246, 0.15);
+  }
+  
+  .post-date {
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+  }
+  
+  .featured-title {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    margin-bottom: var(--space-4);
+    line-height: 1.3;
+  }
+  
+  .featured-title a {
+    transition: color var(--transition-fast);
+  }
+  
+  .featured-title a:hover {
+    color: var(--primary-600);
+  }
+  
+  .featured-excerpt {
+    font-size: var(--text-base);
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: var(--space-6);
+    flex-grow: 1;
+  }
+  
+  .post-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .read-time {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: var(--text-sm);
+    color: var(--text-tertiary);
+  }
+  
+  .read-more {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--primary-600);
+    transition: gap var(--transition-fast);
+  }
+  
+  .read-more:hover {
+    gap: var(--space-3);
+  }
+  
+  .featured-image {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+  
+  .image-placeholder {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    background: var(--gradient-hero);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.5);
+  }
+  
+  .image-placeholder.small {
+    min-height: 180px;
+  }
+  
+  /* Posts Grid */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+    margin-bottom: var(--space-16);
+  }
+  
+  .post-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: all var(--transition-base);
+  }
+  
+  .post-card:hover {
+    border-color: var(--border-color-hover);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+  }
+  
+  .post-card.hidden {
+    display: none;
+  }
+  
+  .post-image {
+    overflow: hidden;
+  }
+  
+  .post-content {
+    padding: var(--space-6);
+  }
+  
+  .post-title {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+    line-height: 1.4;
+  }
+  
+  .post-title a {
+    transition: color var(--transition-fast);
+  }
+  
+  .post-title a:hover {
+    color: var(--primary-600);
+  }
+  
+  .post-excerpt {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--space-4);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* Newsletter */
+  .newsletter-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-10);
+    background: var(--gradient-hero);
+    border-radius: var(--radius-2xl);
+    color: white;
+  }
+  
+  .newsletter-content h3 {
+    font-size: var(--text-2xl);
+    font-weight: 800;
+    margin-bottom: var(--space-2);
+    color: white;
+  }
+  
+  .newsletter-content p {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  
+  .newsletter-form {
+    display: flex;
+    gap: var(--space-3);
+  }
+  
+  .newsletter-input {
+    padding: var(--space-4) var(--space-5);
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-lg);
+    color: white;
+    font-size: var(--text-base);
+    min-width: 280px;
+  }
+  
+  .newsletter-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .newsletter-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .newsletter-card .btn-primary {
+    background: white;
+    color: var(--primary-700);
+    box-shadow: none;
+  }
+  
+  .newsletter-card .btn-primary:hover {
+    background: var(--neutral-100);
+    transform: none;
+    box-shadow: var(--shadow-md);
+  }
+  
+  @media (max-width: 1024px) {
+    .posts-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .featured-post {
+      grid-template-columns: 1fr;
+    }
+    
+    .featured-image {
+      order: -1;
+    }
+    
+    .posts-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .newsletter-card {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .newsletter-form {
+      flex-direction: column;
+      width: 100%;
+    }
+    
+    .newsletter-input {
+      min-width: auto;
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  // Category filtering
+  const categoryBtns = document.querySelectorAll('.category-btn');
+  const featuredPost = document.querySelector('.featured-post');
+  const postCards = document.querySelectorAll('.post-card');
+  
+  categoryBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-category');
+      
+      // Update active button
+      categoryBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      // Filter posts
+      const allPosts = [featuredPost, ...postCards];
+      allPosts.forEach(post => {
+        if (!post) return;
+        const postCategory = post.getAttribute('data-category');
+        if (category === 'All' || postCategory === category) {
+          post.classList.remove('hidden');
+        } else {
+          post.classList.add('hidden');
+        }
+      });
+    });
+  });
+  
+  // Newsletter form
+  const newsletterForm = document.getElementById('newsletter-form') as HTMLFormElement;
+  newsletterForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = newsletterForm.querySelector('input') as HTMLInputElement;
+    alert(`Thanks for subscribing with ${input.value}! (This is a demo)`);
+    input.value = '';
+  });
+</script>

@@ -1,0 +1,289 @@
+# Decap CMS Configuration
+# Formerly known as Netlify CMS
+# Documentation: https://decapcms.org/docs/
+
+# Backend Configuration
+# Update with your GitHub repository details
+backend:
+  name: github
+  repo: YOUR_USERNAME/personalsite  # TODO: Replace with your GitHub repo
+  branch: main
+  base_url: https://api.netlify.com  # For Netlify Identity
+  auth_endpoint: auth  # For Netlify Identity
+
+# Local backend for development (comment out for production)
+# local_backend: true
+
+# Media Storage
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+# Site URL (update with your domain)
+site_url: https://your-site.netlify.app
+
+# Display URL in the top bar
+display_url: https://your-site.netlify.app
+
+# Logo for the CMS
+logo_url: /images/logo.svg
+
+# Slug configuration
+slug:
+  encoding: "ascii"
+  clean_accents: true
+  sanitize_replacement: "-"
+
+# ============================================
+# COLLECTIONS
+# ============================================
+
+collections:
+  # ----------------------------------------
+  # NOTES COLLECTION
+  # ----------------------------------------
+  - name: "notes"
+    label: "📚 Lecture Notes"
+    label_singular: "Note"
+    description: "Manage lecture notes and study materials"
+    folder: "src/content/notes"
+    create: true
+    delete: true
+    slug: "{{year}}/{{courseCode | lower}}-{{slug}}"
+    preview_path: "notes/{{slug}}"
+    sortable_fields: ["title", "courseCode", "year", "createdAt"]
+    view_filters:
+      - label: "Year 1"
+        field: year
+        pattern: "1"
+      - label: "Year 2"
+        field: year
+        pattern: "2"
+      - label: "Year 3"
+        field: year
+        pattern: "3"
+      - label: "Year 4"
+        field: year
+        pattern: "4"
+      - label: "Premium Only"
+        field: isPaid
+        pattern: true
+      - label: "Free Only"
+        field: isPaid
+        pattern: false
+    view_groups:
+      - label: "Year"
+        field: year
+      - label: "Course"
+        field: courseCode
+    
+    # Note Fields
+    fields:
+      # Basic Information Section
+      - label: "Title"
+        name: "title"
+        widget: "string"
+        hint: "The title of the note (e.g., 'Circuit Analysis - Chapter 1')"
+        
+      - label: "Description"
+        name: "description"
+        widget: "text"
+        hint: "A short description of what this note covers"
+        
+      - label: "Preview Text"
+        name: "preview"
+        widget: "text"
+        required: false
+        hint: "Text shown for locked paid content (first paragraph preview)"
+        
+      # Course Information Section
+      - label: "Academic Year"
+        name: "year"
+        widget: "select"
+        options:
+          - { label: "1st Year", value: "1" }
+          - { label: "2nd Year", value: "2" }
+          - { label: "3rd Year", value: "3" }
+          - { label: "4th Year", value: "4" }
+        hint: "Which year of the program is this course from?"
+        
+      - label: "Course Code"
+        name: "courseCode"
+        widget: "string"
+        pattern: ['^[A-Z]{2,4}[0-9]{3}$', "Must be in format like 'EE101' or 'PHYS101'"]
+        hint: "Course code (e.g., EE101, EE202)"
+        
+      - label: "Course Name"
+        name: "courseName"
+        widget: "string"
+        hint: "Full course name (e.g., 'Introduction to Electrical Engineering')"
+        
+      - label: "Topic"
+        name: "topic"
+        widget: "string"
+        hint: "Chapter or topic name within the course"
+        
+      # Content Location
+      - label: "Google Drive Link"
+        name: "driveLink"
+        widget: "string"
+        pattern: ['^https://(drive\.google\.com|docs\.google\.com)/', "Must be a valid Google Drive URL"]
+        hint: "Direct link to the file on Google Drive"
+        
+      # Pricing Section
+      - label: "Is Paid Resource?"
+        name: "isPaid"
+        widget: "boolean"
+        default: false
+        hint: "Toggle ON if this is a premium (paid) resource"
+        
+      - label: "Price (TRY)"
+        name: "price"
+        widget: "number"
+        value_type: "float"
+        min: 0
+        step: 0.01
+        required: false
+        hint: "Price in Turkish Lira (only for paid resources)"
+        
+      - label: "Shopier Product ID"
+        name: "shopierProductId"
+        widget: "string"
+        required: false
+        hint: "Product ID from Shopier for payment integration"
+        
+      # Metadata
+      - label: "Featured"
+        name: "featured"
+        widget: "boolean"
+        default: false
+        hint: "Featured notes appear at the top of listings"
+        
+      - label: "Created Date"
+        name: "createdAt"
+        widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        
+      - label: "Updated Date"
+        name: "updatedAt"
+        widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        required: false
+        
+      - label: "Keywords"
+        name: "keywords"
+        widget: "list"
+        required: false
+        hint: "SEO keywords for this note (comma-separated)"
+        
+      # Content Body
+      - label: "Content"
+        name: "body"
+        widget: "markdown"
+        hint: "Additional content or notes (shown for free resources)"
+
+  # ----------------------------------------
+  # COURSES COLLECTION
+  # ----------------------------------------
+  - name: "courses"
+    label: "🎓 Courses"
+    label_singular: "Course"
+    description: "Manage course information and descriptions"
+    folder: "src/content/courses"
+    create: true
+    delete: true
+    slug: "{{courseCode | lower}}"
+    identifier_field: courseCode
+    
+    fields:
+      - label: "Course Code"
+        name: "courseCode"
+        widget: "string"
+        pattern: ['^[A-Z]{2,4}[0-9]{3}$', "Must be in format like 'EE101'"]
+        
+      - label: "Course Name"
+        name: "courseName"
+        widget: "string"
+        
+      - label: "Academic Year"
+        name: "year"
+        widget: "select"
+        options:
+          - { label: "1st Year", value: "1" }
+          - { label: "2nd Year", value: "2" }
+          - { label: "3rd Year", value: "3" }
+          - { label: "4th Year", value: "4" }
+          
+      - label: "Semester"
+        name: "semester"
+        widget: "select"
+        required: false
+        options:
+          - { label: "Fall", value: "fall" }
+          - { label: "Spring", value: "spring" }
+          - { label: "Summer", value: "summer" }
+          
+      - label: "Credits"
+        name: "credits"
+        widget: "number"
+        value_type: "int"
+        min: 1
+        max: 10
+        required: false
+        
+      - label: "Description"
+        name: "description"
+        widget: "text"
+        
+      - label: "Instructor"
+        name: "instructor"
+        widget: "string"
+        required: false
+        
+      - label: "Prerequisites"
+        name: "prerequisites"
+        widget: "list"
+        required: false
+        hint: "Course codes of prerequisites (e.g., EE101, MATH101)"
+        
+      - label: "Content"
+        name: "body"
+        widget: "markdown"
+        required: false
+
+  # ----------------------------------------
+  # SITE SETTINGS
+  # ----------------------------------------
+  - name: "settings"
+    label: "⚙️ Site Settings"
+    files:
+      - name: "general"
+        label: "General Settings"
+        file: "src/data/settings.json"
+        fields:
+          - label: "Site Title"
+            name: "siteTitle"
+            widget: "string"
+            
+          - label: "Site Description"
+            name: "siteDescription"
+            widget: "text"
+            
+          - label: "Author Name"
+            name: "authorName"
+            widget: "string"
+            
+          - label: "Contact Email"
+            name: "contactEmail"
+            widget: "string"
+            
+          - label: "Social Links"
+            name: "socialLinks"
+            widget: "object"
+            fields:
+              - { label: "Twitter/X", name: "twitter", widget: "string", required: false }
+              - { label: "LinkedIn", name: "linkedin", widget: "string", required: false }
+              - { label: "GitHub", name: "github", widget: "string", required: false }
+              - { label: "YouTube", name: "youtube", widget: "string", required: false }
+              - { label: "Instagram", name: "instagram", widget: "string", required: false }
