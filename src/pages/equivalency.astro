@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
 import curriculaData from '../data/curricula.json';
+import NoteSubmissionForm from '../components/NoteSubmissionForm.astro';
 
 const universities = Object.entries(curriculaData.universities)
   .filter(([key]) => key !== 'ODTU')
@@ -92,6 +93,7 @@ const universities = Object.entries(curriculaData.universities)
       </div>
     </div>
   </div>
+  <NoteSubmissionForm />
 </BaseLayout>
 
 <script define:vars={{ curriculaData }}>
@@ -271,10 +273,10 @@ const universities = Object.entries(curriculaData.universities)
         <!-- Submit Notes for this Course -->
         <div class="submit-notes-box">
            <p>Have notes for <strong>${source.code}</strong>?</p>
-           <a href="/notes/submit?course=${source.code}" class="btn-submit-sm">
+           <button onclick="window.openSubmissionModal('${source.code}')" class="btn-submit-sm">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               Submit Notes
-           </a>
+           </button>
         </div>
 
       </div>

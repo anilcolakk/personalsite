@@ -83,6 +83,14 @@ const { course } = Astro.url.searchParams;
               <label for="message">Additional Notes</label>
               <textarea id="message" name="message" rows="3" placeholder="Any specific context about these notes..."></textarea>
             </div>
+
+            <!-- Copyright Check -->
+            <div class="form-check full-width">
+                <input type="checkbox" id="terms" name="terms" required />
+                <label for="terms">
+                  I confirm that these are my own notes/works or are open resources, and I agree to have them shared freely on this website for everyone to use (no copyright infringement).
+                </label>
+            </div>
           </div>
 
           <button type="submit" class="btn btn-primary btn-lg btn-block" id="submit-btn">
@@ -95,20 +103,21 @@ const { course } = Astro.url.searchParams;
     </div>
   </div>
 </BaseLayout>
-
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script is:inline>
   (function() {
-      // Initialize EmailJS with your Public Key
-      // NOTE: Replace 'YOUR_PUBLIC_KEY' with your actual EmailJS public key
-      // If you don't have one, this is a placeholder. 
-      // User requested "implemented", so we set it up to work once the key is added.
-      emailjs.init("user_PLACEHOLDER_KEY"); 
+      // Initialize EmailJS
+      try {
+        emailjs.init("-84xRYR4pM6pv3_1b");
+      } catch(e) { console.log("EmailJS init failed", e); }
   })();
 
   const form = document.getElementById('submission-form');
   const statusMsg = document.getElementById('status-message');
   const btn = document.getElementById('submit-btn');
+
+  const SERVICE_ID = 'service_7jbuats';
+  const TEMPLATE_ID = 'template_5mzuzfp';
 
   form.addEventListener('submit', function(event) {
     event.preventDefault();
@@ -116,23 +125,16 @@ const { course } = Astro.url.searchParams;
     btn.disabled = true;
     btn.innerHTML = 'Sending...';
 
-    // Since I don't have the user's actual Service ID and Template ID, 
-    // I am simulating the success for the UI demonstration.
-    // In production, the user needs to insert their IDs below.
-    
-    const serviceID = 'default_service';
-    const templateID = 'template_submission';
-
-    // Simulate API call for now (or try actual if keys present)
-    setTimeout(() => {
+    emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, this)
+      .then(() => {
         // Success State
         btn.innerHTML = '✅ Submitted Successfully!';
         btn.classList.add('success');
         
         statusMsg.innerHTML = `
             <div class="alert success">
-                <strong>Thank you!</strong> Your submission has been captured. <br/>
-                A confirmation email would be sent to <strong>anilcolak2024@gmail.com</strong> if keys were valid.
+                <strong>Thank you!</strong> Your submission has been received. <br/>
+                We will review it and add it to the site shortly.
             </div>
         `;
         statusMsg.classList.remove('hidden');
@@ -144,17 +146,12 @@ const { course } = Astro.url.searchParams;
              btn.innerHTML = '🚀 Submit Resource';
              btn.classList.remove('success');
         }, 5000);
-    }, 1500);
-
-    /* 
-    REAL IMPLEMENTATION:
-    emailjs.sendForm(serviceID, templateID, this)
-      .then(() => {
-         // Success handling
       }, (err) => {
-         // Error handling
+         console.error('EmailJS Error:', err);
+         btn.innerHTML = '❌ Error';
+         btn.disabled = false;
+         alert('Failed to send. Please try again later.');
       });
-    */
   });
 </script>
 
@@ -182,6 +179,24 @@ const { course } = Astro.url.searchParams;
   .form-group { display: flex; flex-direction: column; gap: 8px; }
   .form-group label { font-weight: 600; font-size: 0.9rem; color: var(--text-primary); }
   .form-hint { font-size: 0.8rem; color: var(--text-tertiary); margin-top: 4px; }
+
+  .form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .form-check input {
+    width: auto;
+    margin-top: 4px;
+    cursor: pointer;
+  }
+  .form-check label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    cursor: pointer;
+  }
   
   input, select, textarea {
     padding: 12px 16px;

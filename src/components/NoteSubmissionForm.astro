@@ -52,8 +52,30 @@ const { courseCode = '' } = Astro.props;
       </div>
 
       <div class="form-group">
+        <label for="university">University</label>
+        <select id="university" name="university" required>
+          <option value="ODTU">ODTÜ (METU)</option>
+          <option value="Bilkent">Bilkent</option>
+          <option value="ITU">İTÜ</option>
+          <option value="Hacettepe">Hacettepe</option>
+          <option value="Bogazici">Boğaziçi</option>
+          <option value="Sabanci">Sabancı</option>
+          <option value="YTU">YTÜ</option>
+          <option value="Koc">Koç</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label for="message">Additional Notes</label>
-        <textarea id="message" name="message" rows="3" placeholder="Any specific details..."></textarea>
+        <textarea id="message" name="message" rows="3" placeholder="Any specific details about the content..."></textarea>
+      </div>
+
+      <div class="form-check">
+        <input type="checkbox" id="terms" name="terms" required />
+        <label for="terms">
+          I confirm that these are my own notes/works or are open resources, and I agree to have them shared freely on this website for everyone to use (no copyright infringement).
+        </label>
       </div>
 
       <div class="form-actions">
@@ -72,10 +94,10 @@ const { courseCode = '' } = Astro.props;
 <script>
   // Initialize EmailJS
   (function() {
-      // Replace with your actual public key
+      // Initialize EmailJS
       try {
-        emailjs.init("YOUR_PUBLIC_KEY");
-      } catch(e) { console.log("EmailJS init placeholder"); }
+        emailjs.init("-84xRYR4pM6pv3_1b");
+      } catch(e) { console.log("EmailJS init failed", e); }
   })();
 
   const dialog = document.getElementById('submission-dialog');
@@ -87,8 +109,8 @@ const { courseCode = '' } = Astro.props;
   const btnText = submitBtn?.querySelector('.btn-text');
 
   // Constants
-  const SERVICE_ID = 'YOUR_SERVICE_ID'; 
-  const TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+  const SERVICE_ID = 'service_7jbuats'; 
+  const TEMPLATE_ID = 'template_5mzuzfp';
 
   // Open/Close Logic
   window.openSubmissionModal = (prefillCourse = '') => {
@@ -126,10 +148,7 @@ const { courseCode = '' } = Astro.props;
     btnText.textContent = 'Sending...';
 
     try {
-        // await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form);
-        
-        // Simulating success
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form);
         
         alert('Thank you! Your resource has been submitted for review.');
         form.reset();
@@ -234,6 +253,26 @@ const { courseCode = '' } = Astro.props;
     margin-top: var(--space-1);
     font-size: var(--text-xs);
     color: var(--text-tertiary);
+  }
+
+  .form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .form-check input {
+    margin-top: 4px;
+    width: auto;
+    cursor: pointer;
+  }
+
+  .form-check label {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    line-height: 1.4;
+    cursor: pointer;
   }
 
   .form-actions {

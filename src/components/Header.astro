@@ -37,7 +37,7 @@ const toggleUrl = getLangUrl(currentPath, toggleLang);
     <nav class="nav">
       <a href={homeUrl} class="logo">
         <span class="logo-icon">📚</span>
-        <span class="logo-text">Anıl Çolak</span>
+        <span class="logo-text">{lang === 'tr' ? "Anıl'ın Notları" : "Anıl's Notes"}</span>
       </a>
       
       <ul class="nav-links" id="nav-links">
@@ -138,6 +138,26 @@ const toggleUrl = getLangUrl(currentPath, toggleLang);
     color: var(--text-secondary, #666);
   }
   
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    color: var(--text-secondary, #666);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: color 0.2s;
+  }
+  
+  .nav-link:hover {
+    color: var(--primary-600, #2563eb);
+  }
+
   .theme-toggle, .mobile-menu-btn {
     padding: 0.5rem;
     background: transparent;

@@ -4,6 +4,19 @@ interface Props {
 }
 
 const { title = "Global Visitors" } = Astro.props;
+
+import { getCollection } from 'astro:content';
+
+const notes = await getCollection('notes');
+const noteCount = notes.length;
+const uniqueCourses = [...new Set(notes.map(n => n.data.course))].length;
+
+const launchDate = new Date('2024-01-01').getTime();
+const now = new Date().getTime();
+const daysActive = Math.floor((now - launchDate) / (1000 * 60 * 60 * 24));
+
+const currentPath = Astro.url.pathname;
+const lang = currentPath.includes('/tr/') ? 'tr' : 'en';
 ---
 
 <div class="visitor-stats-card">
@@ -17,16 +30,16 @@ const { title = "Global Visitors" } = Astro.props;
 
   <div class="stats-grid">
     <div class="stat-item">
-      <span class="stat-value">124</span>
-      <span class="stat-label">Daily</span>
+      <span class="stat-value">{noteCount}</span>
+      <span class="stat-label">{lang === 'tr' ? 'Notlar' : 'Notes'}</span>
     </div>
     <div class="stat-item">
-      <span class="stat-value">856</span>
-      <span class="stat-label">Weekly</span>
+      <span class="stat-value">{uniqueCourses}</span>
+      <span class="stat-label">{lang === 'tr' ? 'Dersler' : 'Courses'}</span>
     </div>
     <div class="stat-item">
-      <span class="stat-value">3.2k</span>
-      <span class="stat-label">Monthly</span>
+      <span class="stat-value">{daysActive}</span>
+      <span class="stat-label">{lang === 'tr' ? 'Gün Aktif' : 'Days Active'}</span>
     </div>
   </div>
 

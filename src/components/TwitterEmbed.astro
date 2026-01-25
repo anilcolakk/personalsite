@@ -10,7 +10,7 @@ const { id, title = 'Twitter Feed' } = Astro.props;
 
 <div class="twitter-embed-container" data-tweet-id={id}>
   <blockquote class="twitter-tweet">
-    <a href={`https://twitter.com/x/status/${id}`}>Loading tweet...</a>
+    <a href={`https://twitter.com/x/status/${id}`}>Tweets not loading? View on Twitter</a>
   </blockquote>
   <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </div>
