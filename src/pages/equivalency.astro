@@ -268,6 +268,15 @@ const universities = Object.entries(curriculaData.universities)
            </p>
         </div>
 
+        <!-- Submit Notes for this Course -->
+        <div class="submit-notes-box">
+           <p>Have notes for <strong>${source.code}</strong>?</p>
+           <a href="/notes/submit?course=${source.code}" class="btn-submit-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Submit Notes
+           </a>
+        </div>
+
       </div>
      `;
   }
@@ -414,6 +423,25 @@ const universities = Object.entries(curriculaData.universities)
   .empty-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
   
   .hidden { display: none; }
+
+  .submit-notes-box {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+  }
+  .submit-notes-box p { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 10px; }
+  
+  .btn-submit-sm {
+    display: inline-flex; align-items: center; gap: 8px; justify-content: center;
+    background: var(--bg-tertiary); color: var(--text-primary);
+    padding: 8px 16px; border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+    text-decoration: none; border: 1px solid var(--border-color);
+    transition: all 0.2s;
+  }
+  .btn-submit-sm:hover {
+    background: var(--primary-600); color: white; border-color: var(--primary-600);
+  }
 
   @media (max-width: 1024px) {
     .finder-grid { grid-template-columns: 1fr; height: auto; }

@@ -460,6 +460,174 @@
                 }
             ]
         },
+        "YTU": {
+            "id": "ytu",
+            "name": "Yıldız Teknik Üniversitesi",
+            "shortName": "YTÜ",
+            "department": "Elektronik ve Haberleşme Mühendisliği",
+            "website": "https://ehm.yildiz.edu.tr",
+            "courses": [
+                {
+                    "code": "EHM101",
+                    "name": "Introduction to Electronics Engineering",
+                    "nameTR": "Elektronik Müh. Giriş",
+                    "credits": 2,
+                    "year": 1
+                },
+                {
+                    "code": "EHM201",
+                    "name": "Circuit Analysis I",
+                    "nameTR": "Devre Analizi I",
+                    "credits": 4,
+                    "year": 2,
+                    "topics": [
+                        "resistive circuits",
+                        "Kirchhoff",
+                        "nodal",
+                        "mesh",
+                        "op-amps"
+                    ]
+                },
+                {
+                    "code": "EHM202",
+                    "name": "Circuit Analysis II",
+                    "nameTR": "Devre Analizi II",
+                    "credits": 4,
+                    "year": 2,
+                    "topics": [
+                        "AC circuits",
+                        "phasors",
+                        "power",
+                        "frequency response"
+                    ]
+                },
+                {
+                    "code": "EHM204",
+                    "name": "Electromagnetics I",
+                    "nameTR": "Elektromanyetik I",
+                    "credits": 3,
+                    "year": 2,
+                    "topics": [
+                        "electrostatics",
+                        "magnetostatics",
+                        "Maxwell"
+                    ]
+                },
+                {
+                    "code": "EHM301",
+                    "name": "Electronics I",
+                    "nameTR": "Elektronik I",
+                    "credits": 4,
+                    "year": 3,
+                    "topics": [
+                        "semiconductors",
+                        "diodes",
+                        "BJT",
+                        "FET",
+                        "biasing"
+                    ]
+                },
+                {
+                    "code": "EHM302",
+                    "name": "Electronics II",
+                    "nameTR": "Elektronik II",
+                    "credits": 4,
+                    "year": 3,
+                    "topics": [
+                        "feedback",
+                        "op-amps",
+                        "oscillators",
+                        "power amps"
+                    ]
+                },
+                {
+                    "code": "EHM305",
+                    "name": "Signals and Systems",
+                    "nameTR": "Sinyaller ve Sistemler",
+                    "credits": 4,
+                    "year": 3,
+                    "topics": [
+                        "continuous",
+                        "discrete",
+                        "Fourier",
+                        "Laplace",
+                        "convolution"
+                    ]
+                },
+                {
+                    "code": "EHM312",
+                    "name": "Communication Theory",
+                    "nameTR": "Haberleşme Teorisi",
+                    "credits": 4,
+                    "year": 3,
+                    "topics": [
+                        "modulation",
+                        "AM",
+                        "FM",
+                        "noise"
+                    ]
+                }
+            ]
+        },
+        "Sabanci": {
+            "id": "sabanci",
+            "name": "Sabancı Üniversitesi",
+            "shortName": "Sabancı",
+            "department": "Electronics Engineering",
+            "website": "https://ens.sabanciuniv.edu",
+            "courses": [
+                {
+                    "code": "ENS203",
+                    "name": "Electronic Circuits I",
+                    "nameTR": "Elektronik Devreler I",
+                    "credits": 4,
+                    "year": 2,
+                    "topics": [
+                        "diodes",
+                        "transistors",
+                        "op-amps",
+                        "digital logic"
+                    ]
+                },
+                {
+                    "code": "EL 301",
+                    "name": "Analog Electronics",
+                    "nameTR": "Analog Elektronik",
+                    "credits": 3,
+                    "year": 3,
+                    "topics": [
+                        "amplifiers",
+                        "frequency response",
+                        "feedback"
+                    ]
+                },
+                {
+                    "code": "EL 304",
+                    "name": "Digital System Design",
+                    "nameTR": "Sayısal Sistem Tasarımı",
+                    "credits": 3,
+                    "year": 3,
+                    "topics": [
+                        "verilog",
+                        "FPGA",
+                        "sequential logic"
+                    ]
+                },
+                {
+                    "code": "ENS211",
+                    "name": "Signals",
+                    "nameTR": "İşaretler",
+                    "credits": 3,
+                    "year": 2,
+                    "topics": [
+                        "continuous time",
+                        "discrete time",
+                        "filters",
+                        "Fourier"
+                    ]
+                }
+            ]
+        },
         "Bilkent": {
             "id": "bilkent",
             "name": "Bilkent Üniversitesi",

@@ -77,85 +77,44 @@ const toggleUrl = getLangUrl(currentPath, toggleLang);
   }
   
   [data-theme="dark"] .header {
-    background: rgba(15, 23, 42, 0.9) !important;
-    border-color: #334155;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-  }
-  
-  .nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 64px;
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--text-primary, #111);
-    text-decoration: none;
-  }
-  
-  .nav-links {
-    display: flex;
-    gap: 0.25rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .nav-link {
-    padding: 0.5rem 0.75rem;
-    color: var(--text-secondary, #666);
-    text-decoration: none;
-    border-radius: 0.5rem;
-    font-size: 0.875rem;
-  }
-  
-  .nav-link:hover {
-    background: var(--bg-tertiary, #f3f4f6);
-    color: var(--text-primary, #111);
+    background: #0f172a !important; /* Solid dark background, no transparency issues */
+    border-bottom: 1px solid #334155;
   }
   
   [data-theme="dark"] .nav-link {
-    color: #94a3b8 !important; /* Muted text for inactive */
+    color: #e2e8f0 !important; /* High contrast bright grey/white */
   }
   
   [data-theme="dark"] .nav-link:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: #f8fafc !important; /* Bright white for active/hover */
+    background: #1e293b; /* Lighter slate for hover */
+    color: #ffffff !important; /* Pure white on hover */
+    box-shadow: 0 0 10px rgba(255,255,255,0.05);
   }
   
   [data-theme="dark"] .logo {
-    color: #f8fafc !important;
+    color: #ffffff !important;
   }
   
   [data-theme="dark"] .lang-toggle {
-    color: #94a3b8 !important;
-    border-color: #334155;
+    color: #e2e8f0 !important;
+    border-color: #475569;
   }
   
   [data-theme="dark"] .lang-toggle:hover {
-    color: #f8fafc !important;
+    color: #ffffff !important;
     border-color: #94a3b8;
+    background: #1e293b;
   }
   
   [data-theme="dark"] .search-trigger {
-    color: #94a3b8;
-    border-color: #334155;
+    color: #e2e8f0;
+    border-color: #475569;
   }
   
   [data-theme="dark"] .search-trigger:hover {
-    color: #f8fafc;
+    color: #ffffff;
     border-color: #94a3b8;
+    background: #1e293b;
   }
   
   [data-theme="dark"] .theme-toggle {

@@ -1,96 +1,32 @@
 ---
-/**
- * TwitterEmbed - Static Version
- * reliable "Follow on X" card instead of broken iframe
- */
 interface Props {
-  username?: string;
-  id?: string; // Kept for API compatibility but unused
+  id: string;
   title?: string;
+  limit?: number;
 }
 
-const { username = 'aaanilclk', title = 'Latest Updates' } = Astro.props;
+const { id, title = 'Twitter Feed' } = Astro.props;
 ---
 
-<div class="static-twitter-card">
-  <div class="twitter-header">
-    <svg viewBox="0 0 24 24" aria-hidden="true" class="twitter-icon"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"></path></svg>
-    <h3>{title}</h3>
-  </div>
-  
-  <div class="twitter-content">
-    <p class="twitter-bio">
-      Follow <strong>@{username}</strong> for real-time updates on engineering resources, VLSI trends, and more.
-    </p>
-    <a href={`https://x.com/${username}`} target="_blank" rel="noopener noreferrer" class="twitter-follow-btn">
-      Follow on X &rarr;
-    </a>
-  </div>
+<div class="twitter-embed-container" data-tweet-id={id}>
+  <blockquote class="twitter-tweet">
+    <a href={`https://twitter.com/x/status/${id}`}>Loading tweet...</a>
+  </blockquote>
+  <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </div>
 
 <style>
-  .static-twitter-card {
+  .twitter-embed-container {
     background: var(--bg-card);
-    border: 1px solid var(--border-color);
     border-radius: var(--radius-xl);
-    padding: var(--space-6);
-    text-align: center;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-  
-  .static-twitter-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-color: var(--text-primary);
-  }
-  
-  .twitter-header {
+    overflow: hidden;
+    min-height: 200px;
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: var(--space-4);
-    color: var(--text-primary);
   }
   
-  .twitter-icon {
-    width: 24px;
-    height: 24px;
-  }
-  
-  .twitter-content {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-  
-  .twitter-bio {
-    color: var(--text-secondary);
-    font-size: var(--text-sm);
-    line-height: 1.5;
-  }
-  
-  .twitter-follow-btn {
-    display: inline-block;
-    background: #000;
-    color: #fff;
-    padding: 0.75rem 1.5rem;
-    border-radius: 9999px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: background 0.2s;
-  }
-  
-  .twitter-follow-btn:hover {
-    background: #333;
-  }
-  
-  [data-theme="dark"] .twitter-follow-btn {
-    background: #fff;
-    color: #000;
-  }
-  
-  [data-theme="dark"] .twitter-follow-btn:hover {
-    background: #e5e5e5;
+  /* Override Twitter's default max-width usage if needed */
+  :global(.twitter-tweet) {
+    margin: 0 auto !important;
   }
 </style>

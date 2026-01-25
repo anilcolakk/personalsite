@@ -4,7 +4,9 @@
  * Dynamic route for viewing individual notes
  */
 import BaseLayout from '@layouts/BaseLayout.astro';
+import BaseLayout from '@layouts/BaseLayout.astro';
 import LockedContent from '@components/LockedContent.astro';
+import NoteSubmissionForm from '@components/NoteSubmissionForm.astro';
 
 import { getCollection, type CollectionEntry } from 'astro:content';
 
@@ -59,16 +61,7 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
           <div class="note-hero__badges">
             <span class="badge badge-year">{yearLabels[note.data.year]}</span>
             <span class="badge badge-course">{note.data.courseCode}</span>
-            {note.data.isPaid ? (
-              <span class="badge badge-premium">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 1l3.22 6.636 7.28.96-5.28 5.068 1.28 7.236L12 17.27l-6.5 3.63 1.28-7.236L1.5 8.596l7.28-.96z"/>
-                </svg>
-                Premium
-              </span>
-            ) : (
-              <span class="badge badge-free">Free</span>
-            )}
+            <span class="badge badge-free">Free</span>
           </div>
           
           <h1 class="note-hero__title">{note.data.title}</h1>
@@ -104,20 +97,10 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
         <div class="note-layout">
           <!-- Main Content -->
           <div class="note-main">
-            {note.data.isPaid ? (
-              <!-- Paid Content - Show locked state -->
-              <LockedContent 
-                preview={note.data.preview}
-                price={note.data.price!}
-                productId={note.data.shopierProductId!}
-                noteTitle={note.data.title}
-              />
-            ) : (
               <!-- Free Content - Show full content -->
               <div class="note-body prose">
                 <Content />
               </div>
-            )}
           </div>
           
           <!-- Sidebar -->
@@ -126,45 +109,19 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
             <div class="sidebar-card submit-card">
               <h3>Have notes for {note.data.courseCode}?</h3>
               <p>Help other students by sharing your resources.</p>
-              <a href="#" class="btn btn-secondary" style="width: 100%; justify-content: center; margin-top: var(--space-2);">
+              <button 
+                onclick={`window.openSubmissionModal('${note.data.courseCode}')`}
+                class="btn btn-secondary" 
+                style="width: 100%; justify-content: center; margin-top: var(--space-2); cursor: pointer;"
+              >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="12" y1="5" x2="12" y2="19"></line>
                   <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
                 Submit Notes
-              </a>
+              </button>
             </div>
 
-            {note.data.isPaid ? (
-              <!-- Purchase Card for Paid Content -->
-              <div class="sidebar-card purchase-card">
-                <h3>Get This Resource</h3>
-                <div class="purchase-price">
-                  <span class="price-amount">₺{(note.data.price || 0).toFixed(2)}</span>
-                  <span class="price-label">One-time purchase</span>
-                </div>
-                <ul class="purchase-features">
-                  <li>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    Instant download
-                  </li>
-                  <li>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    PDF format
-                  </li>
-                  <li>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                    Lifetime access
-                  </li>
-                </ul>
-              </div>
-            ) : (
               <!-- Download Card for Free Content -->
               <div class="sidebar-card download-card">
                 <h3>Download Resource</h3>
@@ -183,7 +140,6 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
                   Download from Drive
                 </a>
               </div>
-            )}
             
             <!-- Share Card -->
             <div class="sidebar-card share-card">
@@ -224,6 +180,9 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
       </div>
     </div>
   </article>
+
+  <!-- Submission Modal -->
+  <NoteSubmissionForm courseCode={note.data.courseCode} />
 </BaseLayout>
 
 <script>
