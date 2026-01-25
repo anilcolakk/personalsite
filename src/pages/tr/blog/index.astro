@@ -3,45 +3,14 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 
 const blogPosts = [
   {
-    slug: 'how-to-study-for-ee-exams',
-    title: 'EE Sınavlarına Nasıl Etkili Çalışılır',
-    excerpt: 'ODTÜ\'deki en zorlu elektrik mühendisliği sınavlarını aşmak için kanıtlanmış stratejilerim. Zaman yönetiminden pratik tekniklerine.',
-    date: '2024-01-15',
-    readTime: '8 dk okuma',
-    category: 'Çalışma İpuçları',
-  },
-  {
-    slug: 'understanding-laplace-transforms',
-    title: 'Laplace Dönüşümlerini Anlamak: Görsel Bir Rehber',
-    excerpt: 'Laplace dönüşümleri korkutmak zorunda değil. İşte bu güçlü matematiksel aracı anlamak için sezgisel bir yaklaşım.',
-    date: '2024-01-08',
-    readTime: '12 dk okuma',
-    category: 'Eğitim',
-  },
-  {
-    slug: 'best-resources-for-circuit-analysis',
-    title: 'Devre Analizi için En İyi Kaynaklar',
-    excerpt: 'Devre analizinde uzmanlaşmama yardımcı olan ders kitapları, videolar ve çevrimiçi kaynakların derlenmiş bir listesi.',
-    date: '2024-01-01',
-    readTime: '6 dk okuma',
-    category: 'Kaynaklar',
-  },
-  {
-    slug: 'my-journey-through-ee',
-    title: 'Elektrik Mühendisliği Yolculuğum',
-    excerpt: 'ODTÜ\'de dört yıllık EE eğitimi üzerine düşünceler - zorluklar, başarılar ve aradaki her şey.',
-    date: '2023-12-20',
-    readTime: '10 dk okuma',
+    slug: 'why-i-opened-this-site',
+    title: 'Bu Yolculuğa Neden Başladım',
+    excerpt: 'Bu platformun arkasındaki hikaye: Bir EEE öğrencisi olarak kendi zorluklarımdan, sahip olmak istediğim kaynağı yaratmaya uzanan yol.',
+    date: '2025-01-25',
+    readTime: '3 dk okuma',
     category: 'Kişisel',
-  },
-  {
-    slug: 'tips-for-senior-design-project',
-    title: 'Bitirme Projeniz için 10 İpucu',
-    excerpt: 'Bitirme projeme başlamadan önce keşke bilseydim dediğim her şey. Takım dinamiklerinden teknik kararlara.',
-    date: '2023-12-10',
-    readTime: '15 dk okuma',
-    category: 'Tavsiyeler',
-  },
+    image: '/images/eehistory.jpg',
+  }
 ];
 
 const categories = ['Tümü', ...new Set(blogPosts.map(p => p.category))];

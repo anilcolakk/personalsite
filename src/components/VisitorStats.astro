@@ -3,7 +3,7 @@ interface Props {
   title?: string;
 }
 
-const { title = "Global Visitors" } = Astro.props;
+const { title = "Global Community" } = Astro.props;
 
 import { getCollection } from 'astro:content';
 
@@ -16,139 +16,236 @@ const now = new Date().getTime();
 const daysActive = Math.floor((now - launchDate) / (1000 * 60 * 60 * 24));
 
 const currentPath = Astro.url.pathname;
-const lang = currentPath.includes('/tr/') ? 'tr' : 'en';
+const lang = currentPath.startsWith('/tr') ? 'tr' : 'en';
+
+const stats = [
+  {
+    value: noteCount,
+    label: lang === 'tr' ? 'Paylaşılan Notlar' : 'Notes Shared',
+    icon: '📚',
+    color: 'var(--primary-500)'
+  },
+  {
+    value: uniqueCourses,
+    label: lang === 'tr' ? 'Kapsanan Dersler' : 'Courses Covered',
+    icon: '🎓',
+    color: 'var(--secondary-500)'
+  },
+  {
+    value: daysActive,
+    label: lang === 'tr' ? 'Gün Aktif' : 'Days Active',
+    icon: '🚀',
+    color: 'var(--accent-500)'
+  }
+];
 ---
 
-<div class="visitor-stats-card">
-  <div class="stats-header">
-    <h3>{title}</h3>
-    <div class="live-dot">
-      <span class="dot"></span>
-      <span class="label">Live Tracking</span>
+<div class="community-dashboard animate-on-scroll">
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h2 class="dashboard-title">{title}</h2>
+      <p class="dashboard-subtitle">
+        {lang === 'tr' 
+          ? 'Dünyanın dört bir yanından öğrencilerle birlikte öğreniyoruz.' 
+          : 'Joining students from around the world in the pursuit of engineering excellence.'}
+      </p>
+    </div>
+    <div class="live-indicator">
+      <span class="pulsing-dot"></span>
+      <span>{lang === 'tr' ? 'Canlı Takip' : 'Live Tracking'}</span>
     </div>
   </div>
 
-  <div class="stats-grid">
-    <div class="stat-item">
-      <span class="stat-value">{noteCount}</span>
-      <span class="stat-label">{lang === 'tr' ? 'Notlar' : 'Notes'}</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-value">{uniqueCourses}</span>
-      <span class="stat-label">{lang === 'tr' ? 'Dersler' : 'Courses'}</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-value">{daysActive}</span>
-      <span class="stat-label">{lang === 'tr' ? 'Gün Aktif' : 'Days Active'}</span>
-    </div>
+  <div class="stats-overview">
+    {stats.map(stat => (
+      <div class="stat-card">
+        <div class="stat-icon-wrapper" style={`background-color: ${stat.color}15; color: ${stat.color}`}>
+          <span class="stat-icon">{stat.icon}</span>
+        </div>
+        <div class="stat-info">
+          <span class="stat-value">{stat.value}</span>
+          <span class="stat-label">{stat.label}</span>
+        </div>
+      </div>
+    ))}
   </div>
 
-  <div class="map-container">
-    <!-- RevolverMaps 3D Globe Embed -->
-    <div style="width: 100%; height: 100%; overflow: hidden; border-radius: inherit;">
+  <div class="map-section">
+    <div class="map-container">
+      <!-- 
+        RevolverMaps Embed 
+        Note: Using standard script embed. If this fails to render, check ad blockers.
+      -->
       <script type="text/javascript" src="//rf.revolvermaps.com/0/0/8.js?i=5y3x4w0z1a2&amp;m=0&amp;c=ff0000&amp;cr1=ffffff&amp;f=arial&amp;l=33&amp;bv=0" async="async"></script>
+    </div>
+    <div class="map-overlay">
+      <p class="map-note">
+        {lang === 'tr' 
+          ? 'Ziyaretçilerin konumlarını gösteren canlı harita.' 
+          : 'Real-time map showing visitor locations.'}
+      </p>
     </div>
   </div>
 </div>
 
 <style>
-  .visitor-stats-card {
+  .community-dashboard {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
+    border-radius: var(--radius-2xl);
+    padding: var(--space-8);
+    box-shadow: var(--shadow-xl);
+    overflow: hidden;
+    position: relative;
     margin-top: var(--space-8);
   }
 
-  .stats-header {
+  /* Header */
+  .dashboard-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-6);
-  }
-
-  .stats-header h3 {
-    font-size: var(--text-lg);
-    font-weight: 700;
-  }
-
-  .live-dot {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-xs);
-    color: var(--success-500);
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  .dot {
-    width: 8px;
-    height: 8px;
-    background: currentColor;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-  }
-
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    align-items: flex-start;
+    margin-bottom: var(--space-8);
+    flex-wrap: wrap;
     gap: var(--space-4);
-    margin-bottom: var(--space-6);
-    text-align: center;
   }
 
-  .stat-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-  }
-
-  .stat-value {
+  .dashboard-title {
     font-size: var(--text-2xl);
     font-weight: 800;
     color: var(--text-primary);
+    margin-bottom: var(--space-2);
   }
 
-  .stat-label {
+  .dashboard-subtitle {
+    color: var(--text-secondary);
+    max-width: 500px;
+    font-size: var(--text-base);
+  }
+
+  .live-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-1) var(--space-3);
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: var(--radius-full);
+    color: var(--success-600);
     font-size: var(--text-xs);
-    color: var(--text-tertiary);
+    font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
-  .map-container {
-    background: var(--bg-tertiary);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    height: 200px; /* Adjust based on widget height */
+  .pulsing-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--success-500);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
   }
 
-  .map-placeholder {
-    width: 100%;
-    height: 100%;
+  /* Stats Grid */
+  .stats-overview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+  }
+
+  .stat-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    transition: transform 0.2s;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary-300);
+  }
+
+  .stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-tertiary);
-    background: repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 10px,
-      rgba(0, 0, 0, 0.03) 10px,
-      rgba(0, 0, 0, 0.03) 20px
-    );
+    font-size: 1.5rem;
+    flex-shrink: 0;
   }
 
-  .placeholder-content {
+  .stat-info {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: var(--space-2);
   }
 
-  .instruction {
+  .stat-value {
+    font-size: var(--text-xl);
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-bottom: 2px;
+  }
+
+  .stat-label {
     font-size: var(--text-xs);
-    opacity: 0.7;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* Map Section */
+  .map-section {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: #1a1b26; /* Dark background for better map visibility */
+    border: 1px solid var(--border-color);
+  }
+
+  .map-container {
+    height: 400px; /* Taller map */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .map-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: var(--space-2) var(--space-4);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+  }
+
+  .map-note {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: var(--text-xs);
+  }
+
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  }
+
+  @media (max-width: 768px) {
+    .stats-overview {
+      grid-template-columns: 1fr;
+    }
+    .map-container {
+      height: 300px;
+    }
   }
 </style>

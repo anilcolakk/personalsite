@@ -1,0 +1,246 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const post = {
+  title: 'Why I Started This Journey',
+  date: '2025-01-25',
+  readTime: '3 min read',
+  category: 'Personal',
+  image: '/images/eehistory.jpg',
+};
+
+const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+---
+
+<BaseLayout title={post.title} description="The story behind this platform and my mission to help EEE students." image={post.image}>
+  <article class="blog-post">
+    <!-- Hero Header -->
+    <div class="post-header">
+      <div class="container">
+        <a href={`${base}/blog`} class="back-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Blog
+        </a>
+        
+        <div class="post-meta">
+          <span class="post-category">{post.category}</span>
+          <span class="meta-divider">•</span>
+          <span class="post-date">{post.date}</span>
+          <span class="meta-divider">•</span>
+          <span class="post-read-time">{post.readTime}</span>
+        </div>
+        
+        <h1 class="post-title">{post.title}</h1>
+      </div>
+    </div>
+
+    <!-- Featured Image -->
+    <div class="container">
+      <div class="featured-image-container">
+        <img src={post.image} alt="Electrical Engineering History" class="featured-image" />
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="container content-container">
+      <div class="post-content">
+        <p class="lead">
+          Welcome to my digital garden. This isn't just a collection of notes; it's the resource I wish I had when I first walked into the lecture halls of the Electrical and Electronics Engineering department.
+        </p>
+
+        <h2>The Engineering Struggle</h2>
+        <p>
+          Let's be honest: EEE is difficult. The concepts are abstract, the math is rigorous, and the workload can feel overwhelming. I remember sitting in Circuit Theory classes, staring at equations that seemed to dance on the board, feeling a mix of fascination and sheer panic.
+        </p>
+        <p>
+          There were late nights spent debugging Verilog code, hours wrestling with Laplace transforms, and moments where I questioned if I was cut out for this. But through that struggle, I learned something important: <strong>understanding comes from persistence and the right perspective.</strong>
+        </p>
+
+        <h2>Mind the Gap</h2>
+        <p>
+          During my studies, I often found a gap between the academic theory presented in textbooks and the intuitive understanding needed to solve real problems. Textbooks are excellent for rigorous proofs, but they don't always explain "why" we do things a certain way or how to approach a problem when you're stuck.
+        </p>
+        <p>
+          I started taking detailed notes. Not just copying what was on the board, but rewriting concepts in my own words, drawing diagrams that made sense to me, and annotating the "gotchas" that tripped me up.
+        </p>
+
+        <h2>Why This Website Exists</h2>
+        <p>
+          I realized that my personal notes, cheat sheets, and project summaries could be valuable to others. If I struggled with a specific concept, chances are, hundreds of other students are struggling with it too right now.
+        </p>
+        <p>
+          <strong>My goal is simple:</strong> to democratize this knowledge.
+        </p>
+        <ul>
+          <li><strong>Free Access:</strong> Education shouldn't be paywalled. My core notes and guides are available to everyone.</li>
+          <li><strong>Student-to-Student:</strong> I explain things from the perspective of someone who just learned them, which is often more relatable than a professor's explanation.</li>
+          <li><strong>Community:</strong> I want this to be a place where we can share resources and help each other succeed.</li>
+        </ul>
+
+        <h2>Looking Forward</h2>
+        <p>
+          This site is a living project. I'll be adding more course reviews, tutorial videos, and perhaps even some tools to help with common calculations (like the Course Equivalency tool I'm working on).
+        </p>
+        <p>
+          Thank you for visiting. I hope you find something here that sparks an "aha!" moment for you. If you have notes you'd like to share or suggestions for new content, please reach out.
+        </p>
+        <p>
+          Happy studying!
+        </p>
+
+        <hr class="divider" />
+        
+        <div class="author-bio">
+          <p><em>Written by Anıl, an EEE student passionate about making engineering education accessible.</em></p>
+        </div>
+        
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .blog-post {
+    padding-bottom: var(--space-20);
+  }
+
+  .post-header {
+    background: var(--bg-surface);
+    padding: var(--space-12) 0 var(--space-8);
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-secondary);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    margin-bottom: var(--space-8);
+    transition: color var(--transition-fast);
+  }
+
+  .back-link:hover {
+    color: var(--primary-600);
+  }
+
+  .post-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    color: var(--text-tertiary);
+    font-size: var(--text-sm);
+  }
+
+  .post-category {
+    color: var(--primary-600);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .post-title {
+    font-size: var(--text-4xl);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-primary);
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .featured-image-container {
+    margin: -40px auto var(--space-12);
+    max-width: 1000px;
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+    border: 4px solid var(--bg-main);
+  }
+
+  .featured-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    aspect-ratio: 21/9;
+    object-fit: cover;
+  }
+
+  .content-container {
+    max-width: 720px;
+  }
+
+  .post-content {
+    font-size: var(--text-lg);
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }
+
+  .lead {
+    font-size: var(--text-xl);
+    color: var(--text-primary);
+    font-weight: 500;
+    margin-bottom: var(--space-8);
+    line-height: 1.6;
+  }
+
+  .post-content h2 {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: var(--space-10) 0 var(--space-4);
+  }
+
+  .post-content p {
+    margin-bottom: var(--space-6);
+  }
+
+  .post-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .post-content ul {
+    margin-bottom: var(--space-8);
+    padding-left: var(--space-6);
+  }
+
+  .post-content li {
+    margin-bottom: var(--space-3);
+    padding-left: var(--space-2);
+  }
+  
+  .post-content li::marker {
+    color: var(--primary-600);
+  }
+
+  .divider {
+    margin: var(--space-12) 0;
+    border: 0;
+    height: 1px;
+    background: var(--border-color);
+  }
+
+  .author-bio {
+    font-style: italic;
+    color: var(--text-tertiary);
+  }
+
+  @media (max-width: 768px) {
+    .post-title {
+      font-size: var(--text-3xl);
+    }
+    
+    .featured-image-container {
+      margin-top: var(--space-8);
+      border-width: 0;
+      border-radius: var(--radius-lg);
+    }
+  }
+</style>

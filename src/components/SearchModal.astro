@@ -347,7 +347,9 @@
     
     try {
       // Use a variable to prevent Vite from trying to resolve this at build time
+      // Check if we are in dev mode to give better feedback
       const pagefindPath = import.meta.env.BASE_URL + 'pagefind/pagefind-ui.js';
+      
       // @ts-ignore - Pagefind is loaded from the build output
       const { PagefindUI } = await import(/* @vite-ignore */ pagefindPath);
       
@@ -360,12 +362,30 @@
       });
       
       // Hide the default Pagefind input since we have our own
-      const defaultInput = pagefindContainer?.querySelector('.pagefind-ui__search-input');
-      if (defaultInput) {
-        (defaultInput as HTMLElement).style.display = 'none';
-      }
+      setTimeout(() => {
+        const defaultInput = pagefindContainer?.querySelector('.pagefind-ui__search-input');
+        if (defaultInput) {
+          (defaultInput as HTMLElement).style.display = 'none';
+          // Sync if user already typed
+          if (searchInput && searchInput.value) {
+             (defaultInput as HTMLInputElement).value = searchInput.value;
+             defaultInput.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        }
+      }, 100);
+
     } catch (error) {
       console.log('Pagefind not available - run npm run build first');
+      if (pagefindContainer) {
+        pagefindContainer.innerHTML = `
+          <div class="search-modal__placeholder">
+            <p style="color: var(--error-500);">
+              Search is only available in production builds.<br>
+              Please run <code>npm run build</code> and preview the site.
+            </p>
+          </div>
+        `;
+      }
     }
   }
 
@@ -398,6 +418,18 @@
     // Close on ESC
     if (e.key === 'Escape' && searchModal?.classList.contains('active')) {
       closeSearchModal();
+    }
+  });
+
+  // Handle Enter key on input to select first result
+  searchInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      // Try to click the first result
+      const firstLink = pagefindContainer?.querySelector('.pagefind-ui__result-link') as HTMLElement;
+      if (firstLink) {
+        firstLink.click();
+      }
     }
   });
 

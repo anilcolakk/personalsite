@@ -4,59 +4,14 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 // Sample blog posts
 const blogPosts = [
   {
-    slug: 'how-to-study-for-ee-exams',
-    title: 'How to Study Effectively for EE Exams',
-    excerpt: 'My proven strategies for tackling the most challenging electrical engineering exams at METU. From time management to practice techniques.',
-    date: '2024-01-15',
-    readTime: '8 min read',
-    category: 'Study Tips',
-    image: null,
-  },
-  {
-    slug: 'understanding-laplace-transforms',
-    title: 'Understanding Laplace Transforms: A Visual Guide',
-    excerpt: 'Laplace transforms don\'t have to be scary. Here\'s an intuitive approach to understanding this powerful mathematical tool.',
-    date: '2024-01-08',
-    readTime: '12 min read',
-    category: 'Tutorial',
-    image: null,
-  },
-  {
-    slug: 'best-resources-for-circuit-analysis',
-    title: 'Best Resources for Circuit Analysis',
-    excerpt: 'A curated list of textbooks, videos, and online resources that helped me master circuit analysis.',
-    date: '2024-01-01',
-    readTime: '6 min read',
-    category: 'Resources',
-    image: null,
-  },
-  {
-    slug: 'my-journey-through-ee',
-    title: 'My Journey Through Electrical Engineering',
-    excerpt: 'Reflections on four years of studying EE at METU - the challenges, the victories, and everything in between.',
-    date: '2023-12-20',
-    readTime: '10 min read',
+    slug: 'why-i-opened-this-site',
+    title: 'Why I Started This Journey',
+    excerpt: 'The story behind this platform: from my own struggles as an EEE student to creating the resource I wish I had.',
+    date: '2025-01-25',
+    readTime: '3 min read',
     category: 'Personal',
-    image: null,
-  },
-  {
-    slug: 'tips-for-senior-design-project',
-    title: '10 Tips for Your Senior Design Project',
-    excerpt: 'Everything I wish I knew before starting my capstone project. From team dynamics to technical decisions.',
-    date: '2023-12-10',
-    readTime: '15 min read',
-    category: 'Advice',
-    image: null,
-  },
-  {
-    slug: 'matlab-vs-python-for-engineers',
-    title: 'MATLAB vs Python: Which Should You Learn?',
-    excerpt: 'A comparison of the two most popular tools for engineering students. Spoiler: you need both.',
-    date: '2023-12-01',
-    readTime: '9 min read',
-    category: 'Programming',
-    image: null,
-  },
+    image: '/images/eehistory.jpg',
+  }
 ];
 
 const categories = ['All', ...new Set(blogPosts.map(p => p.category))];
