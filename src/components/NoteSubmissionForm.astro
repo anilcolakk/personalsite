@@ -67,28 +67,34 @@ const { courseCode = '' } = Astro.props;
   </div>
 </dialog>
 
-<script>
-  import emailjs from '@emailjs/browser';
+<script is:inline src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 
-  const dialog = document.getElementById('submission-dialog') as HTMLDialogElement;
-  const form = document.getElementById('note-submission-form') as HTMLFormElement;
+<script>
+  // Initialize EmailJS
+  (function() {
+      // Replace with your actual public key
+      try {
+        emailjs.init("YOUR_PUBLIC_KEY");
+      } catch(e) { console.log("EmailJS init placeholder"); }
+  })();
+
+  const dialog = document.getElementById('submission-dialog');
+  const form = document.getElementById('note-submission-form');
   const closeBtn = dialog?.querySelector('.close-btn');
   const cancelBtn = dialog?.querySelector('.cancel-btn');
   const submitBtn = dialog?.querySelector('.submit-btn');
   const loader = submitBtn?.querySelector('.loader');
   const btnText = submitBtn?.querySelector('.btn-text');
 
-  // Initialize EmailJS (Replace with user's actual keys later)
-  // For now using placeholders that will log errors if not set but won't crash the page
-  const PUBLIC_KEY = 'YOUR_PUBLIC_KEY'; 
+  // Constants
   const SERVICE_ID = 'YOUR_SERVICE_ID'; 
   const TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
 
-  // Open/Close Logic (Exposing open function to window for other components to call)
+  // Open/Close Logic
   window.openSubmissionModal = (prefillCourse = '') => {
     if (dialog) {
       if (prefillCourse && form) {
-        const courseInput = form.querySelector('[name="course_code"]') as HTMLInputElement;
+        const courseInput = form.querySelector('[name="course_code"]');
         if (courseInput) courseInput.value = prefillCourse;
       }
       dialog.showModal();
@@ -120,10 +126,9 @@ const { courseCode = '' } = Astro.props;
     btnText.textContent = 'Sending...';
 
     try {
-        // In a real scenario with env vars:
-        // await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form, PUBLIC_KEY);
+        // await emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form);
         
-        // Simulating success for now since we don't have keys
+        // Simulating success
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         alert('Thank you! Your resource has been submitted for review.');
