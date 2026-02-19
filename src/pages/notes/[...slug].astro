@@ -29,13 +29,17 @@ const yearLabels: Record<string, string> = {
   '4': '4th Year',
 };
 
-const formattedDate = new Date(note.data.date || Date.now()).toLocaleDateString('en-US', {
+const formattedDate = new Date(note.data.createdAt || Date.now()).toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
 });
 
 const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Extract folder ID from Drive link for embed
+const driveFolderIdMatch = note.data.driveLink.match(/folders\/([a-zA-Z0-9_-]+)/);
+const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
 ---
 
 <BaseLayout 
@@ -98,6 +102,46 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
               <div class="note-body prose">
                 <Content />
               </div>
+              
+              <!-- Google Drive Folder Preview -->
+              {driveFolderId && (
+                <div class="drive-preview">
+                  <div class="drive-preview__header">
+                    <h3 class="drive-preview__title">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 87.3 78" fill="none">
+                        <path d="M6.6 66.85L3.3 72.35 16.6 78l3.3-5.5z" fill="#0066DA"/>
+                        <path d="M43.65 0L26.35 29.25l13.3 7.7L56.95 7.7z" fill="#00AC47"/>
+                        <path d="M73.55 78L87.3 72.35l-13.3-23.05H60.7z" fill="#EA4335"/>
+                        <path d="M43.65 0L26.35 29.25H0l17.3-29.25z" fill="#00832D"/>
+                        <path d="M43.65 0L56.95 7.7 73.55 36.95H87.3z" fill="#2684FC"/>
+                        <path d="M26.35 29.25L13.05 51.3 0 29.25z" fill="#FFBA00"/>
+                      </svg>
+                      Google Drive Preview
+                    </h3>
+                    <a 
+                      href={note.data.driveLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      class="btn btn-drive"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
+                      Open in Google Drive
+                    </a>
+                  </div>
+                  <div class="drive-preview__frame">
+                    <iframe 
+                      src={`https://drive.google.com/embeddedfolderview?id=${driveFolderId}#list`}
+                      class="drive-iframe"
+                      title={`Google Drive folder preview for ${note.data.courseCode}`}
+                      loading="lazy"
+                    ></iframe>
+                  </div>
+                </div>
+              )}
           </div>
           
           <!-- Sidebar -->
@@ -537,6 +581,78 @@ const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.re
     
     .sidebar-card {
       min-width: 100%;
+    }
+  }
+
+  /* Google Drive Preview */
+  .drive-preview {
+    margin-top: var(--space-6);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+
+  .drive-preview__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+  }
+
+  .drive-preview__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .btn-drive {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #4285F4, #1a73e8);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-base);
+    text-decoration: none;
+  }
+
+  .btn-drive:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(66, 133, 244, 0.4);
+  }
+
+  .drive-preview__frame {
+    position: relative;
+    width: 100%;
+    height: 500px;
+  }
+
+  .drive-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: white;
+  }
+
+  @media (max-width: 768px) {
+    .drive-preview__header {
+      flex-direction: column;
+      gap: var(--space-3);
+      text-align: center;
+    }
+
+    .drive-preview__frame {
+      height: 400px;
     }
   }
 </style>

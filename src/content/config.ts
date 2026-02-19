@@ -14,7 +14,7 @@ const notesCollection = defineCollection({
         preview: z.string().optional().describe('Preview text shown for locked content'),
 
         // Content Location
-        driveLink: z.string().url().describe('Google Drive link to the resource'),
+        driveLink: z.string().describe('Google Drive link to the resource'),
 
         // Hierarchical Structure
         year: z.enum(['1', '2', '3', '4']).describe('Academic year (1st through 4th)'),
