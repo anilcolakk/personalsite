@@ -178,7 +178,7 @@ allNotes.forEach((note: any) => {
             <span>${hasKey ? '🟢 API anahtarı kayıtlı' : '🔴 API anahtarı ayarlanmadı'}</span>
           </div>
           <div class="settings-input-row">
-            <input type="password" id="api-key-input" class="settings-input" placeholder="xai-..." value="${hasKey ? '••••••••••••••••' : ''}" autocomplete="off">
+            <input type="text" id="api-key-input" class="settings-input" placeholder="xai-..." value="${hasKey ? '••••••••••••••••' : ''}" autocomplete="off" autocorrect="off" spellcheck="false" style="-webkit-text-security: disc;">
             <button onclick="saveApiKeyFromModal()" class="btn-save-key">Kaydet</button>
           </div>
           ${hasKey ? '<button onclick="clearApiKeyFromModal()" class="btn-clear-key">Kayıtlı Anahtarı Sil</button>' : ''}

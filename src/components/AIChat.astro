@@ -13,32 +13,32 @@ const texts = {
   en: {
     trigger: 'AI Tutor',
     title: 'AI Study Assistant',
-    subtitle: 'Powered by Groq (Free!)',
+    subtitle: 'Powered by Grok',
     placeholder: 'Ask anything about EE...',
-    greeting: "Hi! I'm your AI study assistant powered by Groq. I can help with:",
+    greeting: "Hi! I'm your AI study assistant powered by Grok. I can help with:",
     topics: ['Circuit Analysis', 'Electronics', 'Signals & Systems', 'Math for Engineers', 'Study Tips'],
-    hint: 'Add your free Groq API key below to enable AI responses.',
-    apiLabel: '🔑 Get free key at console.groq.com',
-    apiPlaceholder: 'gsk_...',
+    hint: 'Add your Grok API key below to enable AI responses.',
+    apiLabel: '🔑 Get API key at console.x.ai',
+    apiPlaceholder: 'xai-...',
     saveBtn: 'Save',
     thinking: 'Thinking...',
     error: 'Error. Check your API key.',
-    noKey: 'Please add your free Groq API key above first.'
+    noKey: 'Please add your Grok API key above first.'
   },
   tr: {
     trigger: 'Yapay Zeka',
     title: 'Yapay Zeka Asistanı',
-    subtitle: 'Groq ile çalışır (Ücretsiz!)',
+    subtitle: 'Grok ile çalışır',
     placeholder: 'EE hakkında bir şey sor...',
-    greeting: "Merhaba! Groq destekli yapay zeka asistanınım. Şunlarda yardımcı olabilirim:",
+    greeting: "Merhaba! Grok destekli yapay zeka asistanınım. Şunlarda yardımcı olabilirim:",
     topics: ['Devre Analizi', 'Elektronik', 'Sinyaller ve Sistemler', 'Mühendislik Matematiği', 'Çalışma İpuçları'],
-    hint: 'Yapay zeka yanıtları için ücretsiz Groq API anahtarını ekle.',
-    apiLabel: '🔑 Ücretsiz anahtar: console.groq.com',
-    apiPlaceholder: 'gsk_...',
+    hint: 'Yapay zeka yanıtları için Grok API anahtarını ekle.',
+    apiLabel: '🔑 Anahtar al: console.x.ai',
+    apiPlaceholder: 'xai-...',
     saveBtn: 'Kaydet',
     thinking: 'Düşünüyorum...',
     error: 'Hata. API anahtarını kontrol et.',
-    noKey: 'Lütfen önce ücretsiz Groq API anahtarını ekle.'
+    noKey: 'Lütfen önce Grok API anahtarını ekle.'
   }
 };
 
@@ -81,10 +81,10 @@ const t = texts[lang];
     </div>
     
     <div class="chat-api-section" id="chat-api-section">
-      <a href="https://console.groq.com/keys" target="_blank" rel="noopener" class="api-link">{t.apiLabel}</a>
+      <a href="https://console.x.ai/" target="_blank" rel="noopener" class="api-link">{t.apiLabel}</a>
       <div class="api-input-row">
-        <input type="password" id="groq-api-key" placeholder={t.apiPlaceholder} />
-        <button id="save-groq-key" class="btn-save" onclick="window.saveGroqKey()">{t.saveBtn}</button>
+        <input type="text" id="grok-api-key" placeholder={t.apiPlaceholder} autocomplete="off" autocorrect="off" spellcheck="false" style="-webkit-text-security: disc;" />
+        <button id="save-grok-key" class="btn-save" onclick="window.saveGrokKey()">{t.saveBtn}</button>
       </div>
     </div>
     
@@ -304,7 +304,7 @@ const t = texts[lang];
     gap: 8px;
   }
   
-  #groq-api-key {
+  #grok-api-key {
     flex: 1;
     padding: 8px;
     border-radius: 6px;
@@ -417,10 +417,10 @@ const t = texts[lang];
     if (!txt) return;
 
     // Check key
-    const key = localStorage.getItem('groq_api_key');
+    const key = localStorage.getItem('grok_api_key');
     const t = lang === 'tr' ? 
-      { noKey: 'Lütfen ücretsiz Groq API anahtarını girin.', thinking: 'Düşünüyorum...', error: 'Hata oluştu.' } : 
-      { noKey: 'Please enter your free Groq API key.', thinking: 'Thinking...', error: 'An error occurred.' };
+      { noKey: 'Lütfen Grok API anahtarını girin.', thinking: 'Düşünüyorum...', error: 'Hata oluştu.' } : 
+      { noKey: 'Please enter your Grok API key.', thinking: 'Thinking...', error: 'An error occurred.' };
 
     function addMsg(text, role) {
       const div = document.createElement('div');
@@ -445,16 +445,15 @@ const t = texts[lang];
     messages.scrollTop = messages.scrollHeight;
 
     try {
-       const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+       const res = await fetch('https://api.x.ai/v1/chat/completions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
           body: JSON.stringify({
-             model: 'llama-3.3-70b-versatile',
+             model: 'grok-3-mini',
              messages: [
                {role: 'system', content: 'You are a helpful engineering tutor.'},
                {role: 'user', content: txt}
-             ],
-             max_tokens: 400
+             ]
           })
        });
        document.getElementById(loadId)?.remove();
@@ -467,21 +466,21 @@ const t = texts[lang];
   }
 
   // Key save logic
-  window.saveGroqKey = function() {
-    const input = document.getElementById('groq-api-key');
+  window.saveGrokKey = function() {
+    const input = document.getElementById('grok-api-key');
     const section = document.getElementById('chat-api-section');
     const key = input.value.trim();
-    if(key.startsWith('gsk_')) {
-      localStorage.setItem('groq_api_key', key);
+    if(key.length > 10) {
+      localStorage.setItem('grok_api_key', key);
       section.style.display = 'none';
       alert('Key saved!');
     } else {
-      alert('Invalid key. Must start with gsk_');
+      alert('Invalid key. Must be a valid Grok API key.');
     }
   }
 
   // Restore state on load
-  const savedKey = localStorage.getItem('groq_api_key');
+  const savedKey = localStorage.getItem('grok_api_key');
   if(savedKey) {
     const s = document.getElementById('chat-api-section');
     if(s) s.style.display = 'none';
