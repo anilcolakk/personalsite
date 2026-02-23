@@ -1,16 +1,33 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import curriculaData from '../../data/curricula.json';
+import { getCollection } from 'astro:content';
 
 const universities = Object.entries(curriculaData.universities)
   .filter(([key]) => key !== 'odtu' && key !== 'ODTU')
   .map(([key, uni]) => ({
     id: key, 
-    name: uni.name, 
-    shortName: uni.shortName || key,
-    courseCount: uni.courses.length,
-    logoColor: uni.color || 'var(--primary-600)' 
+    name: (uni as any).name, 
+    shortName: (uni as any).shortName || key,
+    courseCount: (uni as any).courses.length,
+    logoColor: (uni as any).color || 'var(--primary-600)' 
   }));
+
+const allNotes = await getCollection('notes');
+const notesLookup: Record<string, Array<{slug: string; title: string; driveLink: string; year: string; url: string; topic: string; courseName: string}>> = {};
+allNotes.forEach((note: any) => {
+  const code = note.data.courseCode.replace(/\s+/g, '').toUpperCase();
+  if (!notesLookup[code]) notesLookup[code] = [];
+  notesLookup[code].push({
+    title: note.data.title,
+    slug: note.slug,
+    url: `/notes/${note.slug}`,
+    driveLink: note.data.driveLink,
+    topic: note.data.topic,
+    courseName: note.data.courseName,
+    year: note.data.year
+  });
+});
 ---
 
 <BaseLayout title="Ders Eşleştirici" description="Notlarınız için ODTÜ dersleri bulun">
@@ -125,8 +142,9 @@ const universities = Object.entries(curriculaData.universities)
   </div>
 </BaseLayout>
 
-<script define:vars={{ curriculaData }}>
+<script define:vars={{ curriculaData, notesLookup }}>
   window.CURRICULA_DATA = curriculaData;
+  window.NOTES_DB = notesLookup;
 </script>
 
 <script is:inline>
@@ -222,31 +240,52 @@ const universities = Object.entries(curriculaData.universities)
     `;
   }
 
-  // === GROK API CALL ===
-  async function callGrokAPI(course, universityName) {
+  // === GROK RAG PIPELINE ===
+  async function callGrokRAG(course, universityName) {
     const apiKey = getApiKey();
     const courseName = course.name || '';
-    const courseTopics = (course.topics || []).join(', ') || 'not specified';
+    const courseTopics = (course.topics || []).join(', ') || 'belirtilmemiş';
 
-    const systemPrompt = `You are an academic evaluator specializing in engineering curricula at Turkish universities. You compare courses across universities to find equivalencies at Middle East Technical University (ODTÜ / METU) Electrical-Electronics Engineering department. You must respond ONLY with valid JSON, no markdown, no explanation.`;
+    const odtuCourses = window.CURRICULA_DATA.universities.odtu?.courses || [];
+    const baselineList = odtuCourses.map(c => 
+      `${c.code}: ${c.name} — Eğitim Konuları: ${(c.topics || []).join(', ') || 'Yok'}${c.prerequisites ? ` | Önkoşullar: ${c.prerequisites.join(', ')}` : ''}`
+    ).join('\n');
 
-    const userPrompt = `Given a course from ${universityName}: "${courseName}" (code: ${course.code || 'N/A'}, topics: ${courseTopics}), identify the most similar course at ODTÜ EE department.
+    const systemPrompt = `Bir akademik değerlendiricisin, Türk üniversitelerindeki Elektrik-Elektronik Mühendisliği müfredatlarında uzmansın. Ders içeriklerini araştırmak için web araması (web search) aracına erişimin var. Görevin, bir dış üniversitenin dersini ODTÜ (Orta Doğu Teknik Üniversitesi) EE bölümündeki en benzer ders ile derinlemesine karşılaştırmaktır. YALNIZCA geçerli bir JSON formatında yanıt vermelisin — JSON dışında herhangi bir açıklama veya markdown eklememelisin.`;
 
-Return ONLY a JSON object with this exact structure:
+    const userPrompt = `GÖREV: Dışarıdan gelen bir ders için ODTÜ (Orta Doğu Teknik Üniversitesi) EE bölümündeki en benzer dersi bulun.
+
+DIŞ ÜNİVERSİTE DERSİ:
+- Üniversite: ${universityName}
+- Ders Adı: "${courseName}"
+- Ders Kodu: ${course.code || 'Yok'}
+- Bilinen Konular: ${courseTopics}
+- Açıklama: ${course.description || 'Mevcut Değil'}
+
+TALİMATLAR:
+1. ${universityName} üniversitesindeki "${courseName}" dersinin resmi ders içeriğini (müfredatını, syllabus) bulmak için web arama (web search) aracınızı kullanın. "${courseName} ${universityName} ders içeriği müfredatı syllabus" gibi terimleri aratabilirsiniz.
+2. Bulunan içeriği bu ODTÜ EE ders kataloğuyla karşılaştırın:
+
+${baselineList}
+
+3. Konu örtüşmesine dayalı olarak en iyi eşleşen tek bir ODTÜ dersini belirleyin.
+
+YALNIZCA bu exact yapıda bir JSON objesi döndürün:
 {
-  "matched_code": "ODTÜ course code, e.g. EE 201",
-  "matched_name": "ODTÜ course name in English",
-  "confidence": 75,
-  "overlapping_topics": ["topic1", "topic2"],
-  "missing_topics": ["topics in ODTÜ course but NOT in the source course"],
-  "extra_topics": ["topics in source course but NOT in the ODTÜ course"]
+  "matched_course_code": "ODTÜ ders kodu (örneğin EE201)",
+  "matched_course_name": "Tam ODTÜ ders adı (İngilizce)",
+  "match_confidence_score": 82,
+  "overlapping_topics": ["konu1", "konu2"],
+  "missing_topics": ["ODTÜ dersinde olan ama dış derste OLMAYAN konular"],
+  "extra_topics": ["Dış derste olan ama ODTÜ dersinde OLMAYAN konular"],
+  "comprehensive_analysis": "Ders içeriklerini konu, derinlik, ve yaklaşım farklılıkları açısından kıyaslayan, en az 3 paragraftan oluşan detaylı ve profesyonel bir akademik değerlendirme metni. Ayrıca bu iki ders arasında geçiş yapacak bir öğrenci için hangi konuların bireysel çalışılması gerektiğini öneren çalışma tavsiyeleri içermelidir."
 }
 
-Rules:
-- confidence must be an integer from 0 to 100
-- All arrays must contain strings
-- If no good match exists, set confidence to 0 and matched_code to "N/A"
-- Base your analysis on standard EE/EEE curriculum knowledge`;
+KURALLAR:
+- match_confidence_score 0'dan 100'e kadar bir tam sayı olmalıdır
+- Tüm konu dizileri (topic arrays) belirli, spesifik konu dizeleri içermelidir
+- comprehensive_analysis detaylı, en az 3 paragraflık ve profesyonel/akademik tonda yazılmış olmalıdır
+- Eğer iyi bir eşleşme bulunamazsa, confidence derecesini 0, matched_course_code'u ise "Yok" olarak ayarlayın`;
 
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
@@ -255,11 +294,12 @@ Rules:
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'grok-3-mini-fast',
+        model: 'grok-3-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
+        tools: [{ type: 'web_search', web_search: {} }],
         response_format: { type: 'json_object' },
         temperature: 0.3
       })
@@ -277,16 +317,21 @@ Rules:
     if (!content) throw new Error('EMPTY_RESPONSE');
 
     const parsed = JSON.parse(content);
-    if (typeof parsed.matched_code !== 'string' || typeof parsed.confidence !== 'number') {
+    if (typeof parsed.matched_course_code !== 'string' || typeof parsed.match_confidence_score !== 'number') {
       throw new Error('INVALID_FORMAT');
     }
 
+    const normalizedCode = parsed.matched_course_code.replace(/\s+/g, '').toUpperCase();
+    const resources = window.NOTES_DB[normalizedCode] || [];
+
     return {
-      course: { code: parsed.matched_code, name: parsed.matched_name || 'Unknown' },
-      score: Math.max(0, Math.min(100, Math.round(parsed.confidence))),
+      course: { code: parsed.matched_course_code, name: parsed.matched_course_name || 'Bilinmiyor' },
+      score: Math.max(0, Math.min(100, Math.round(parsed.match_confidence_score))),
       overlapping_topics: Array.isArray(parsed.overlapping_topics) ? parsed.overlapping_topics : [],
       missing_topics: Array.isArray(parsed.missing_topics) ? parsed.missing_topics : [],
-      extra_topics: Array.isArray(parsed.extra_topics) ? parsed.extra_topics : []
+      extra_topics: Array.isArray(parsed.extra_topics) ? parsed.extra_topics : [],
+      analysis: parsed.comprehensive_analysis || '',
+      resources: resources
     };
   }
 
@@ -453,8 +498,9 @@ Rules:
        // Code display
        const codeDisplay = c.code ? c.code : '<span class="muted-code">KOD YOK</span>';
 
+       const safeId = `course-${((c.code || '') + '-' + c.name).replace(/[\\s\\W]+/g, '-')}`;
        html += `
-       <button class="course-card ${yearColorClass} ${zebraClass}" id="course-${(c.code || 'nocode').replace(/\s+/g, '-')}" onclick="selectCourse('${c.code}')">
+       <button class="course-card ${yearColorClass} ${zebraClass}" id="${safeId}" onclick="selectCourse('${(c.code || '').replace(/'/g, "\\'")}', '${c.name.replace(/'/g, "\\'")}')">
          <div class="card-main">
              <div class="card-title">${c.name}</div>
              <div class="card-code">${codeDisplay}</div>
@@ -490,18 +536,18 @@ Rules:
   };
 
   // 2. Select Course — dispatches to Grok API or local fallback
-  window.selectCourse = async (code) => {
-    state.selectedCourse = code;
+  window.selectCourse = async (code, name) => {
+    state.selectedCourse = code || name;
     state.step = 3;
     state.isLoading = true;
     updateStepper(3);
     
     document.querySelectorAll('.course-card').forEach(el => el.classList.remove('active'));
-    const safeId = `course-${(code || 'nocode').replace(/\s+/g, '-')}`;
+    const safeId = `course-${((code || '') + '-' + name).replace(/[\\s\\W]+/g, '-')}`;
     const el = document.getElementById(safeId);
     if(el) el.classList.add('active');
     
-    const course = state.courses.find(c => c.code === code);
+    const course = state.courses.find(c => (c.code || '') === (code || '') && c.name === name);
     if (!course) return;
 
     const apiKey = getApiKey();
@@ -511,7 +557,7 @@ Rules:
       try {
         const uniData = window.CURRICULA_DATA.universities[state.uniId];
         const uniName = uniData?.name || state.uniId;
-        const match = await callGrokAPI(course, uniName);
+        const match = await callGrokRAG(course, uniName);
         state.isLoading = false;
         renderAnalysis(course, match, true);
       } catch (err) {
@@ -621,37 +667,9 @@ Rules:
      }).catch(() => alert(text));
   };
 
-  window.openAIModal = (srcCode, tgtCode, missingTopics) => {
-     const missing = missingTopics.length > 0 ? missingTopics.join(', ') : 'genel ders içeriği';
-     const prompt = `${tgtCode} (ODTÜ) dersinde olup ${srcCode} dersimde eksik olan konuları açıkla, özellikle: ${missing}. Her konu için çalışma kaynakları ve materyaller öner.`;
-     const modal = document.createElement('div');
-     modal.className = 'ai-modal-overlay';
-     modal.id = 'ai-modal';
-     modal.innerHTML = `
-       <div class="ai-modal">
-         <div class="ai-modal-header">
-           <h3>🤖 AI Çalışma Asistanı</h3>
-           <button onclick="document.getElementById('ai-modal').remove()" class="ai-modal-close">×</button>
-         </div>
-         <div class="ai-modal-body">
-           <p class="ai-modal-desc">Bu istemi ChatGPT veya herhangi bir AI asistanında kullanarak çalışmanız gereken konuların detaylı açıklamasını alın:</p>
-           <div class="ai-prompt-box">
-             <pre id="ai-prompt-text">${prompt}</pre>
-           </div>
-           <div class="ai-modal-actions">
-             <button onclick="navigator.clipboard.writeText(document.getElementById('ai-prompt-text').textContent).then(()=>{this.innerHTML='✅ Kopyalandı!';setTimeout(()=>{this.innerHTML='📋 İstemi Kopyala'},2000)})" class="btn-copy-prompt">📋 İstemi Kopyala</button>
-             <a href="https://chat.openai.com/" target="_blank" rel="noopener" class="btn-open-chatgpt">🚀 ChatGPT Aç</a>
-           </div>
-         </div>
-       </div>
-     `;
-     document.body.appendChild(modal);
-     modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-  };
-
   function renderAnalysis(source, match, isAI = false) {
      const container = document.getElementById('analysis-container');
-     const { course: target, score, overlapping_topics, missing_topics, extra_topics } = match;
+     const { course: target, score, overlapping_topics, missing_topics, extra_topics, analysis } = match;
      const isHigh = score > 75;
      const isMedium = score > 50 && score <= 75;
      
@@ -684,7 +702,67 @@ Rules:
      const srcNameE = (source.name||'').replace(/'/g,"\\'");
      const tgtCodeE = (tgtCode||'').replace(/'/g,"\\'");
      const tgtNameE = (tgtName||'').replace(/'/g,"\\'");
-     const missingJSON = JSON.stringify(missing_topics || []).replace(/'/g,"\\'");
+
+     // AI Analysis section
+     let analysisHtml = '';
+     if (isAI && analysis && analysis.trim().length > 0) {
+        analysisHtml = `
+        <div class="ai-analysis-section">
+           <div class="ai-analysis-header">
+              <span class="ai-analysis-icon">🧠</span>
+              <h4>AI Analizi</h4>
+              <span class="ai-badge">Grok tarafından hazırlandı</span>
+           </div>
+           <div class="ai-analysis-body">${analysis.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>')}</div>
+        </div>`;
+     }
+
+     // Study Resources section
+     const resources = match.resources || [];
+     let resourcesHtml = '';
+     if (resources.length > 0) {
+        let resourceCards = resources.map(res => {
+            let cardHtml = `
+            <a href="${res.url}" class="resource-card resource-notes">
+               <div class="resource-card-icon">📝</div>
+               <div class="resource-card-info">
+                  <span class="resource-card-title">${res.topic || 'Ders Notlarını Gör'}</span>
+                  <span class="resource-card-desc">${tgtCode} — ${res.title}</span>
+               </div>
+               <span class="resource-card-arrow">→</span>
+            </a>`;
+            if (res.driveLink) {
+               cardHtml += `
+               <a href="${res.driveLink}" target="_blank" rel="noopener" class="resource-card resource-drive">
+                  <div class="resource-card-icon">📂</div>
+                  <div class="resource-card-info">
+                     <span class="resource-card-title">Google Drive'da Aç</span>
+                     <span class="resource-card-desc">${res.topic || tgtCode} için ders materyalleri</span>
+                  </div>
+                  <span class="resource-card-arrow">↗</span>
+               </a>`;
+            }
+            return cardHtml;
+        }).join('');
+        
+        resourcesHtml = `
+        <div class="study-resources-module">
+           <div class="study-resources-header">
+              <span class="study-resources-icon">📚</span>
+              <h4>Çalışma Kaynakları</h4>
+           </div>
+           <div class="study-resources-grid">${resourceCards}</div>
+        </div>`;
+     } else {
+        resourcesHtml = `
+        <div class="study-resources-module study-resources-empty">
+           <div class="study-resources-header">
+              <span class="study-resources-icon">📚</span>
+              <h4>Çalışma Kaynakları</h4>
+           </div>
+           <p class="no-resources-msg">Bu ders için henüz çalışma kaynağı bulunmuyor. <a href="/tr/contact">Siz de katkıda bulunun →</a></p>
+        </div>`;
+     }
 
      container.innerHTML = `
       <div class="report-card animate-fade-in">
@@ -739,6 +817,10 @@ Rules:
            </div>
         </div>
 
+        ${analysisHtml}
+
+        ${resourcesHtml}
+
         <div class="feedback-section">
             <span id="fb-label" class="fb-question">${fbLabel}</span>
             <div class="fb-buttons">
@@ -758,10 +840,6 @@ Rules:
                </div>
             </button>
             <div class="actions-row-split">
-              <button class="btn-secondary-action" onclick="openAIModal('${srcCodeE}','${tgtCodeE}',${missingJSON})">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                 <span>AI'dan Açıklama İste</span>
-              </button>
               <button id="share-btn" class="btn-tertiary-action" onclick="shareMatch('${srcCodeE}','${srcNameE}','${tgtCodeE}','${tgtNameE}',${score})">
                  🔗 Paylaş
               </button>
@@ -1088,6 +1166,16 @@ Rules:
   [data-theme="dark"] .chip-red { background: rgba(239, 68, 68, 0.2); color: #f87171; }
   [data-theme="dark"] .chip-blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
   .chip-empty { color: var(--text-tertiary); font-size: 0.85rem; font-style: italic; }
+
+  /* AI Comprehensive Analysis */
+  .ai-analysis-section { background: linear-gradient(to bottom right, var(--bg-primary), var(--bg-tertiary)); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+  .ai-analysis-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+  .ai-analysis-icon { font-size: 1.5rem; }
+  .ai-analysis-header h4 { font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--text-primary); }
+  .ai-analysis-body { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+  .ai-analysis-body p { margin-bottom: 12px; }
+  .ai-analysis-body p:last-child { margin-bottom: 0; }
+  .ai-analysis-body strong { color: var(--text-primary); }
 
   .feedback-section { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 20px; background: var(--bg-primary); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 8px; }
   .fb-question { font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); }

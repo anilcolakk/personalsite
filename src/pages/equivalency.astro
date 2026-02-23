@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
 import curriculaData from '../data/curricula.json';
 
 const universities = Object.entries(curriculaData.universities)
@@ -11,6 +12,22 @@ const universities = Object.entries(curriculaData.universities)
     courseCount: uni.courses.length,
     logoColor: uni.color || 'var(--primary-600)' 
   }));
+
+// Build notes lookup database keyed by normalized course code
+const allNotes = await getCollection('notes');
+const notesLookup = {};
+allNotes.forEach(note => {
+  const code = note.data.courseCode.replace(/\s+/g, '').toUpperCase();
+  if (!notesLookup[code]) notesLookup[code] = [];
+  notesLookup[code].push({
+    title: note.data.title,
+    slug: note.slug,
+    url: `/notes/${note.slug}`,
+    driveLink: note.data.driveLink,
+    topic: note.data.topic,
+    courseName: note.data.courseName
+  });
+});
 ---
 
 <BaseLayout title="Course Matcher" description="Find matching ODTÜ courses for your study materials">
@@ -125,8 +142,9 @@ const universities = Object.entries(curriculaData.universities)
   </div>
 </BaseLayout>
 
-<script define:vars={{ curriculaData }}>
+<script define:vars={{ curriculaData, notesLookup }}>
   window.CURRICULA_DATA = curriculaData;
+  window.NOTES_DB = notesLookup;
 </script>
 
 <script is:inline>
@@ -216,37 +234,59 @@ const universities = Object.entries(curriculaData.universities)
           </div>
           <div class="skel-section"><div class="skel-line skel-w50"></div><div class="skel-chips"><div class="skel-chip"></div><div class="skel-chip"></div><div class="skel-chip"></div></div></div>
           <div class="skel-section"><div class="skel-line skel-w50"></div><div class="skel-chips"><div class="skel-chip"></div><div class="skel-chip"></div></div></div>
-          <p class="loading-text">🤖 Analyzing with Grok AI<span class="loading-dots"></span></p>
+          <p class="loading-text">🤖 Searching for latest syllabus via Grok web search<span class="loading-dots"></span></p>
         </div>
       </div>
     `;
   }
 
-  // === GROK API CALL ===
-  async function callGrokAPI(course, universityName) {
+  // === GROK RAG PIPELINE ===
+  async function callGrokRAG(course, universityName) {
     const apiKey = getApiKey();
     const courseName = course.name || '';
     const courseTopics = (course.topics || []).join(', ') || 'not specified';
 
-    const systemPrompt = `You are an academic evaluator specializing in engineering curricula at Turkish universities. You compare courses across universities to find equivalencies at Middle East Technical University (ODTÜ / METU) Electrical-Electronics Engineering department. You must respond ONLY with valid JSON, no markdown, no explanation.`;
+    // Build ODTÜ baseline from curricula data
+    const odtuCourses = window.CURRICULA_DATA.universities.odtu?.courses || [];
+    const baselineList = odtuCourses.map(c => 
+      `${c.code}: ${c.name} — Topics: ${(c.topics || []).join(', ') || 'N/A'}${c.prerequisites ? ` | Prereqs: ${c.prerequisites.join(', ')}` : ''}`
+    ).join('\n');
 
-    const userPrompt = `Given a course from ${universityName}: "${courseName}" (code: ${course.code || 'N/A'}, topics: ${courseTopics}), identify the most similar course at ODTÜ EE department.
+    const systemPrompt = `You are a senior academic evaluator specializing in Turkish university Electrical-Electronics Engineering programs. You have access to web search to research course syllabi. Your task is to perform a deep, syllabus-level comparison between an external university course and the most similar ODTÜ EE course. You must respond ONLY with valid JSON — no markdown, no explanation outside the JSON.`;
 
-Return ONLY a JSON object with this exact structure:
+    const userPrompt = `TASK: Find the most similar course at ODTÜ (Middle East Technical University) EE department for an external course.
+
+EXTERNAL COURSE:
+- University: ${universityName}
+- Course Name: "${courseName}"
+- Course Code: ${course.code || 'N/A'}
+- Known Topics: ${courseTopics}
+- Description: ${course.description || 'Not available'}
+
+INSTRUCTIONS:
+1. Use your web search tool to find the official syllabus, course content outline, and topic list for "${courseName}" at ${universityName}. Search for "${courseName} ${universityName} ders içeriği müfredatı syllabus" and related terms.
+2. Compare the discovered syllabus against this ODTÜ EE course catalog:
+
+${baselineList}
+
+3. Identify the single best matching ODTÜ course based on deep topic overlap.
+
+RETURN ONLY a JSON object with this exact structure:
 {
-  "matched_code": "ODTÜ course code, e.g. EE 201",
-  "matched_name": "ODTÜ course name in English",
-  "confidence": 75,
+  "matched_course_code": "ODTÜ course code e.g. EE201",
+  "matched_course_name": "Full ODTÜ course name",
+  "match_confidence_score": 82,
   "overlapping_topics": ["topic1", "topic2"],
-  "missing_topics": ["topics in ODTÜ course but NOT in the source course"],
-  "extra_topics": ["topics in source course but NOT in the ODTÜ course"]
+  "missing_topics": ["topics in ODTÜ course but NOT in external course"],
+  "extra_topics": ["topics in external course but NOT in ODTÜ course"],
+  "comprehensive_analysis": "A multi-paragraph academic evaluation (at least 3 paragraphs) detailing: 1) How the syllabi compare at the topic level, 2) Specific academic differences in depth, emphasis, or methodology, 3) Recommended study paths for a student transferring between these courses, including which topics to self-study."
 }
 
-Rules:
-- confidence must be an integer from 0 to 100
-- All arrays must contain strings
-- If no good match exists, set confidence to 0 and matched_code to "N/A"
-- Base your analysis on standard EE/EEE curriculum knowledge`;
+RULES:
+- match_confidence_score must be an integer from 0 to 100
+- All topic arrays must contain specific, granular topic strings
+- comprehensive_analysis must be detailed, at least 3 paragraphs, written professionally
+- If no good match exists, set confidence to 0 and matched_course_code to "N/A"`;
 
     const response = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
@@ -255,11 +295,12 @@ Rules:
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'grok-3-mini-fast',
+        model: 'grok-3-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
+        tools: [{ type: 'web_search', web_search: {} }],
         response_format: { type: 'json_object' },
         temperature: 0.3
       })
@@ -279,16 +320,22 @@ Rules:
     const parsed = JSON.parse(content);
 
     // Validate required fields
-    if (typeof parsed.matched_code !== 'string' || typeof parsed.confidence !== 'number') {
+    if (typeof parsed.matched_course_code !== 'string' || typeof parsed.match_confidence_score !== 'number') {
       throw new Error('INVALID_FORMAT');
     }
 
+    // Normalize matched code and look up notes/resources
+    const normalizedCode = parsed.matched_course_code.replace(/\s+/g, '').toUpperCase();
+    const resources = window.NOTES_DB[normalizedCode] || [];
+
     return {
-      course: { code: parsed.matched_code, name: parsed.matched_name || 'Unknown' },
-      score: Math.max(0, Math.min(100, Math.round(parsed.confidence))),
+      course: { code: parsed.matched_course_code, name: parsed.matched_course_name || 'Unknown' },
+      score: Math.max(0, Math.min(100, Math.round(parsed.match_confidence_score))),
       overlapping_topics: Array.isArray(parsed.overlapping_topics) ? parsed.overlapping_topics : [],
       missing_topics: Array.isArray(parsed.missing_topics) ? parsed.missing_topics : [],
-      extra_topics: Array.isArray(parsed.extra_topics) ? parsed.extra_topics : []
+      extra_topics: Array.isArray(parsed.extra_topics) ? parsed.extra_topics : [],
+      analysis: parsed.comprehensive_analysis || '',
+      resources: resources
     };
   }
 
@@ -455,8 +502,9 @@ Rules:
        // Code display
        const codeDisplay = c.code ? c.code : '<span class="muted-code">NO CODE</span>';
 
+       const safeId = `course-${((c.code || '') + '-' + c.name).replace(/[\\s\\W]+/g, '-')}`;
        html += `
-       <button class="course-card ${yearColorClass} ${zebraClass}" id="course-${(c.code || 'nocode').replace(/\s+/g, '-')}" onclick="selectCourse('${c.code}')">
+       <button class="course-card ${yearColorClass} ${zebraClass}" id="${safeId}" onclick="selectCourse('${(c.code || '').replace(/'/g, "\\'")}', '${c.name.replace(/'/g, "\\'")}')">
          <div class="card-main">
              <div class="card-title">${c.name}</div>
              <div class="card-code">${codeDisplay}</div>
@@ -492,19 +540,20 @@ Rules:
   };
 
   // 2. Select Course — dispatches to Grok API or local fallback
-  window.selectCourse = async (code) => {
-    state.selectedCourse = code;
+  window.selectCourse = async (code, name) => {
+    state.selectedCourse = code || name;
     state.step = 3;
     state.isLoading = true;
     updateStepper(3);
     
     // Update UI Active State
     document.querySelectorAll('.course-card').forEach(el => el.classList.remove('active'));
-    const safeId = `course-${(code || 'nocode').replace(/\s+/g, '-')}`;
+    const safeId = `course-${((code || '') + '-' + name).replace(/[\\s\\W]+/g, '-')}`;
     const el = document.getElementById(safeId);
     if(el) el.classList.add('active');
     
-    const course = state.courses.find(c => c.code === code);
+    // Match by code and name, so courses without codes match uniquely by name
+    const course = state.courses.find(c => (c.code || '') === (code || '') && c.name === name);
     if (!course) return;
 
     const apiKey = getApiKey();
@@ -515,7 +564,7 @@ Rules:
       try {
         const uniData = window.CURRICULA_DATA.universities[state.uniId];
         const uniName = uniData?.name || state.uniId;
-        const match = await callGrokAPI(course, uniName);
+        const match = await callGrokRAG(course, uniName);
         state.isLoading = false;
         renderAnalysis(course, match, true);
       } catch (err) {
@@ -636,38 +685,11 @@ Rules:
      }).catch(() => alert(text));
   };
 
-  // AI Explanation Modal
-  window.openAIModal = (srcCode, tgtCode, missingTopics) => {
-     const missing = missingTopics.length > 0 ? missingTopics.join(', ') : 'general course content';
-     const prompt = `Explain the topics in ${tgtCode} (ODTÜ) that I missed in ${srcCode}, specifically: ${missing}. Suggest study resources and materials for each topic.`;
-     const modal = document.createElement('div');
-     modal.className = 'ai-modal-overlay';
-     modal.id = 'ai-modal';
-     modal.innerHTML = `
-       <div class="ai-modal">
-         <div class="ai-modal-header">
-           <h3>🤖 AI Study Assistant</h3>
-           <button onclick="document.getElementById('ai-modal').remove()" class="ai-modal-close">×</button>
-         </div>
-         <div class="ai-modal-body">
-           <p class="ai-modal-desc">Use this prompt with ChatGPT or any AI assistant to get a detailed explanation of the topics you need to study:</p>
-           <div class="ai-prompt-box">
-             <pre id="ai-prompt-text">${prompt}</pre>
-           </div>
-           <div class="ai-modal-actions">
-             <button onclick="navigator.clipboard.writeText(document.getElementById('ai-prompt-text').textContent).then(()=>{this.innerHTML='✅ Copied!';setTimeout(()=>{this.innerHTML='📋 Copy Prompt'},2000)})" class="btn-copy-prompt">📋 Copy Prompt</button>
-             <a href="https://chat.openai.com/" target="_blank" rel="noopener" class="btn-open-chatgpt">🚀 Open ChatGPT</a>
-           </div>
-         </div>
-       </div>
-     `;
-     document.body.appendChild(modal);
-     modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-  };
+  // Resources are now passed in via the match object from NOTES_DB
 
   function renderAnalysis(source, match, isAI = false) {
      const container = document.getElementById('analysis-container');
-     const { course: target, score, overlapping_topics, missing_topics, extra_topics } = match;
+     const { course: target, score, overlapping_topics, missing_topics, extra_topics, analysis } = match;
      const isHigh = score > 75;
      const isMedium = score > 50 && score <= 75;
      
@@ -692,6 +714,67 @@ Rules:
         </div>`;
      }
 
+     // AI Analysis section
+     let analysisHtml = '';
+     if (isAI && analysis && analysis.trim().length > 0) {
+        analysisHtml = `
+        <div class="ai-analysis-section">
+           <div class="ai-analysis-header">
+              <span class="ai-analysis-icon">🧠</span>
+              <h4>AI Analysis</h4>
+              <span class="ai-badge">Powered by Grok</span>
+           </div>
+           <div class="ai-analysis-body">${analysis.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>')}</div>
+        </div>`;
+     }
+
+     // Study Resources section
+     const resources = match.resources || [];
+     let resourcesHtml = '';
+     if (resources.length > 0) {
+        let resourceCards = resources.map(res => {
+            let cardHtml = `
+            <a href="${res.url}" class="resource-card resource-notes">
+               <div class="resource-card-icon">📝</div>
+               <div class="resource-card-info">
+                  <span class="resource-card-title">${res.topic || 'View Course Notes'}</span>
+                  <span class="resource-card-desc">${tgtCode} — ${res.title}</span>
+               </div>
+               <span class="resource-card-arrow">→</span>
+            </a>`;
+            if (res.driveLink) {
+               cardHtml += `
+               <a href="${res.driveLink}" target="_blank" rel="noopener" class="resource-card resource-drive">
+                  <div class="resource-card-icon">📂</div>
+                  <div class="resource-card-info">
+                     <span class="resource-card-title">Open in Google Drive</span>
+                     <span class="resource-card-desc">Lecture materials for ${res.topic || tgtCode}</span>
+                  </div>
+                  <span class="resource-card-arrow">↗</span>
+               </a>`;
+            }
+            return cardHtml;
+        }).join('');
+        
+        resourcesHtml = `
+        <div class="study-resources-module">
+           <div class="study-resources-header">
+              <span class="study-resources-icon">📚</span>
+              <h4>Study Resources</h4>
+           </div>
+           <div class="study-resources-grid">${resourceCards}</div>
+        </div>`;
+     } else {
+        resourcesHtml = `
+        <div class="study-resources-module study-resources-empty">
+           <div class="study-resources-header">
+              <span class="study-resources-icon">📚</span>
+              <h4>Study Resources</h4>
+           </div>
+           <p class="no-resources-msg">No study resources available for this course yet. <a href="/contact">Contribute yours →</a></p>
+        </div>`;
+     }
+
      // Feedback state
      const fb = getFeedback(source.code, tgtCode);
      const upActive = fb.vote === 'up' ? 'fb-active' : '';
@@ -703,7 +786,6 @@ Rules:
      const srcNameE = (source.name||'').replace(/'/g,"\\'");
      const tgtCodeE = (tgtCode||'').replace(/'/g,"\\'");
      const tgtNameE = (tgtName||'').replace(/'/g,"\\'");
-     const missingJSON = JSON.stringify(missing_topics || []).replace(/'/g,"\\'");
 
      container.innerHTML = `
       <div class="report-card animate-fade-in">
@@ -761,6 +843,10 @@ Rules:
            </div>
         </div>
 
+        ${analysisHtml}
+
+        ${resourcesHtml}
+
         <!-- Crowdsourced Feedback -->
         <div class="feedback-section">
             <span id="fb-label" class="fb-question">${fbLabel}</span>
@@ -772,7 +858,7 @@ Rules:
 
         <hr class="actions-divider">
 
-        <!-- 3 Action Buttons -->
+        <!-- Action Buttons -->
         <div class="actions-row">
             <button onclick="window.openSubmissionModal('${srcCodeE}')" class="btn-primary-action">
                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
@@ -782,10 +868,6 @@ Rules:
                </div>
             </button>
             <div class="actions-row-split">
-              <button class="btn-secondary-action" onclick="openAIModal('${srcCodeE}','${tgtCodeE}',${missingJSON})">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                 <span>Ask AI for Explanation</span>
-              </button>
               <button id="share-btn" class="btn-tertiary-action" onclick="shareMatch('${srcCodeE}','${srcNameE}','${tgtCodeE}','${tgtNameE}',${score})">
                  🔗 Share Match
               </button>
@@ -1319,6 +1401,16 @@ Rules:
   [data-theme="dark"] .chip-blue { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
   .chip-empty { color: var(--text-tertiary); font-size: 0.85rem; font-style: italic; }
 
+  /* AI Comprehensive Analysis */
+  .ai-analysis-section { background: linear-gradient(to bottom right, var(--bg-primary), var(--bg-tertiary)); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 24px; box-shadow: var(--shadow-sm); }
+  .ai-analysis-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+  .ai-analysis-icon { font-size: 1.5rem; }
+  .ai-analysis-header h4 { font-size: 1.1rem; font-weight: 800; margin: 0; color: var(--text-primary); }
+  .ai-analysis-body { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6; }
+  .ai-analysis-body p { margin-bottom: 12px; }
+  .ai-analysis-body p:last-child { margin-bottom: 0; }
+  .ai-analysis-body strong { color: var(--text-primary); }
+
   /* Crowdsourced Feedback */
   .feedback-section {
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
@@ -1384,7 +1476,7 @@ Rules:
   }
   .btn-tertiary-action:hover { background: var(--bg-tertiary); border-color: var(--primary-300); transform: translateY(-2px); box-shadow: var(--shadow-sm); }
 
-  /* AI Modal */
+  /* Settings/AI Modal (retained for settings modal) */
   .ai-modal-overlay {
     position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.6);
     display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -1409,28 +1501,92 @@ Rules:
   .ai-modal-close:hover { background: var(--bg-tertiary); color: var(--text-primary); }
   .ai-modal-body { padding: 24px; }
   .ai-modal-desc { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 16px; line-height: 1.5; }
-  .ai-prompt-box {
-    background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px;
-    padding: 16px; margin-bottom: 20px;
+
+  /* AI Analysis Section */
+  .ai-analysis-section {
+    margin-bottom: 24px; border: 1px solid var(--border-color); border-radius: 16px;
+    overflow: hidden; background: var(--bg-card);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   }
-  .ai-prompt-box pre {
-    font-size: 0.85rem; line-height: 1.6; color: var(--text-primary); white-space: pre-wrap;
-    word-wrap: break-word; margin: 0; font-family: inherit;
+  .ai-analysis-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 20px; background: linear-gradient(135deg, rgba(124,58,237,0.06), rgba(59,130,246,0.04));
+    border-bottom: 1px solid var(--border-color);
   }
-  .ai-modal-actions { display: flex; gap: 12px; }
-  .btn-copy-prompt {
-    flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--primary-300);
-    background: var(--primary-50); color: var(--primary-700); font-weight: 700; font-size: 0.9rem;
-    cursor: pointer; transition: all 0.2s;
+  .ai-analysis-icon { font-size: 1.3rem; }
+  .ai-analysis-header h4 { margin: 0; font-size: 1rem; font-weight: 800; color: var(--text-primary); flex: 1; }
+  .ai-analysis-header .ai-badge { font-size: 0.65rem; }
+  .ai-analysis-body {
+    padding: 24px; font-size: 0.95rem; line-height: 1.75; color: var(--text-secondary);
+    max-width: 72ch; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
-  .btn-copy-prompt:hover { background: var(--primary-100); }
-  [data-theme="dark"] .btn-copy-prompt { background: rgba(37, 99, 235, 0.15); color: var(--primary-400); border-color: rgba(37, 99, 235, 0.3); }
-  .btn-open-chatgpt {
-    flex: 1; padding: 12px; border-radius: 12px; text-align: center; text-decoration: none;
-    background: linear-gradient(135deg, #7c3aed, #a855f7); color: white; font-weight: 700;
-    font-size: 0.9rem; transition: all 0.2s;
+  .ai-analysis-body p { margin: 0 0 16px 0; }
+  .ai-analysis-body p:last-child { margin-bottom: 0; }
+  [data-theme="dark"] .ai-analysis-section {
+    background: rgba(30, 41, 59, 0.5);
   }
-  .btn-open-chatgpt:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3); }
+  [data-theme="dark"] .ai-analysis-header {
+    background: linear-gradient(135deg, rgba(124,58,237,0.12), rgba(59,130,246,0.08));
+  }
+
+  /* Study Resources Module */
+  .study-resources-module {
+    margin-bottom: 24px;
+  }
+  .study-resources-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  }
+  .study-resources-icon { font-size: 1.3rem; }
+  .study-resources-header h4 { margin: 0; font-size: 1rem; font-weight: 800; color: var(--text-primary); }
+  .study-resources-grid {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .resource-card {
+    display: flex; align-items: center; gap: 16px; padding: 18px 20px;
+    border: 1px solid var(--border-color); border-radius: 14px;
+    background: var(--bg-card); text-decoration: none; color: inherit;
+    transition: all 0.25s ease; cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  }
+  .resource-card:hover {
+    transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    border-color: var(--primary-300);
+  }
+  .resource-card-icon {
+    width: 48px; height: 48px; border-radius: 12px; display: flex;
+    align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;
+  }
+  .resource-notes .resource-card-icon {
+    background: linear-gradient(135deg, rgba(59,130,246,0.12), rgba(37,99,235,0.08));
+  }
+  .resource-drive .resource-card-icon {
+    background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.08));
+  }
+  .resource-card-info { flex: 1; min-width: 0; }
+  .resource-card-title {
+    display: block; font-size: 0.95rem; font-weight: 700; color: var(--text-primary);
+    margin-bottom: 3px;
+  }
+  .resource-card-desc {
+    display: block; font-size: 0.8rem; color: var(--text-tertiary);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .resource-card-arrow {
+    font-size: 1.3rem; color: var(--text-tertiary); flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .resource-card:hover .resource-card-arrow { transform: translateX(4px); color: var(--primary-600); }
+  [data-theme="dark"] .resource-card { background: rgba(30,41,59,0.5); }
+  [data-theme="dark"] .resource-card:hover { background: rgba(30,41,59,0.8); }
+  .no-resources-msg {
+    font-size: 0.9rem; color: var(--text-tertiary); padding: 16px 20px;
+    background: var(--bg-tertiary); border-radius: 12px; line-height: 1.5;
+  }
+  .no-resources-msg a {
+    color: var(--primary-600); font-weight: 600; text-decoration: none;
+  }
+  .no-resources-msg a:hover { text-decoration: underline; }
+  .study-resources-empty .study-resources-header { margin-bottom: 8px; }
 
   @media (max-width: 768px) {
     .comparison-cards { flex-direction: column; }

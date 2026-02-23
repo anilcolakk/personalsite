@@ -1,0 +1,158 @@
+﻿
+> metu-ee-resources@1.0.0 build
+> astro build
+
+15:25:48 [types] Generated 252ms
+15:25:48 [build] output: "static"
+15:25:48 [build] directory: C:\Users\An─▒l\OneDrive\Masa├╝st├╝\personalsite\dist\
+15:25:48 [build] Collecting build info...
+15:25:48 [build] Ô£ô Completed in 260ms.
+15:25:48 [build] Building static entrypoints...
+15:25:49 [vite] [32mÔ£ô built in 1.08s[39m
+15:25:49 [build] Ô£ô Completed in 1.11s.
+
+ building client (vite) 
+15:25:49 [vite] transforming...
+15:25:49 [vite] [32mÔ£ô[39m 19 modules transformed.
+15:25:49 [vite] rendering chunks...
+15:25:49 [vite] computing gzip size...
+15:25:49 [vite] [2mdist/[22m[36massets/hoisted.5laYFLIs.js  [39m[1m[2m0.25 kB[22m[1m[22m[2m Ôöé gzip: 0.22 kB[22m
+15:25:49 [vite] [2mdist/[22m[36massets/hoisted.cDYlRuve.js  [39m[1m[2m0.69 kB[22m[1m[22m[2m Ôöé gzip: 0.39 kB[22m
+15:25:49 [vite] [2mdist/[22m[36massets/hoisted.CfARFxUg.js  [39m[1m[2m0.70 kB[22m[1m[22m[2m Ôöé gzip: 0.41 kB[22m
+15:25:49 [vite] [2mdist/[22m[36massets/hoisted.C2RdeYJQ.js  [39m[1m[2m0.96 kB[22m[1m[22m[2m Ôöé gzip: 0.41 kB[22m
+15:25:49 [vite] [2mdist/[22m[36massets/hoisted.Dlz5UigC.js  [39m[1m[2m0.98 kB[22m[1m[22m[2m Ôöé gzip: 0.49 kB[22m
+15:25:49 [vite] [2mdist/[22m[36massets/hoisted.D04ezjLu.js  [39m[1m[2m1.08 kB[22m[1m[22m[2m Ôöé gzip: 0.50 kB[22m
+15:25:49 [vite] [2mdist/[22m[36massets/hoisted.GZB4c4M7.js  [39m[1m[2m1.37 kB[22m[1m[22m[2m Ôöé gzip: 0.58 kB[22m
+15:25:49 [vite] [2mdist/[22m[36massets/hoisted.Ci_Hcjx7.js  [39m[1m[2m4.06 kB[22m[1m[22m[2m Ôöé gzip: 1.62 kB[22m
+15:25:49 [vite] [32mÔ£ô built in 39ms[39m
+
+ generating static routes 
+15:25:49 ÔûÂ src/pages/about.astro
+15:25:49   ÔööÔöÇ /about/index.html (+6ms)
+15:25:49 ÔûÂ src/pages/blog/why-i-opened-this-site.astro
+15:25:49   ÔööÔöÇ /blog/why-i-opened-this-site/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/blog/index.astro
+15:25:49   ÔööÔöÇ /blog/index.html (+3ms)
+15:25:49 ÔûÂ src/pages/contact.astro
+15:25:49   ÔööÔöÇ /contact/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/courses/[code].astro
+15:25:49   Ôö£ÔöÇ /courses/eng211/index.html (+11ms)
+15:25:49   Ôö£ÔöÇ /courses/ee213/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/phys213/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/math260/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/phys106/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /courses/me105/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/eng102/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/math120/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/psy1010/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/ee212/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/phys221/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee224/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee202/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/econ210/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/ee230/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee201/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/math219/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/ee303/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee312/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee348/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee302/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee301/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee311/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee314/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee313/index.html (+1ms)
+15:25:49   Ôö£ÔöÇ /courses/ee449/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/ee416/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /courses/ee414/index.html (+2ms)
+15:25:49   ÔööÔöÇ /courses/ee306/index.html (+7ms)
+15:25:49 ÔûÂ src/pages/courses/index.astro
+15:25:49   ÔööÔöÇ /courses/index.html (+3ms)
+15:25:49 ÔûÂ src/pages/equivalency.astro
+15:25:49   ÔööÔöÇ /equivalency/index.html (+5ms)
+15:25:49 ÔûÂ src/pages/notes/submit.astro
+15:25:49   ÔööÔöÇ /notes/submit/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/notes/index.astro
+15:25:49   ÔööÔöÇ /notes/index.html (+3ms)
+15:25:49 ÔûÂ src/pages/notes/[...slug].astro
+15:25:49   Ôö£ÔöÇ /notes/year-1/ee213-lab/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-1/eng102-notes/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-1/eng211-notes/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-1/math120-notes/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-1/math260-notes/index.html (+2ms)
+15:25:49   Ôö£ÔöÇ /notes/year-1/me105-notes/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-1/phys106-notes/index.html (+5ms)
+15:25:49   Ôö£ÔöÇ /notes/year-1/phys213-notes/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-1/psy1010-notes/index.html (+4ms)
+15:25:49   Ôö£ÔöÇ /notes/year-2/econ210-notes/index.html (+4ms)
+15:25:49   Ôö£ÔöÇ /notes/year-2/ee201-circuits/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-2/ee202-circuits/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-2/ee212-semiconductor/index.html (+4ms)
+15:25:49   Ôö£ÔöÇ /notes/year-2/ee224-emt/index.html (+4ms)
+15:25:49   Ôö£ÔöÇ /notes/year-2/ee230-digital/index.html (+4ms)
+15:25:49   Ôö£ÔöÇ /notes/year-2/math219-notes/index.html (+4ms)
+15:25:49   Ôö£ÔöÇ /notes/year-2/phys221-optics/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-3/ee301-signal/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-3/ee302-feedback/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-3/ee303-emw/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-3/ee311-analog/index.html (+4ms)
+15:25:49   Ôö£ÔöÇ /notes/year-3/ee312-digital/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-3/ee313-lab/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-3/ee314-lab/index.html (+4ms)
+15:25:49   Ôö£ÔöÇ /notes/year-3/ee348-logic/index.html (+4ms)
+15:25:49   Ôö£ÔöÇ /notes/year-4/ee306-notes/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-4/ee414-notes/index.html (+3ms)
+15:25:49   Ôö£ÔöÇ /notes/year-4/ee416-notes/index.html (+3ms)
+15:25:49   ÔööÔöÇ /notes/year-4/ee449-notes/index.html (+3ms)
+15:25:49 ÔûÂ src/pages/privacy.astro
+15:25:49   ÔööÔöÇ /privacy/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/terms.astro
+15:25:49   ÔööÔöÇ /terms/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/tr/about.astro
+15:25:49   ÔööÔöÇ /tr/about/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/tr/blog/why-i-opened-this-site.astro
+15:25:49   ÔööÔöÇ /tr/blog/why-i-opened-this-site/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/tr/blog/index.astro
+15:25:49   ÔööÔöÇ /tr/blog/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/tr/contact.astro
+15:25:49   ÔööÔöÇ /tr/contact/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/tr/courses/index.astro
+15:25:49   ÔööÔöÇ /tr/courses/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/tr/equivalency.astro
+15:25:49   ÔööÔöÇ /tr/equivalency/index.html (+4ms)
+15:25:49 ÔûÂ src/pages/tr/index.astro
+15:25:49   ÔööÔöÇ /tr/index.html (+2ms)
+15:25:49 ÔûÂ src/pages/index.astro
+15:25:49   ÔööÔöÇ /index.html (+2ms)
+15:25:49 Ô£ô Completed in 247ms.
+
+15:25:49 [build] 76 page(s) built in 1.70s
+15:25:49 [build] Complete!
+
+> metu-ee-resources@1.0.0 postbuild
+> pagefind --site dist
+
+
+Running Pagefind v1.4.0 (Extended)
+Running from: "C:\\Users\\An─▒l\\OneDrive\\Masa├╝st├╝\\personalsite"
+Source:       "dist"
+Output:       "dist\\pagefind"
+
+[Walking source directory]
+Found 82 files matching **/*.{html}
+
+[Parsing files]
+Did not find a data-pagefind-body element on the site.
+Ôå│ Indexing all <body> elements on the site.
+
+[Reading languages]
+Discovered 1 language: en
+
+[Building search indexes]
+Total: 
+  Indexed 1 language
+  Indexed 81 pages
+  Indexed 1608 words
+  Indexed 0 filters
+  Indexed 0 sorts
+
+Finished in 0.482 seconds
