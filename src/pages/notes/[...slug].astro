@@ -37,9 +37,20 @@ const formattedDate = new Date(note.data.createdAt || Date.now()).toLocaleDateSt
 
 const base = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
 
-// Extract folder ID from Drive link for embed
+// Extract folder or file ID from Drive link for embed
 const driveFolderIdMatch = note.data.driveLink.match(/folders\/([a-zA-Z0-9_-]+)/);
 const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
+
+let driveFileId = null;
+const driveFileIdMatch1 = note.data.driveLink.match(/\/d\/([a-zA-Z0-9_-]+)/);
+const driveFileIdMatch2 = note.data.driveLink.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+if (!driveFolderId) {
+  if (driveFileIdMatch1) {
+    driveFileId = driveFileIdMatch1[1];
+  } else if (driveFileIdMatch2) {
+    driveFileId = driveFileIdMatch2[1];
+  }
+}
 ---
 
 <BaseLayout 
@@ -103,8 +114,25 @@ const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
                 <Content />
               </div>
               
-              <!-- Google Drive Folder Preview -->
-              {driveFolderId && (
+              <!-- AI Summary Integrated -->
+              <div class="ai-integrated-card" id="ai-summary-card">
+                <div class="ai-summary-header">
+                  <span class="ai-badge">🤖 AI</span>
+                  <h4>AI Note Summary</h4>
+                </div>
+                <div id="ai-summary-content">
+                  <div class="ai-summary-placeholder">
+                    <p>Get an AI-generated summary of this note's key concepts and study tips.</p>
+                    <button onclick="window.generateNoteSummary()" class="btn btn-ai-summary" id="btn-generate-summary">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                      Generate Summary
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Google Drive Preview -->
+              {(driveFolderId || driveFileId) && (
                 <div class="drive-preview">
                   <div class="drive-preview__header">
                     <h3 class="drive-preview__title">
@@ -116,7 +144,7 @@ const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
                         <path d="M43.65 0L56.95 7.7 73.55 36.95H87.3z" fill="#2684FC"/>
                         <path d="M26.35 29.25L13.05 51.3 0 29.25z" fill="#FFBA00"/>
                       </svg>
-                      Google Drive Preview
+                      {driveFileId ? 'Document Viewer' : 'Folder Preview'}
                     </h3>
                     <a 
                       href={note.data.driveLink} 
@@ -129,14 +157,14 @@ const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
                         <polyline points="15 3 21 3 21 9"/>
                         <line x1="10" y1="14" x2="21" y2="3"/>
                       </svg>
-                      Open in Google Drive
+                      Open in Drive
                     </a>
                   </div>
-                  <div class="drive-preview__frame">
+                  <div class={`drive-preview__frame ${driveFileId ? 'drive-preview__frame--file' : ''}`}>
                     <iframe 
-                      src={`https://drive.google.com/embeddedfolderview?id=${driveFolderId}#list`}
+                      src={driveFileId ? `https://drive.google.com/file/d/${driveFileId}/preview` : `https://drive.google.com/embeddedfolderview?id=${driveFolderId}#list`}
                       class="drive-iframe"
-                      title={`Google Drive folder preview for ${note.data.courseCode}`}
+                      title={`Google Drive preview for ${note.data.courseCode}`}
                       loading="lazy"
                     ></iframe>
                   </div>
@@ -163,22 +191,7 @@ const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
               </button>
             </div>
 
-            <!-- AI Summary Card -->
-            <div class="sidebar-card ai-summary-card" id="ai-summary-card">
-              <div class="ai-summary-header">
-                <span class="ai-badge">🤖 AI</span>
-                <h4>Note Summary</h4>
-              </div>
-              <div id="ai-summary-content">
-                <div class="ai-summary-placeholder">
-                  <p>Get an AI-generated summary of this note's key concepts.</p>
-                  <button onclick="window.generateNoteSummary()" class="btn btn-ai-summary" id="btn-generate-summary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                    Generate Summary
-                  </button>
-                </div>
-              </div>
-            </div>
+
 
               <!-- Download Card for Free Content -->
               <div class="sidebar-card download-card">
@@ -804,6 +817,10 @@ Return ONLY the JSON, no other text.`;
     height: 500px;
   }
 
+  .drive-preview__frame--file {
+    height: 850px; /* Taller for document reading */
+  }
+
   .drive-iframe {
     width: 100%;
     height: 100%;
@@ -878,20 +895,25 @@ Return ONLY the JSON, no other text.`;
     border-color: rgba(245, 158, 11, 0.2);
   }
 
-  /* AI Summary Card */
-  .ai-summary-card {
+  /* AI Summary Integrated Card */
+  .ai-integrated-card {
+    margin-top: var(--space-6);
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.03), rgba(168, 85, 247, 0.03));
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  }
+  [data-theme="dark"] .ai-integrated-card {
     background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05));
     border-color: rgba(99, 102, 241, 0.2);
-  }
-  [data-theme="dark"] .ai-summary-card {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.06));
-    border-color: rgba(99, 102, 241, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   }
   .ai-summary-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 14px;
+    gap: 12px;
+    margin-bottom: 20px;
   }
   .ai-badge {
     background: linear-gradient(135deg, #6366f1, #a855f7);
@@ -904,8 +926,8 @@ Return ONLY the JSON, no other text.`;
   }
   .ai-summary-header h4 {
     margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 800;
     color: var(--text-primary);
   }
   .ai-summary-placeholder p {
@@ -915,13 +937,12 @@ Return ONLY the JSON, no other text.`;
     line-height: 1.5;
   }
   .btn-ai-summary {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 10px 16px;
-    font-size: 0.85rem;
+    gap: 10px;
+    padding: 12px 24px;
+    font-size: 0.95rem;
     font-weight: 600;
     color: white;
     background: linear-gradient(135deg, #6366f1, #a855f7);
@@ -955,25 +976,25 @@ Return ONLY the JSON, no other text.`;
 
   /* Summary result */
   .ai-summary-text {
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    line-height: 1.6;
-    margin-bottom: 14px;
+    font-size: 1rem;
+    color: var(--text-primary);
+    line-height: 1.7;
+    margin-bottom: 20px;
   }
-  .ai-concepts { margin-bottom: 12px; }
+  .ai-concepts { margin-bottom: 20px; }
   .ai-concepts h5 {
-    font-size: 0.78rem;
+    font-size: 0.85rem;
     font-weight: 700;
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
-  .concept-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .concept-chips { display: flex; flex-wrap: wrap; gap: 8px; }
   .concept-chip {
     display: inline-block;
-    padding: 3px 10px;
-    font-size: 0.75rem;
+    padding: 6px 14px;
+    font-size: 0.85rem;
     font-weight: 500;
     background: rgba(99, 102, 241, 0.1);
     color: #6366f1;
@@ -987,16 +1008,18 @@ Return ONLY the JSON, no other text.`;
   }
   .ai-study-tip {
     display: flex;
-    gap: 8px;
-    padding: 10px 14px;
+    gap: 12px;
+    padding: 16px 20px;
     background: rgba(16, 185, 129, 0.08);
     border: 1px solid rgba(16, 185, 129, 0.2);
-    border-radius: var(--radius-md);
-    margin-top: 4px;
+    border-radius: var(--radius-lg);
+    margin-top: 24px;
   }
-  .ai-study-tip span { font-size: 1rem; flex-shrink: 0; }
+  .ai-study-tip span { font-size: 1.2rem; flex-shrink: 0; }
   .ai-study-tip p {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin: 0;
     color: var(--text-secondary);
     line-height: 1.5;
     margin: 0;

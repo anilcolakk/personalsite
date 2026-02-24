@@ -1,23 +1,36 @@
 import fs from 'fs';
 import path from 'path';
-import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 dotenv.config();
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CURRICULA_PATH = path.join(__dirname, '../src/data/curricula.json');
 const MATCHES_PATH = path.join(__dirname, '../src/data/ai_matches.json');
-const API_KEY = process.env.GROK_API_KEY || process.env.XAI_API_KEY;
+const API_KEY = process.env.GEMINI_API_KEY;
 
+// Gemini Free Tier allows 15 Requests Per Minute (RPM)
+// 60 / 15 = 4 seconds per request. We'll use 4.5s to be safe.
 const MAX_COURSES_PER_RUN = 50;
-const DELAY_BETWEEN_CALLS_MS = 2500;
+const DELAY_BETWEEN_CALLS_MS = 4500;
 
 if (!API_KEY) {
-    console.error("❌ ERROR: Missing GROK_API_KEY environment variable.");
+    console.error("❌ ERROR: Missing GEMINI_API_KEY environment variable. Create a free key at https://aistudio.google.com");
     process.exit(1);
 }
+
+const genAI = new GoogleGenerativeAI(API_KEY);
+// Use Gemini 2.5 Flash - it's ultra-fast and completely free up to 15 RPM
+const model = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+    // Force JSON output
+    generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.2
+    }
+});
 
 const curriculaData = JSON.parse(fs.readFileSync(CURRICULA_PATH, 'utf8'));
 let aiMatchesData = { matches: {} };
@@ -30,20 +43,20 @@ const baselineList = odtuCourses.map(c =>
     `${c.code}: ${c.name} — Topics: ${(c.topics || []).join(', ') || 'N/A'}${c.prerequisites ? ` | Prereqs: ${c.prerequisites.join(', ')}` : ''}`
 ).join('\n');
 
-const systemPrompt = `You are the world's leading academic evaluator specializing in Turkish university Electrical-Electronics Engineering programs. You have access to web search to deeply research course syllabi. Your role is to perform an exceptionally thorough, syllabus-level comparison between an external university course and the most similar ODTÜ EE course.
+const systemPrompt = `You are the world's leading academic evaluator specializing in Turkish university Electrical-Electronics Engineering programs. Your role is to perform an exceptionally thorough, syllabus-level comparison between an external university course and the most similar ODTÜ EE course.
 
 You think step-by-step:
-1. First, search for and study the external course's full syllabus, textbooks, and content outline
-2. Then, identify the best matching ODTÜ course from the catalog
+1. First, recall or deduce the external course's full syllabus, textbooks, and content outline
+2. Then, identify the best matching ODTÜ course from the catalog provided
 3. Finally, compose a rich, detailed comparison that would genuinely help a transfer student
 
-You must respond ONLY with valid JSON — no markdown, no explanation outside the JSON.`;
+You must respond ONLY with valid JSON.`;
 
-async function callGrokRAG(course, universityName) {
+async function callRAG(course, universityName) {
     const courseName = course.name || '';
     const courseTopics = (course.topics || []).join(', ') || 'not specified';
 
-    const userPrompt = `TASK: Perform an exhaustive academic comparison between an external university course and its best match at ODTÜ EE.
+    const userPrompt = `${systemPrompt}\n\nTASK: Perform an exhaustive academic comparison between an external university course and its best match at ODTÜ EE.
 
 EXTERNAL COURSE:
 - University: ${universityName}
@@ -53,20 +66,17 @@ EXTERNAL COURSE:
 - Description: ${course.description || 'Not available'}
 
 INSTRUCTIONS:
-1. Use web search to find the FULL official syllabus for "${courseName}" at ${universityName}. Search for variations: "${courseName} ${universityName} syllabus", "${courseName} ${universityName} ders içeriği müfredatı", "${courseName} ${universityName} course outline". Read the actual course content, weekly schedule, textbooks used, and learning outcomes.
-
+1. Determine the standard syllabus for "${courseName}" at ${universityName}. Consider the actual course content, weekly schedule, standard textbooks used, and learning outcomes in Turkey.
 2. Compare against this ODTÜ EE course catalog:
 ${baselineList}
-
-3. Also web-search the matched ODTÜ course syllabus for deeper comparison.
 
 RETURN a JSON object with this EXACT structure:
 {
   "matched_course_code": "ODTÜ course code e.g. EE201",
   "matched_course_name": "Full ODTÜ course name in English",
   "match_confidence_score": 82,
-  "source_syllabus_summary": "2-3 sentence summary of the external course's actual discovered syllabus, mentioning specific topics and textbook if found",
-  "target_syllabus_summary": "2-3 sentence summary of the matched ODTÜ course syllabus, mentioning specific topics and textbook if found",
+  "source_syllabus_summary": "2-3 sentence summary of the external course's assumed syllabus, mentioning specific topics and standard textbooks",
+  "target_syllabus_summary": "2-3 sentence summary of the matched ODTÜ course syllabus, mentioning specific topics and standard textbooks",
   "overlapping_topics": ["specific topic 1", "specific topic 2"],
   "missing_topics": ["topics in ODTÜ course but NOT in external course"],
   "extra_topics": ["topics in external course but NOT in ODTÜ course"],
@@ -75,7 +85,7 @@ RETURN a JSON object with this EXACT structure:
     {"topic": "Topic Name", "priority": "high|medium|low", "reason": "Why this needs attention"}
   ],
   "difficulty_comparison": "A paragraph comparing the relative difficulty and academic rigor of both courses, discussing depth of mathematical treatment, prerequisites expected, and workload.",
-  "textbook_comparison": "Specific textbook names used by each course (if discovered via web search), and how they differ in approach."
+  "textbook_comparison": "Specific textbook names used by each course, and how they differ in approach."
 }
 
 RULES:
@@ -83,37 +93,12 @@ RULES:
 - All topic arrays: specific, granular strings (not generic like "basics")
 - comprehensive_analysis: minimum 5 detailed paragraphs, expert tone
 - study_recommendations: at least 2-3 items with priority levels
-- source_syllabus_summary and target_syllabus_summary: must reference actual discovered content
 - If no good match exists, set confidence to 0 and matched_course_code to "N/A"
 - Be specific: cite actual topic names, theorem names, chapter numbers when possible`;
 
-    const response = await fetch('https://api.x.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${API_KEY}`
-        },
-        body: JSON.stringify({
-            model: 'grok-3-mini',
-            messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userPrompt }
-            ],
-            tools: [{ type: 'web_search', web_search: {} }],
-            response_format: { type: 'json_object' },
-            temperature: 0.2
-        })
-    });
+    const result = await model.generateContent(userPrompt);
+    const content = result.response.text();
 
-    if (!response.ok) {
-        const errBody = await response.text().catch(() => '');
-        if (response.status === 401) throw new Error('INVALID_KEY');
-        if (response.status === 429) throw new Error('RATE_LIMIT');
-        throw new Error(`API_ERROR:${response.status}:${errBody.substring(0, 100)}`);
-    }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
     if (!content) throw new Error('EMPTY_RESPONSE');
 
     const parsed = JSON.parse(content);
@@ -142,7 +127,7 @@ async function delay(ms) {
 }
 
 async function main() {
-    console.log("🚀 Starting AI Matches Generation...");
+    console.log("🚀 Starting Free Gemini AI Matches Generation...");
 
     let processedCount = 0;
     let hasErrors = false;
@@ -167,7 +152,7 @@ async function main() {
             console.log(`Processing [${processedCount + 1}/${MAX_COURSES_PER_RUN}]: ${uniName} - ${course.code || ''} ${course.name}`);
 
             try {
-                const matchData = await callGrokRAG(course, uniName);
+                const matchData = await callRAG(course, uniName);
                 console.log(`✅ Success! Matched with ${matchData.course.code} (Score: ${matchData.score})`);
 
                 // Save to database
@@ -178,15 +163,15 @@ async function main() {
 
                 // Sleep to avoid rate limits
                 if (processedCount < MAX_COURSES_PER_RUN) {
-                    console.log(`😴 Sleeping for ${DELAY_BETWEEN_CALLS_MS}ms...`);
+                    console.log(`😴 Sleeping for ${DELAY_BETWEEN_CALLS_MS}ms to respect free tier rate limit...`);
                     await delay(DELAY_BETWEEN_CALLS_MS);
                 }
 
             } catch (err) {
                 console.error(`❌ Error processing ${courseKey}:`, err.message);
                 hasErrors = true;
-                if (err.message === 'RATE_LIMIT' || err.message === 'INVALID_KEY') {
-                    console.error("⛔ Halting execution due to fatal error.");
+                if (err.message.includes('429')) {
+                    console.error("⛔ Rate limited by Gemini. Halting to prevent further blocks.");
                     process.exit(1);
                 }
             }

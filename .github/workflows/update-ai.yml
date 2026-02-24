@@ -25,7 +25,7 @@ jobs:
 
       - name: Run AI Generation Script
         env:
-          GROK_API_KEY: ${{ secrets.GROK_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: node scripts/generate_ai_matches.mjs
 
       - name: Commit and push changes
@@ -33,4 +33,4 @@ jobs:
           git config --global user.name "GitHub Actions Bot"
           git config --global user.email "actions@github.com"
           git add src/data/ai_matches.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(ai): pre-compute latest grok matches" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(ai): pre-compute latest gemini AI matches" && git push)
