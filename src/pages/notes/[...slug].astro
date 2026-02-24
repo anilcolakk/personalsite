@@ -163,6 +163,23 @@ const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
               </button>
             </div>
 
+            <!-- AI Summary Card -->
+            <div class="sidebar-card ai-summary-card" id="ai-summary-card">
+              <div class="ai-summary-header">
+                <span class="ai-badge">🤖 AI</span>
+                <h4>Note Summary</h4>
+              </div>
+              <div id="ai-summary-content">
+                <div class="ai-summary-placeholder">
+                  <p>Get an AI-generated summary of this note's key concepts.</p>
+                  <button onclick="window.generateNoteSummary()" class="btn btn-ai-summary" id="btn-generate-summary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    Generate Summary
+                  </button>
+                </div>
+              </div>
+            </div>
+
               <!-- Download Card for Free Content -->
               <div class="sidebar-card download-card">
                 <h3>Download Resource</h3>
@@ -216,6 +233,22 @@ const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
                 </svg>
               </a>
             </div>
+
+            <!-- Disclaimer Card -->
+            <div class="sidebar-card disclaimer-card">
+              <div class="disclaimer-card-header">
+                <span>⚠️</span>
+                <h4>Content Disclaimer</h4>
+              </div>
+              <p>These notes are shared for <strong>educational purposes only</strong>. If you believe any content infringes your intellectual property rights, you may request its removal.</p>
+              <a href="/contact" class="btn btn-report">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                  <line x1="4" y1="22" x2="4" y2="15"/>
+                </svg>
+                Report Content
+              </a>
+            </div>
           </aside>
         </div>
       </div>
@@ -223,6 +256,12 @@ const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
   </article>
 
   <!-- Submission Modal handled by BaseLayout -->
+
+  <!-- Inject note metadata for client-side AI -->
+  <script is:inline define:vars={{ noteTitle: note.data.title, courseCode: note.data.courseCode, courseName: note.data.courseName, noteSlug: note.slug, noteTopics: note.data.keywords || [], noteDescription: note.data.description }}>
+    window.__NOTE_META__ = { noteTitle, courseCode, courseName, noteSlug, noteTopics, noteDescription };
+  </script>
+
 </BaseLayout>
 
 <script>
@@ -230,12 +269,140 @@ const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
   document.getElementById('copy-link')?.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
-      // Could add a toast notification here
       alert('Link copied to clipboard!');
     } catch (err) {
       console.error('Failed to copy link:', err);
     }
   });
+
+  // AI Summary Generation
+  window.generateNoteSummary = async function() {
+    const meta = (window as any).__NOTE_META__;
+    if (!meta) return;
+
+    const apiKey = localStorage.getItem('grok_api_key');
+    const container = document.getElementById('ai-summary-content');
+    if (!container) return;
+
+    // Check cache first
+    const cacheKey = `ai_summary_${meta.noteSlug}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      container.innerHTML = cached;
+      return;
+    }
+
+    if (!apiKey) {
+      container.innerHTML = `
+        <div class="ai-summary-nokey">
+          <p>Enter your <a href="https://console.x.ai/" target="_blank" rel="noopener">Grok API key</a> in the <a href="/equivalency">Equivalency Tool settings</a> to enable AI summaries.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Show loading skeleton
+    container.innerHTML = `
+      <div class="ai-summary-loading">
+        <div class="skeleton-line" style="width:100%"></div>
+        <div class="skeleton-line" style="width:90%"></div>
+        <div class="skeleton-line" style="width:80%"></div>
+        <div class="skeleton-line" style="width:95%"></div>
+        <p class="ai-loading-text">Reading course content and generating summary...</p>
+      </div>
+    `;
+
+    try {
+      const prompt = `You are a university academic assistant. I need a concise, helpful summary of a university course's lecture notes.
+
+Course: ${meta.courseCode} - ${meta.courseName}
+Title: ${meta.noteTitle}
+Description: ${meta.noteDescription}
+Topics covered: ${meta.noteTopics.join(', ')}
+
+Please provide:
+1. A brief 2-3 sentence summary of what this course covers
+2. A list of 5-8 key concepts that students should focus on (as short phrases)
+3. One study tip specific to this subject
+
+Format your response as JSON:
+{
+  "summary": "...",
+  "key_concepts": ["concept1", "concept2", ...],
+  "study_tip": "..."
+}
+
+Return ONLY the JSON, no other text.`;
+
+      const res = await fetch('https://api.x.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: 'grok-3-mini',
+          messages: [
+            { role: 'system', content: 'You are a helpful academic assistant. Always return valid JSON.' },
+            { role: 'user', content: prompt }
+          ]
+        })
+      });
+
+      const json = await res.json();
+      const text = json.choices?.[0]?.message?.content || '';
+      
+      // Parse the JSON response
+      let data;
+      try {
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        data = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
+      } catch(e) {
+        data = null;
+      }
+
+      if (data && data.summary) {
+        const conceptChips = (data.key_concepts || []).map((c: string) => 
+          `<span class="concept-chip">${c}</span>`
+        ).join('');
+
+        const html = `
+          <div class="ai-summary-result">
+            <p class="ai-summary-text">${data.summary}</p>
+            ${conceptChips ? `
+              <div class="ai-concepts">
+                <h5>Key Concepts</h5>
+                <div class="concept-chips">${conceptChips}</div>
+              </div>
+            ` : ''}
+            ${data.study_tip ? `
+              <div class="ai-study-tip">
+                <span>💡</span>
+                <p>${data.study_tip}</p>
+              </div>
+            ` : ''}
+          </div>
+        `;
+        container.innerHTML = html;
+        sessionStorage.setItem(cacheKey, html);
+      } else {
+        container.innerHTML = `<div class="ai-summary-text"><p>${text || 'Unable to generate summary.'}</p></div>`;
+      }
+    } catch(err) {
+      container.innerHTML = `<div class="ai-summary-error"><p>Failed to generate summary. Check your API key and try again.</p></div>`;
+    }
+  };
+
+  // Auto-check for cached summary on load
+  (function() {
+    const meta = (window as any).__NOTE_META__;
+    if (!meta) return;
+    const cached = sessionStorage.getItem(`ai_summary_${meta.noteSlug}`);
+    if (cached) {
+      const c = document.getElementById('ai-summary-content');
+      if (c) c.innerHTML = cached;
+    }
+  })();
 </script>
 
 <style>
@@ -654,5 +821,197 @@ const driveFolderId = driveFolderIdMatch ? driveFolderIdMatch[1] : null;
     .drive-preview__frame {
       height: 400px;
     }
+  }
+
+  /* Disclaimer Card */
+  .disclaimer-card {
+    background: rgba(245, 158, 11, 0.05);
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+  .disclaimer-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .disclaimer-card-header h4 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #b45309;
+  }
+  [data-theme="dark"] .disclaimer-card-header h4 { color: #fbbf24; }
+  .disclaimer-card p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .btn-report {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #b45309;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    border-radius: var(--radius-lg);
+    transition: all 0.2s;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .btn-report:hover {
+    background: rgba(245, 158, 11, 0.2);
+    transform: translateY(-1px);
+  }
+  [data-theme="dark"] .disclaimer-card {
+    background: rgba(245, 158, 11, 0.04);
+    border-color: rgba(245, 158, 11, 0.15);
+  }
+  [data-theme="dark"] .btn-report {
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.2);
+  }
+
+  /* AI Summary Card */
+  .ai-summary-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05));
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+  [data-theme="dark"] .ai-summary-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(168, 85, 247, 0.06));
+    border-color: rgba(99, 102, 241, 0.15);
+  }
+  .ai-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .ai-badge {
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+  .ai-summary-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .ai-summary-placeholder p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .btn-ai-summary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ai-summary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+  }
+
+  /* Loading skeleton */
+  .ai-summary-loading { display: flex; flex-direction: column; gap: 8px; }
+  .skeleton-line {
+    height: 12px;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--bg-tertiary) 25%, rgba(99,102,241,0.1) 50%, var(--bg-tertiary) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .ai-loading-text {
+    font-size: 0.75rem;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* Summary result */
+  .ai-summary-text {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+  .ai-concepts { margin-bottom: 12px; }
+  .ai-concepts h5 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .concept-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .concept-chip {
+    display: inline-block;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    border-radius: 20px;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+  [data-theme="dark"] .concept-chip {
+    background: rgba(99, 102, 241, 0.15);
+    color: #a5b4fc;
+    border-color: rgba(99, 102, 241, 0.25);
+  }
+  .ai-study-tip {
+    display: flex;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: var(--radius-md);
+    margin-top: 4px;
+  }
+  .ai-study-tip span { font-size: 1rem; flex-shrink: 0; }
+  .ai-study-tip p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+  .ai-summary-nokey p {
+    font-size: 0.82rem;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+  }
+  .ai-summary-nokey a {
+    color: #6366f1;
+    font-weight: 600;
+  }
+  .ai-summary-error p {
+    font-size: 0.82rem;
+    color: #ef4444;
   }
 </style>
