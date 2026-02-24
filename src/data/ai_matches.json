@@ -1,0 +1,35 @@
+{
+    "matches": {
+        "bilkent_EEE 211": {
+            "course": {
+                "code": "EE201",
+                "name": "Analog Electronics"
+            },
+            "score": 88,
+            "overlapping_topics": [
+                "Op-Amps",
+                "Diodes",
+                "BJT Amplifiers"
+            ],
+            "missing_topics": [
+                "MOSFETs"
+            ],
+            "extra_topics": [
+                "Advanced rectifiers"
+            ],
+            "analysis": "This is a static mocked AI analysis to verify the build-time injection. Paragraph 1: Great match.\\n\\nParagraph 2: Lots of overlap.",
+            "sourceSyllabus": "Syllabus found on Bilkent website.",
+            "targetSyllabus": "Syllabus for ODTU EE201.",
+            "studyRecs": [
+                {
+                    "topic": "MOSFETs",
+                    "priority": "high",
+                    "reason": "Missing in source but required in ODTU."
+                }
+            ],
+            "difficultyComparison": "Both are rigorous.",
+            "textbookComparison": "Uses same Sedra/Smith textbook.",
+            "generatedAt": "2026-02-24T21:20:00Z"
+        }
+    }
+}

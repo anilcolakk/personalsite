@@ -2,6 +2,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import curriculaData from '../data/curricula.json';
+import aiMatchesData from '../data/ai_matches.json';
 
 const universities = Object.entries(curriculaData.universities)
   .filter(([key]) => key !== 'ODTU')
@@ -32,6 +33,7 @@ allNotes.forEach(note => {
 
 <BaseLayout title="Course Matcher" description="Find matching ODTÜ courses for your study materials">
   <div class="finder-layout">
+    <script id="ai-matches-data" type="application/json" set:html={JSON.stringify(aiMatchesData.matches || {})}></script>
     <div class="container-fluid">
       
       <!-- Finder Header -->
@@ -41,10 +43,7 @@ allNotes.forEach(note => {
             <h1>Course Matcher</h1>
             <p>Find matching ODTÜ courses for your notes and study materials.</p>
           </div>
-          <button id="settings-btn" class="btn-settings" onclick="openSettingsModal()" title="API Settings">
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            <span id="api-key-indicator" class="key-indicator"></span>
-          </button>
+          
         </div>
       </div>
 
@@ -151,9 +150,9 @@ allNotes.forEach(note => {
   let state = { uniId: null, courses: [], selectedCourse: null, selectedYear: 0, step: 1, yearCounts: {}, isLoading: false };
 
   // === API KEY MANAGEMENT ===
-  function getApiKey() { return localStorage.getItem('grok_api_key') || ''; }
+  
   function setApiKey(key) { localStorage.setItem('grok_api_key', key); updateKeyIndicator(); }
-  function clearApiKey() { localStorage.removeItem('grok_api_key'); updateKeyIndicator(); }
+  
   function updateKeyIndicator() {
     const dot = document.getElementById('api-key-indicator');
     if (dot) dot.className = getApiKey() ? 'key-indicator key-active' : 'key-indicator';
@@ -161,20 +160,7 @@ allNotes.forEach(note => {
   updateKeyIndicator();
 
   // === SETTINGS MODAL ===
-  window.openSettingsModal = () => {
-    const hasKey = !!getApiKey();
-    const modal = document.createElement('div');
-    modal.className = 'ai-modal-overlay';
-    modal.id = 'settings-modal';
-    modal.innerHTML = `
-      <div class="ai-modal" style="max-width:480px">
-        <div class="ai-modal-header">
-          <h3>⚙️ API Settings</h3>
-          <button onclick="document.getElementById('settings-modal').remove()" class="ai-modal-close">×</button>
-        </div>
-        <div class="ai-modal-body">
-          <p class="ai-modal-desc">Enter your <a href="https://console.x.ai/" target="_blank" rel="noopener" style="color:var(--primary-600);font-weight:600">Grok API key</a> to enable AI-powered course matching. Your key is stored locally in your browser.</p>
-          <div class="settings-key-status ${hasKey ? 'key-saved' : ''}">
+  ">
             <span>${hasKey ? '🟢 API key is saved' : '🔴 No API key set'}</span>
           </div>
           <div class="settings-input-row">
@@ -197,9 +183,9 @@ allNotes.forEach(note => {
     const val = input?.value?.trim();
     if (val && val !== '••••••••••••••••' && val.length > 10) {
       setApiKey(val);
-      document.getElementById('settings-modal')?.remove();
+      
     } else if (val === '••••••••••••••••') {
-      document.getElementById('settings-modal')?.remove();
+      
     } else {
       input.style.borderColor = '#ef4444';
       input.placeholder = 'Please enter a valid API key';
@@ -208,75 +194,12 @@ allNotes.forEach(note => {
 
   window.clearApiKeyFromModal = () => {
     clearApiKey();
-    document.getElementById('settings-modal')?.remove();
+    
   };
 
   // === RESEARCH TIMELINE (replaces static skeleton) ===
-  let timelineInterval = null;
-  function showResearchTimeline(courseName, uniName) {
-    const container = document.getElementById('analysis-container');
-    container.innerHTML = `
-      <div class="research-timeline-container animate-fade-in">
-        <div class="timeline-header">
-          <div class="timeline-pulse"></div>
-          <h3>AI Research in Progress</h3>
-          <span class="ai-badge">Grok 3 · Live</span>
-        </div>
-        <div class="timeline-steps" id="timeline-steps">
-          <div class="timeline-step active" id="ts-connect">
-            <div class="ts-dot ts-done"></div>
-            <div class="ts-content">
-              <span class="ts-label">Connected to Grok AI</span>
-              <span class="ts-detail">Initializing research pipeline...</span>
-            </div>
-          </div>
-          <div class="timeline-step" id="ts-search">
-            <div class="ts-dot ts-pending"></div>
-            <div class="ts-content">
-              <span class="ts-label">Searching for course syllabus</span>
-              <span class="ts-detail">Looking up "${courseName}" at ${uniName}...</span>
-            </div>
-          </div>
-          <div class="timeline-step" id="ts-compare">
-            <div class="ts-dot ts-pending"></div>
-            <div class="ts-content">
-              <span class="ts-label">Comparing with ODTÜ catalog</span>
-              <span class="ts-detail">Cross-referencing with ODTÜ EE courses...</span>
-            </div>
-          </div>
-          <div class="timeline-step" id="ts-analyze">
-            <div class="ts-dot ts-pending"></div>
-            <div class="ts-content">
-              <span class="ts-label">Writing analysis report</span>
-              <span class="ts-detail">Generating comprehensive comparison...</span>
-            </div>
-          </div>
-        </div>
-        <div class="timeline-elapsed">
-          <span class="elapsed-icon">⏱️</span>
-          <span id="elapsed-timer">0s elapsed</span>
-        </div>
-      </div>
-    `;
-    // Animate timeline steps progressively
-    let startTime = Date.now();
-    const steps = ['ts-search', 'ts-compare', 'ts-analyze'];
-    const delays = [2000, 5000, 9000];
-    steps.forEach((id, i) => {
-      setTimeout(() => {
-        const step = document.getElementById(id);
-        if (step) {
-          step.classList.add('active');
-          step.querySelector('.ts-dot').classList.replace('ts-pending', 'ts-working');
-        }
-        // Mark previous step as done
-        if (i > 0) {
-          const prev = document.getElementById(steps[i-1]);
-          if (prev) prev.querySelector('.ts-dot').classList.replace('ts-working', 'ts-done');
-        } else {
-          document.getElementById('ts-connect')?.querySelector('.ts-dot')?.classList.add('ts-done');
-        }
-      }, delays[i]);
+  
+  , delays[i]);
     });
     // Elapsed timer
     timelineInterval = setInterval(() => {
@@ -284,89 +207,11 @@ allNotes.forEach(note => {
       if (el) el.textContent = `${Math.round((Date.now() - startTime) / 1000)}s elapsed`;
     }, 1000);
   }
-  function stopTimeline() {
-    if (timelineInterval) { clearInterval(timelineInterval); timelineInterval = null; }
+  
   }
 
   // === GROK RAG PIPELINE (Enhanced) ===
-  async function callGrokRAG(course, universityName) {
-    const apiKey = getApiKey();
-    const courseName = course.name || '';
-    const courseTopics = (course.topics || []).join(', ') || 'not specified';
-
-    // Build ODTÜ baseline from curricula data
-    const odtuCourses = window.CURRICULA_DATA.universities.odtu?.courses || [];
-    const baselineList = odtuCourses.map(c => 
-      `${c.code}: ${c.name} — Topics: ${(c.topics || []).join(', ') || 'N/A'}${c.prerequisites ? ` | Prereqs: ${c.prerequisites.join(', ')}` : ''}`
-    ).join('\n');
-
-    const systemPrompt = `You are the world's leading academic evaluator specializing in Turkish university Electrical-Electronics Engineering programs. You have access to web search to deeply research course syllabi. Your role is to perform an exceptionally thorough, syllabus-level comparison between an external university course and the most similar ODTÜ EE course.
-
-You think step-by-step:
-1. First, search for and study the external course's full syllabus, textbooks, and content outline
-2. Then, identify the best matching ODTÜ course from the catalog
-3. Finally, compose a rich, detailed comparison that would genuinely help a transfer student
-
-You must respond ONLY with valid JSON — no markdown, no explanation outside the JSON.`;
-
-    const userPrompt = `TASK: Perform an exhaustive academic comparison between an external university course and its best match at ODTÜ EE.
-
-EXTERNAL COURSE:
-- University: ${universityName}
-- Course Name: "${courseName}"
-- Course Code: ${course.code || 'N/A'}
-- Known Topics: ${courseTopics}
-- Description: ${course.description || 'Not available'}
-
-INSTRUCTIONS:
-1. Use web search to find the FULL official syllabus for "${courseName}" at ${universityName}. Search for variations: "${courseName} ${universityName} syllabus", "${courseName} ${universityName} ders içeriği müfredatı", "${courseName} ${universityName} course outline". Read the actual course content, weekly schedule, textbooks used, and learning outcomes.
-
-2. Compare against this ODTÜ EE course catalog:
-${baselineList}
-
-3. Also web-search the matched ODTÜ course syllabus for deeper comparison.
-
-RETURN a JSON object with this EXACT structure:
-{
-  "matched_course_code": "ODTÜ course code e.g. EE201",
-  "matched_course_name": "Full ODTÜ course name in English",
-  "match_confidence_score": 82,
-  "source_syllabus_summary": "2-3 sentence summary of the external course's actual discovered syllabus, mentioning specific topics and textbook if found",
-  "target_syllabus_summary": "2-3 sentence summary of the matched ODTÜ course syllabus, mentioning specific topics and textbook if found",
-  "overlapping_topics": ["specific topic 1", "specific topic 2", ...],
-  "missing_topics": ["topics in ODTÜ course but NOT in external course"],
-  "extra_topics": ["topics in external course but NOT in ODTÜ course"],
-  "comprehensive_analysis": "A 5+ paragraph expert academic evaluation. Paragraph 1: Overall comparison and match quality. Paragraph 2: Detailed topic-by-topic comparison including depth differences. Paragraph 3: Teaching methodology, lab work, and practical component differences. Paragraph 4: Textbook and resource comparison. Paragraph 5: Specific actionable study recommendations for a student transferring between these courses, including which topics need self-study and suggested resources.",
-  "study_recommendations": [
-    {"topic": "Topic Name", "priority": "high|medium|low", "reason": "Why this needs attention"},
-    ...
   ],
-  "difficulty_comparison": "A paragraph comparing the relative difficulty and academic rigor of both courses, discussing depth of mathematical treatment, prerequisites expected, and workload.",
-  "textbook_comparison": "Specific textbook names used by each course (if discovered via web search), and how they differ in approach."
-}
-
-RULES:
-- match_confidence_score: integer 0-100
-- All topic arrays: specific, granular strings (not generic like "basics")
-- comprehensive_analysis: minimum 5 detailed paragraphs, expert tone
-- study_recommendations: at least 2-3 items with priority levels
-- source_syllabus_summary and target_syllabus_summary: must reference actual discovered content
-- If no good match exists, set confidence to 0 and matched_course_code to "N/A"
-- Be specific: cite actual topic names, theorem names, chapter numbers when possible`;
-
-    const response = await fetch('https://api.x.ai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: 'grok-3-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        tools: [{ type: 'web_search', web_search: {} }],
         response_format: { type: 'json_object' },
         temperature: 0.2
       })
@@ -408,296 +253,10 @@ RULES:
   }
 
   // === ERROR RENDERING ===
-  function renderError(errorType, course) {
-    const container = document.getElementById('analysis-container');
-    let icon = '❌', title = 'Something went wrong', message = '', action = '';
-
-    if (errorType === 'INVALID_KEY') {
-      icon = '🔑'; title = 'Invalid API Key';
-      message = 'Your Grok API key was rejected. Please check it in settings.';
-      action = `<button onclick="openSettingsModal()" class="btn-secondary-action" style="margin-top:16px;max-width:220px">⚙️ Open Settings</button>`;
-    } else if (errorType === 'RATE_LIMIT') {
-      icon = '⏳'; title = 'Rate Limited';
-      message = 'Too many requests. Please wait a moment and try again.';
-      action = `<button onclick="selectCourse('${(course?.code||'').replace(/'/g,"\\'")}')" class="btn-secondary-action" style="margin-top:16px;max-width:220px">🔄 Retry</button>`;
-    } else if (errorType === 'NO_KEY') {
-      icon = '🤖'; title = 'AI Matching Available';
-      message = 'Add your Grok API key to get AI-powered course analysis. Using local matching as fallback.';
-      action = `<button onclick="openSettingsModal()" class="btn-secondary-action" style="margin-top:16px;max-width:220px">🔑 Add API Key</button>`;
-    } else {
-      message = 'The AI analysis failed. Falling back to local matching.';
-    }
-
-    container.innerHTML = `
-      <div class="report-card animate-fade-in">
-        <div class="error-state">
-          <span class="error-icon">${icon}</span>
-          <h4>${title}</h4>
-          <p>${message}</p>
-          ${action}
-        </div>
-      </div>
-    `;
-  }
-
-  // 1. Select University
-  window.selectUniversity = (id, name, shortName) => {
-    state.uniId = id;
-    state.selectedCourse = null;
-    state.selectedYear = 0;
-    state.step = 2;
-    
-    document.getElementById('phase-selection').classList.add('hidden');
-    document.getElementById('phase-analysis').classList.remove('hidden');
-    
-    const label = document.getElementById('label-uni-name');
-    if(label) label.innerText = shortName;
-    
-    const search = document.getElementById('course-search');
-    if(search) { search.disabled = false; search.value = ''; }
-    document.getElementById('search-clear')?.classList.add('hidden');
-    
-    updateStepper(2);
-
-    document.getElementById('analysis-container').innerHTML = `
-      <div class="empty-state">
-          <span class="empty-illustration" aria-hidden="true">📚</span>
-          <h4>Select a Course</h4>
-          <p>Choose a course to find matching ODTÜ courses for your notes.</p>
-      </div>
-    `;
-
-    const uniData = window.CURRICULA_DATA.universities[id];
-    state.courses = uniData ? uniData.courses.sort((a, b) => (a.year - b.year) || a.code.localeCompare(b.code)) : [];
-    
-    // Calculate year counts
-    state.yearCounts = { 0: state.courses.length };
-    state.courses.forEach(c => {
-      state.yearCounts[c.year] = (state.yearCounts[c.year] || 0) + 1;
-    });
-    
-    renderFilterPills();
-    renderCourses(state.courses);
-  };
-  
-  window.backToSelection = () => {
-      state.step = 1;
-      document.getElementById('phase-analysis').classList.add('hidden');
-      document.getElementById('phase-selection').classList.remove('hidden');
-      updateStepper(1);
-  };
-
-  // Dynamic Filter Pills with Counts
-  function renderFilterPills() {
-      const container = document.getElementById('year-filters-container');
-      if (!container) return;
-      
-      const pills = [
-          { year: 0, label: 'All Years' },
-          { year: 1, label: '1st Year' },
-          { year: 2, label: '2nd Year' },
-          { year: 3, label: '3rd Year' },
-          { year: 4, label: '4th Year' }
-      ];
-      
-      let html = '';
-      pills.forEach(p => {
-          const count = state.yearCounts[p.year] || 0;
-          const isActive = state.selectedYear === p.year ? 'active' : '';
-          html += `<button class="filter-pill ${isActive}" onclick="filterByYear(${p.year})">${p.label} <span class="pill-count">${count}</span></button>`;
-      });
-      
-      container.innerHTML = html;
-  }
-
-  window.filterByYear = (year) => {
-      state.selectedYear = year;
-      renderFilterPills();
-      
-      const searchInput = document.getElementById('course-search');
-      const term = searchInput ? searchInput.value.toLowerCase() : '';
-      
-      let filtered = state.courses;
-      if (year > 0) filtered = filtered.filter(c => c.year === year);
-      if (term) filtered = filtered.filter(c => c.code.toLowerCase().includes(term) || c.name.toLowerCase().includes(term));
-      
-      renderCourses(filtered);
-  };
-  
-  function updateStepper(step) {
-      document.querySelectorAll('.step-item').forEach((el, idx) => {
-          if (idx + 1 === step) el.classList.add('active');
-          else el.classList.remove('active');
-          
-          if (idx + 1 < step) el.style.opacity = '1';
-          else if (idx + 1 > step) el.style.opacity = '0.5';
-      });
-  }
-
-  function renderCourses(list) {
-    const container = document.getElementById('course-list-container');
-    
-    if (list.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state" style="height: 200px;">
-           <span class="empty-illustration">🔍</span>
-           <h4>No courses found</h4>
-           <p>Try adjusting your search filters.</p>
-        </div>`;
-      return;
-    }
-
-    let html = '';
-    let lastYear = null;
-    
-    list.forEach((c, idx) => {
-       // Sticky Year Header when showing all years
-       if (state.selectedYear === 0 && c.year !== lastYear) {
-           html += `<div class="year-sticky-header">Year ${c.year}</div>`;
-           lastYear = c.year;
-       }
-       
-       // Zebra class
-       const zebraClass = idx % 2 === 1 ? 'zebra' : '';
-       
-       // Year color class
-       let yearColorClass = 'year-other';
-       if (c.year === 1) yearColorClass = 'year-1';
-       else if (c.year === 2) yearColorClass = 'year-2';
-       else if (c.year === 3) yearColorClass = 'year-3';
-       else if (c.year === 4) yearColorClass = 'year-4';
-       
-       // Code display
-       const codeDisplay = c.code ? c.code : '<span class="muted-code">NO CODE</span>';
-
-       const safeId = `course-${((c.code || '') + '-' + c.name).replace(/[\\s\\W]+/g, '-')}`;
-       html += `
-       <button class="course-card ${yearColorClass} ${zebraClass}" id="${safeId}" onclick="selectCourse('${(c.code || '').replace(/'/g, "\\'")}', '${c.name.replace(/'/g, "\\'")}')">
-         <div class="card-main">
-             <div class="card-title">${c.name}</div>
-             <div class="card-code">${codeDisplay}</div>
-         </div>
-         <div class="card-right">
-             <span class="year-badge ${yearColorClass}">Y${c.year}</span>
-         </div>
-       </button>
-       `;
-    });
-
-    container.innerHTML = html;
-  }
-
-  // Search with Clear Button
-  const searchInput = document.getElementById('course-search');
-  const clearBtn = document.getElementById('search-clear');
-  
-  searchInput?.addEventListener('input', (e) => {
-    const term = e.target.value;
-    if (term.length > 0) {
-        clearBtn?.classList.remove('hidden');
-    } else {
-        clearBtn?.classList.add('hidden');
-    }
-    window.filterByYear(state.selectedYear);
-  });
-  
-  window.clearSearch = () => {
-      if (searchInput) searchInput.value = '';
-      clearBtn?.classList.add('hidden');
-      window.filterByYear(state.selectedYear);
-  };
-
-  // 2. Select Course — AI-first: requires API key
-  window.selectCourse = async (code, name) => {
-    state.selectedCourse = code || name;
-    state.step = 3;
-    state.isLoading = true;
-    updateStepper(3);
-    
-    // Update UI Active State
-    document.querySelectorAll('.course-card').forEach(el => el.classList.remove('active'));
-    const safeId = `course-${((code || '') + '-' + name).replace(/[\\s\\W]+/g, '-')}`;
-    const el = document.getElementById(safeId);
-    if(el) el.classList.add('active');
-    
-    const course = state.courses.find(c => (c.code || '') === (code || '') && c.name === name);
-    if (!course) return;
-
-    const apiKey = getApiKey();
-
-    // AI-First: if no key, prompt user to add one
-    if (!apiKey) {
-      renderNoKeyPrompt(course);
-      state.isLoading = false;
-      return;
-    }
-
-    // === AI-Powered matching via Grok RAG ===
-    const uniData = window.CURRICULA_DATA.universities[state.uniId];
-    const uniName = uniData?.name || state.uniId;
-    showResearchTimeline(course.name, uniName);
-    try {
-      const match = await callGrokRAG(course, uniName);
-      stopTimeline();
-      state.isLoading = false;
-      renderAnalysis(course, match, true);
-    } catch (err) {
-      stopTimeline();
-      state.isLoading = false;
-      console.warn('Grok API error:', err.message);
-      
-      if (err.message === 'INVALID_KEY' || err.message === 'RATE_LIMIT') {
-        renderError(err.message, course);
-        return;
-      }
-      // Last-resort fallback to local matching
-      const metuCourses = window.CURRICULA_DATA.universities.odtu ? window.CURRICULA_DATA.universities.odtu.courses : [];
-      const match = findBestMatch(course, metuCourses);
-      renderAnalysis(course, match, false);
-      showFallbackNotice();
-    }
-    
-    if (!course.notes_available) {
-        setTimeout(() => showContributionToast(course.code), 1500);
-    }
-  };
+  ;
 
   // No-key prompt — educates user about AI features
-  function renderNoKeyPrompt(course) {
-    const container = document.getElementById('analysis-container');
-    container.innerHTML = `
-      <div class="report-card animate-fade-in">
-        <div class="no-key-hero">
-          <div class="no-key-glow"></div>
-          <div class="no-key-icon">🧠</div>
-          <h3>AI-Powered Analysis</h3>
-          <p class="no-key-desc">This tool uses <strong>Grok AI</strong> to search the web for real university syllabi, compare courses at the topic level, and generate expert transfer recommendations.</p>
-          <div class="no-key-features">
-            <div class="nk-feature"><span>🔍</span> Live syllabus web search</div>
-            <div class="nk-feature"><span>📊</span> AI confidence scoring</div>
-            <div class="nk-feature"><span>🧠</span> Expert analysis narrative</div>
-            <div class="nk-feature"><span>📚</span> Personalized study plan</div>
-          </div>
-          <button onclick="openSettingsModal()" class="btn-add-key-hero">
-            <span>🔑</span> Add Your Grok API Key to Start
-          </button>
-          <p class="no-key-hint">Free to get at <a href="https://console.x.ai/" target="_blank" rel="noopener">console.x.ai</a> · Your key stays in your browser</p>
-        </div>
-      </div>
-    `;
-  }
-
-  // Fallback notice banner
-  function showFallbackNotice() {
-    const container = document.getElementById('analysis-container');
-    const report = container?.querySelector('.report-card');
-    if (report) {
-      const notice = document.createElement('div');
-      notice.className = 'fallback-notice';
-      notice.innerHTML = '⚠️ AI analysis failed. Showing local keyword-based matching instead.';
-      report.insertBefore(notice, report.firstChild);
-    }
-  }
+  
 
   // Logic Reuse - Upgraded with structured topic breakdown
   function findBestMatch(source, targets) {
