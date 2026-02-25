@@ -1,44 +1,39 @@
 ---
 /**
- * AIChat Component - Powered by Groq (FREE!)
- * Uses Groq's free tier: 14,400+ requests/day
+ * AIChat Component - Powered by Gemini
+ * Uses Google Gemini Free Tier Limits (15 RPM / 1500 RPD)
+ * Client-side rate limited to 10 msgs/day per user
  * Supports English and Turkish
- * 
- * Get free API key: https://console.groq.com/keys
  */
 const currentPath = Astro.url?.pathname || '';
 const lang = currentPath.includes('/tr') ? 'tr' : 'en';
+
+const apiKey = import.meta.env.PUBLIC_GEMINI_API_KEY || '';
 
 const texts = {
   en: {
     trigger: 'AI Tutor',
     title: 'AI Study Assistant',
-    subtitle: 'Powered by Grok',
-    placeholder: 'Ask anything about EE...',
-    greeting: "Hi! I'm your AI study assistant powered by Grok. I can help with:",
+    subtitle: 'Powered by Gemini',
+    placeholder: 'Ask anything about EE (10 msgs max)...',
+    greeting: "Hi! I'm your AI study assistant powered by Gemini. I can help with:",
     topics: ['Circuit Analysis', 'Electronics', 'Signals & Systems', 'Math for Engineers', 'Study Tips'],
-    hint: 'Add your Grok API key below to enable AI responses.',
-    apiLabel: '🔑 Get API key at console.x.ai',
-    apiPlaceholder: 'xai-...',
-    saveBtn: 'Save',
+    hint: 'Important: I am in Beta and restricted to 10 questions per day.',
     thinking: 'Thinking...',
-    error: 'Error. Check your API key.',
-    noKey: 'Please add your Grok API key above first.'
+    error: 'Error generating response. Please try again.',
+    limitReached: '⚠️ You have reached your daily limit of 10 messages. Please come back tomorrow!'
   },
   tr: {
     trigger: 'Yapay Zeka',
     title: 'Yapay Zeka Asistanı',
-    subtitle: 'Grok ile çalışır',
-    placeholder: 'EE hakkında bir şey sor...',
-    greeting: "Merhaba! Grok destekli yapay zeka asistanınım. Şunlarda yardımcı olabilirim:",
+    subtitle: 'Gemini ile çalışır',
+    placeholder: 'EE hakkında bir şey sor (Günde maks 10 soru)...',
+    greeting: "Merhaba! Gemini destekli yapay zeka asistanınım. Şunlarda yardımcı olabilirim:",
     topics: ['Devre Analizi', 'Elektronik', 'Sinyaller ve Sistemler', 'Mühendislik Matematiği', 'Çalışma İpuçları'],
-    hint: 'Yapay zeka yanıtları için Grok API anahtarını ekle.',
-    apiLabel: '🔑 Anahtar al: console.x.ai',
-    apiPlaceholder: 'xai-...',
-    saveBtn: 'Kaydet',
+    hint: 'Önemli: Beta aşamasındayım ve günde en fazla 10 soru sorabilirsiniz.',
     thinking: 'Düşünüyorum...',
-    error: 'Hata. API anahtarını kontrol et.',
-    noKey: 'Lütfen önce Grok API anahtarını ekle.'
+    error: 'Yanıt oluşturulurken hata oluştu. Lütfen tekrar deneyin.',
+    limitReached: '⚠️ Günlük 10 mesaj limitinize ulaştınız. Lütfen yarın tekrar gelin!'
   }
 };
 
@@ -80,13 +75,7 @@ const t = texts[lang];
       </div>
     </div>
     
-    <div class="chat-api-section" id="chat-api-section">
-      <a href="https://console.x.ai/" target="_blank" rel="noopener" class="api-link">{t.apiLabel}</a>
-      <div class="api-input-row">
-        <input type="text" id="grok-api-key" placeholder={t.apiPlaceholder} autocomplete="off" autocorrect="off" spellcheck="false" style="-webkit-text-security: disc;" />
-        <button id="save-grok-key" class="btn-save" onclick="window.saveGrokKey()">{t.saveBtn}</button>
-      </div>
-    </div>
+    <!-- API Section Removed - Configured Environment Variable -->
     
     <form class="chat-input-form" id="chat-form" onsubmit="window.handleChatSubmit(event)">
       <input 
@@ -381,6 +370,11 @@ const t = texts[lang];
   }
 </style>
 
+<!-- Inject API key securely for static client-side usage -->
+<script is:inline define:vars={{ apiKey: import.meta.env.PUBLIC_GEMINI_API_KEY }}>
+  window.GEMINI_API_KEY = apiKey;
+</script>
+
 <script is:inline>
   // Simple global functions for reliability
   window.toggleAIChat = function() {
@@ -405,6 +399,30 @@ const t = texts[lang];
     }
   });
 
+  // Rate limiting logic (10 msgs per user / day)
+  function checkRateLimit() {
+    const limit = 10;
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    
+    let usage = null;
+    try {
+      usage = JSON.parse(localStorage.getItem('ai_chat_usage'));
+    } catch(e) {}
+    
+    if (!usage || usage.date !== todayStr) {
+      usage = { date: todayStr, count: 0 };
+    }
+    
+    if (usage.count >= limit) {
+      return false; // Limit reached
+    }
+    
+    usage.count += 1;
+    localStorage.setItem('ai_chat_usage', JSON.stringify(usage));
+    return true; // OK
+  }
+
   // Chat logic
   window.handleChatSubmit = async function(e) {
     e.preventDefault();
@@ -416,24 +434,24 @@ const t = texts[lang];
     const txt = input.value.trim();
     if (!txt) return;
 
-    // Check key
-    const key = localStorage.getItem('grok_api_key');
     const t = lang === 'tr' ? 
-      { noKey: 'Lütfen Grok API anahtarını girin.', thinking: 'Düşünüyorum...', error: 'Hata oluştu.' } : 
-      { noKey: 'Please enter your Grok API key.', thinking: 'Thinking...', error: 'An error occurred.' };
+      { limitReached: '⚠️ Günlük 10 mesaj limitinize ulaştınız. Lütfen yarın tekrar gelin!', thinking: 'Düşünüyorum...', error: 'Hata oluştu.' } : 
+      { limitReached: '⚠️ You have reached your daily limit of 10 messages. Please come back tomorrow!', thinking: 'Thinking...', error: 'An error occurred.' };
 
     function addMsg(text, role) {
       const div = document.createElement('div');
       div.className = `message ${role}`;
-      div.innerHTML = `<p>${text.replace(/\n/g, '<br>')}</p>`;
+      div.innerHTML = `<p>${text.replace(/\\n/g, '<br>')}</p>`;
       messages.appendChild(div);
       messages.scrollTop = messages.scrollHeight;
     }
 
-    if (!key) return addMsg(t.noKey, 'assistant');
-
     addMsg(txt, 'user');
     input.value = '';
+
+    if (!checkRateLimit()) {
+      return addMsg(t.limitReached, 'assistant');
+    }
 
     // Loading
     const loadId = 'loading-' + Date.now();
@@ -445,44 +463,30 @@ const t = texts[lang];
     messages.scrollTop = messages.scrollHeight;
 
     try {
-       const res = await fetch('https://api.x.ai/v1/chat/completions', {
+       const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${window.GEMINI_API_KEY}`;
+
+       const systemPrompt = "You are a highly helpful and precise Electrical Engineering tutor. Answer student questions concisely and academically.";
+       
+       const res = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-             model: 'grok-3-mini',
-             messages: [
-               {role: 'system', content: 'You are a helpful engineering tutor.'},
-               {role: 'user', content: txt}
-             ]
+            contents: [{ role: 'user', parts: [{ text: txt }] }],
+            systemInstruction: { role: 'user', parts: [{ text: systemPrompt }] },
+            generationConfig: { temperature: 0.3 }
           })
        });
        document.getElementById(loadId)?.remove();
-       const json = await res.json();
-       addMsg(json.choices?.[0]?.message?.content || 'Error', 'assistant');
+       
+       if (!res.ok) throw new Error('API request failed');
+
+       const data = await res.json();
+       const answer = data.candidates?.[0]?.content?.parts?.[0]?.text || t.error;
+
+       addMsg(answer, 'assistant');
     } catch(err) {
        document.getElementById(loadId)?.remove();
        addMsg(t.error, 'assistant');
     }
-  }
-
-  // Key save logic
-  window.saveGrokKey = function() {
-    const input = document.getElementById('grok-api-key');
-    const section = document.getElementById('chat-api-section');
-    const key = input.value.trim();
-    if(key.length > 10) {
-      localStorage.setItem('grok_api_key', key);
-      section.style.display = 'none';
-      alert('Key saved!');
-    } else {
-      alert('Invalid key. Must be a valid Grok API key.');
-    }
-  }
-
-  // Restore state on load
-  const savedKey = localStorage.getItem('grok_api_key');
-  if(savedKey) {
-    const s = document.getElementById('chat-api-section');
-    if(s) s.style.display = 'none';
   }
 </script>

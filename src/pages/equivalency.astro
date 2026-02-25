@@ -149,113 +149,232 @@ allNotes.forEach(note => {
 <script is:inline>
   let state = { uniId: null, courses: [], selectedCourse: null, selectedYear: 0, step: 1, yearCounts: {}, isLoading: false };
 
-  // === API KEY MANAGEMENT ===
+  // === SETTINGS MODAL (Removed Grok settings completely for static version) ===
+  // In the static version, we don't need the user to input an API key here anymore.
+  // The Gemini key is embedded statically.
   
-  function setApiKey(key) { localStorage.setItem('grok_api_key', key); updateKeyIndicator(); }
-  
-  function updateKeyIndicator() {
-    const dot = document.getElementById('api-key-indicator');
-    if (dot) dot.className = getApiKey() ? 'key-indicator key-active' : 'key-indicator';
-  }
-  updateKeyIndicator();
-
-  // === SETTINGS MODAL ===
-  ">
-            <span>${hasKey ? '🟢 API key is saved' : '🔴 No API key set'}</span>
-          </div>
-          <div class="settings-input-row">
-            <input type="text" id="api-key-input" class="settings-input" placeholder="xai-..." value="${hasKey ? '••••••••••••••••' : ''}" autocomplete="off" autocorrect="off" spellcheck="false" style="-webkit-text-security: disc;">
-            <button onclick="saveApiKeyFromModal()" class="btn-save-key">Save</button>
-          </div>
-          ${hasKey ? '<button onclick="clearApiKeyFromModal()" class="btn-clear-key">Clear Saved Key</button>' : ''}
-          <p class="settings-note">🔒 Your key never leaves your browser. It is only sent directly to the Grok API.</p>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(modal);
-    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-    const input = document.getElementById('api-key-input');
-    if (input && !hasKey) input.focus();
-  };
-
-  window.saveApiKeyFromModal = () => {
-    const input = document.getElementById('api-key-input');
-    const val = input?.value?.trim();
-    if (val && val !== '••••••••••••••••' && val.length > 10) {
-      setApiKey(val);
-      
-    } else if (val === '••••••••••••••••') {
-      
-    } else {
-      input.style.borderColor = '#ef4444';
-      input.placeholder = 'Please enter a valid API key';
-    }
-  };
-
-  window.clearApiKeyFromModal = () => {
-    clearApiKey();
+  // === PHASE NAVIGATION ===
+  window.selectUniversity = (id, name, shortName) => {
+    state.uniId = id;
+    state.courses = window.CURRICULA_DATA.universities[id]?.courses || [];
+    state.step = 2;
+    state.selectedCourse = null;
+    state.selectedYear = 0;
     
+    // Update UI
+    document.getElementById('phase-selection').classList.add('hidden');
+    document.getElementById('phase-analysis').classList.remove('hidden');
+    document.getElementById('label-uni-name').textContent = name;
+    
+    // Update steppers
+    document.querySelectorAll('.step-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('step-1').classList.add('active');
+    document.getElementById('step-2').classList.add('active');
+
+    // Build year filters and render
+    buildYearFilters();
+    renderCourses();
   };
 
-  // === RESEARCH TIMELINE (replaces static skeleton) ===
+  window.backToSelection = () => {
+    state.uniId = null;
+    state.courses = [];
+    state.step = 1;
+    state.selectedCourse = null;
+    
+    document.getElementById('phase-analysis').classList.add('hidden');
+    document.getElementById('phase-selection').classList.remove('hidden');
+    document.getElementById('course-search').value = '';
+    
+    // Reset Steppers
+    document.querySelectorAll('.step-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('step-1').classList.add('active');
+    
+    // Clear Analysis
+    document.getElementById('analysis-container').innerHTML = `
+      <div class="empty-state">
+           <span class="empty-illustration" aria-hidden="true">📚</span>
+           <h4>Select a Course</h4>
+           <p>Choose a course from the list to find matching ODTÜ equivalents for your notes.</p>
+      </div>`;
+  };
+
+  // === RENDERING COURSES ===
   
-  , delays[i]);
+  function buildYearFilters() {
+    const container = document.getElementById('year-filters-container');
+    if (!container) return;
+    
+    // Count courses per year using state.courses
+    state.yearCounts = { 0: state.courses.length, 1: 0, 2: 0, 3: 0, 4: 0 };
+    state.courses.forEach(c => {
+      const y = c.year || 1;
+      if (y >= 1 && y <= 4) state.yearCounts[y]++;
     });
-    // Elapsed timer
-    timelineInterval = setInterval(() => {
-      const el = document.getElementById('elapsed-timer');
-      if (el) el.textContent = `${Math.round((Date.now() - startTime) / 1000)}s elapsed`;
-    }, 1000);
-  }
-  
+
+    let html = `<button class="filter-pill ${state.selectedYear === 0 ? 'active' : ''}" onclick="filterByYear(0)">
+      All <span class="pill-count">${state.yearCounts[0]}</span>
+    </button>`;
+    
+    for (let i = 1; i <= 4; i++) {
+       if (state.yearCounts[i] > 0) {
+          html += `<button class="filter-pill ${state.selectedYear === i ? 'active' : ''}" onclick="filterByYear(${i})">
+            Year ${i} <span class="pill-count">${state.yearCounts[i]}</span>
+          </button>`;
+       }
+    }
+    container.innerHTML = html;
   }
 
-  // === GROK RAG PIPELINE (Enhanced) ===
-  ],
-        response_format: { type: 'json_object' },
-        temperature: 0.2
-      })
+  window.filterByYear = (year) => {
+    state.selectedYear = year;
+    buildYearFilters(); // Re-render pills for active state
+    renderCourses();
+  };
+
+  document.getElementById('course-search')?.addEventListener('input', (e) => {
+    const clearBtn = document.getElementById('search-clear');
+    if (e.target.value) clearBtn?.classList.remove('hidden');
+    else clearBtn?.classList.add('hidden');
+    renderCourses();
+  });
+
+  window.clearSearch = () => {
+    const input = document.getElementById('course-search');
+    if (input) input.value = '';
+    document.getElementById('search-clear')?.classList.add('hidden');
+    renderCourses();
+  };
+
+  function renderCourses() {
+    const container = document.getElementById('course-list-container');
+    if (!container) return;
+    
+    const searchTerm = document.getElementById('course-search')?.value.toLowerCase() || '';
+    
+    // Filter
+    let filtered = state.courses.filter(c => {
+       const matchYear = state.selectedYear === 0 || c.year === state.selectedYear;
+       const matchSearch = c.code?.toLowerCase().includes(searchTerm) || c.name?.toLowerCase().includes(searchTerm);
+       return matchYear && matchSearch;
     });
 
-    if (!response.ok) {
-      const errBody = await response.text().catch(() => '');
-      if (response.status === 401) throw new Error('INVALID_KEY');
-      if (response.status === 429) throw new Error('RATE_LIMIT');
-      throw new Error(`API_ERROR:${response.status}:${errBody.substring(0, 100)}`);
+    if (filtered.length === 0) {
+       container.innerHTML = `<div style="padding: 24px; text-align: center; color: var(--text-tertiary); font-size: 0.9rem;">No courses found matching your criteria.</div>`;
+       return;
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-    if (!content) throw new Error('EMPTY_RESPONSE');
+    // Group by year
+    const grouped = {};
+    filtered.forEach(c => {
+       const y = c.year || 1;
+       if (!grouped[y]) grouped[y] = [];
+       grouped[y].push(c);
+    });
 
-    const parsed = JSON.parse(content);
-    if (typeof parsed.matched_course_code !== 'string' || typeof parsed.match_confidence_score !== 'number') {
-      throw new Error('INVALID_FORMAT');
-    }
+    // Render logic
+    let html = '';
+    Object.keys(grouped).sort().forEach(yearStr => {
+       const year = parseInt(yearStr);
+       const courses = grouped[year];
+       html += `<div class="year-sticky-header">Year ${year}</div>`;
+       
+       courses.forEach((c, index) => {
+          const isActive = state.selectedCourse?.code === c.code ? 'active' : '';
+          const zebraStr = index % 2 === 0 ? '' : 'zebra';
+          const codeE = (c.code || '').replace(/'/g, "\\'");
+          
+          html += `
+          <div class="course-card year-${year} ${isActive} ${zebraStr}" onclick="selectCourse('${codeE}')" id="course-card-${c.code.replace(/\\s+/g, '-')}">
+            <div class="card-main">
+              <div class="card-title">${c.name}</div>
+              <div class="card-code">${c.code}</div>
+            </div>
+          </div>`;
+       });
+    });
 
-    const normalizedCode = parsed.matched_course_code.replace(/\s+/g, '').toUpperCase();
-    const resources = window.NOTES_DB[normalizedCode] || [];
-
-    return {
-      course: { code: parsed.matched_course_code, name: parsed.matched_course_name || 'Unknown' },
-      score: Math.max(0, Math.min(100, Math.round(parsed.match_confidence_score))),
-      overlapping_topics: Array.isArray(parsed.overlapping_topics) ? parsed.overlapping_topics : [],
-      missing_topics: Array.isArray(parsed.missing_topics) ? parsed.missing_topics : [],
-      extra_topics: Array.isArray(parsed.extra_topics) ? parsed.extra_topics : [],
-      analysis: parsed.comprehensive_analysis || '',
-      resources: resources,
-      sourceSyllabus: parsed.source_syllabus_summary || '',
-      targetSyllabus: parsed.target_syllabus_summary || '',
-      studyRecs: Array.isArray(parsed.study_recommendations) ? parsed.study_recommendations : [],
-      difficultyComparison: parsed.difficulty_comparison || '',
-      textbookComparison: parsed.textbook_comparison || ''
-    };
+    container.innerHTML = html;
   }
+
+  // === STATIC MATCHING ===
+  window.selectCourse = (courseCode) => {
+    const course = state.courses.find(c => c.code === courseCode);
+    if (!course) return;
+    
+    state.selectedCourse = course;
+    state.step = 3;
+    
+    // Update Stepper
+    document.getElementById('step-3').classList.add('active');
+    
+    // Highlight list visually
+    document.querySelectorAll('.course-card').forEach(el => el.classList.remove('active'));
+    document.getElementById(`course-card-${courseCode.replace(/\\s+/g, '-')}`)?.classList.add('active');
+
+    // Retrieve Static Match
+    const aiMatchesStr = document.getElementById('ai-matches-data')?.textContent;
+    let aiMatchesMap = {};
+    try {
+       if (aiMatchesStr) aiMatchesMap = JSON.parse(aiMatchesStr);
+    } catch(e) { console.error("Could not parse ai-matches-data"); }
+
+    const combinedKey = `${state.uniId}_${courseCode}`;
+    const uniNameMap = { "itu": "Istanbul Technical University", "yildiz": "Yıldız Technical University", "hacettepe": "Hacettepe University" }; // Add if needed, generic logic fallback handled below
+    const uniName = uniNameMap[state.uniId] || state.uniId;
+
+    let match = aiMatchesMap[combinedKey];
+
+    // Build the analysis HTML
+    if (match && match.match_confidence_score) {
+       // Convert ai_matches.json format into renderAnalysis expected format
+       const normalizedCode = match.matched_course_code.replace(/\\s+/g, '').toUpperCase();
+       const resources = window.NOTES_DB[normalizedCode] || [];
+
+       const matchData = {
+          course: { code: match.matched_course_code, name: match.matched_course_name || 'Matched Course' },
+          score: Math.max(0, Math.min(100, Math.round(match.match_confidence_score))),
+          overlapping_topics: Array.isArray(match.overlapping_topics) ? match.overlapping_topics : [],
+          missing_topics: Array.isArray(match.missing_topics) ? match.missing_topics : [],
+          extra_topics: Array.isArray(match.extra_topics) ? match.extra_topics : [],
+          analysis: match.comprehensive_analysis || '',
+          resources: resources,
+          sourceSyllabus: match.source_syllabus_summary || '',
+          targetSyllabus: match.target_syllabus_summary || '',
+          studyRecs: Array.isArray(match.study_recommendations) ? match.study_recommendations : [],
+          difficultyComparison: match.difficulty_comparison || '',
+          textbookComparison: match.textbook_comparison || ''
+       };
+       renderAnalysis(course, matchData, true);
+       showContributionToast(courseCode);
+    } else {
+       // Local Fallback if no pre-generated AI match
+       const localMatch = findBestMatch(course, window.CURRICULA_DATA.universities['odtu'].courses);
+       if (localMatch) {
+           const normalizedCode = (localMatch.course?.code || '').replace(/\\s+/g, '').toUpperCase();
+           localMatch.resources = window.NOTES_DB[normalizedCode] || [];
+           renderAnalysis(course, localMatch, false);
+           showContributionToast(courseCode);
+       } else {
+           // Should not really happen
+           document.getElementById('analysis-container').innerHTML = `
+             <div class="empty-state">
+                <span class="empty-illustration">😢</span>
+                <h4>No Match Found</h4>
+                <p>We could not find any matching ODTÜ courses for ${courseCode}.</p>
+             </div>`;
+       }
+    }
+    
+    // Scroll mobile to results
+    if (window.innerWidth < 1024) {
+       document.getElementById('analysis-container').scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   // === ERROR RENDERING ===
-  ;
-
   // No-key prompt — educates user about AI features
+
   
 
   // Logic Reuse - Upgraded with structured topic breakdown
@@ -353,7 +472,7 @@ allNotes.forEach(note => {
      else if (isMedium) { ringColor = '#f59e0b'; statusText = 'Partial Match'; statusClass = 'status-medium'; statusEmoji = '🟡'; }
 
      const reviewBadge = !isHigh ? '<span class="warning-badge">⚠️ Review Required</span>' : '';
-     const aiBadge = isAI ? '<span class="ai-badge">🤖 Grok AI</span>' : '<span class="local-badge">📊 Local Fallback</span>';
+     const aiBadge = isAI ? '<span class="ai-badge">🤖 Gemini AI</span>' : '<span class="local-badge">📊 Local Fallback</span>';
      const tgtCode = target ? target.code : 'N/A';
      const tgtName = target ? target.name : 'No direct match found';
 

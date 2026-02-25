@@ -117,15 +117,15 @@ if (!driveFolderId) {
               <!-- AI Summary Integrated -->
               <div class="ai-integrated-card" id="ai-summary-card">
                 <div class="ai-summary-header">
-                  <span class="ai-badge">🤖 AI</span>
+                  <span class="ai-badge">🤖 Gemini AI</span>
                   <h4>AI Note Summary</h4>
                 </div>
                 <div id="ai-summary-content">
                   <div class="ai-summary-placeholder">
-                    <p>Get an AI-generated summary of this note's key concepts and study tips.</p>
+                    <p>Get a pre-generated AI summary of this note's key concepts and study tips.</p>
                     <button onclick="window.generateNoteSummary()" class="btn btn-ai-summary" id="btn-generate-summary">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                      Generate Summary
+                      Load Summary
                     </button>
                   </div>
                 </div>
@@ -288,12 +288,11 @@ if (!driveFolderId) {
     }
   });
 
-  // AI Summary Generation
+  // AI Summary Loading
   window.generateNoteSummary = async function() {
     const meta = (window as any).__NOTE_META__;
     if (!meta) return;
 
-    const apiKey = localStorage.getItem('grok_api_key');
     const container = document.getElementById('ai-summary-content');
     if (!container) return;
 
@@ -305,15 +304,6 @@ if (!driveFolderId) {
       return;
     }
 
-    if (!apiKey) {
-      container.innerHTML = `
-        <div class="ai-summary-nokey">
-          <p>Enter your <a href="https://console.x.ai/" target="_blank" rel="noopener">Grok API key</a> in the <a href="/equivalency">Equivalency Tool settings</a> to enable AI summaries.</p>
-        </div>
-      `;
-      return;
-    }
-
     // Show loading skeleton
     container.innerHTML = `
       <div class="ai-summary-loading">
@@ -321,61 +311,21 @@ if (!driveFolderId) {
         <div class="skeleton-line" style="width:90%"></div>
         <div class="skeleton-line" style="width:80%"></div>
         <div class="skeleton-line" style="width:95%"></div>
-        <p class="ai-loading-text">Reading course content and generating summary...</p>
+        <p class="ai-loading-text">Loading AI Summary...</p>
       </div>
     `;
 
     try {
-      const prompt = `You are a university academic assistant. I need a concise, helpful summary of a university course's lecture notes.
-
-Course: ${meta.courseCode} - ${meta.courseName}
-Title: ${meta.noteTitle}
-Description: ${meta.noteDescription}
-Topics covered: ${meta.noteTopics.join(', ')}
-
-Please provide:
-1. A brief 2-3 sentence summary of what this course covers
-2. A list of 5-8 key concepts that students should focus on (as short phrases)
-3. One study tip specific to this subject
-
-Format your response as JSON:
-{
-  "summary": "...",
-  "key_concepts": ["concept1", "concept2", ...],
-  "study_tip": "..."
-}
-
-Return ONLY the JSON, no other text.`;
-
-      const res = await fetch('https://api.x.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          model: 'grok-3-mini',
-          messages: [
-            { role: 'system', content: 'You are a helpful academic assistant. Always return valid JSON.' },
-            { role: 'user', content: prompt }
-          ]
-        })
-      });
-
-      const json = await res.json();
-      const text = json.choices?.[0]?.message?.content || '';
+      // Fetch pre-generated summaries. Use base URL to ensure GitHub pages compatibility.
+      const baseUrl = import.meta.env.BASE_URL === '/' ? '' : import.meta.env.BASE_URL.replace(/\/$/, '');
+      const res = await fetch(`${baseUrl}/data/note_summaries.json`);
+      if (!res.ok) throw new Error('Could not load summaries file.');
+      const summaries = await res.json();
       
-      // Parse the JSON response
-      let data;
-      try {
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        data = jsonMatch ? JSON.parse(jsonMatch[0]) : null;
-      } catch(e) {
-        data = null;
-      }
-
+      const data = summaries[meta.noteSlug];
+      
       if (data && data.summary) {
-        const conceptChips = (data.key_concepts || []).map((c: string) => 
+        const conceptChips = (data.key_topics || []).map((c: string) => 
           `<span class="concept-chip">${c}</span>`
         ).join('');
 
@@ -384,7 +334,7 @@ Return ONLY the JSON, no other text.`;
             <p class="ai-summary-text">${data.summary}</p>
             ${conceptChips ? `
               <div class="ai-concepts">
-                <h5>Key Concepts</h5>
+                <h5>Key Topics</h5>
                 <div class="concept-chips">${conceptChips}</div>
               </div>
             ` : ''}
@@ -399,10 +349,11 @@ Return ONLY the JSON, no other text.`;
         container.innerHTML = html;
         sessionStorage.setItem(cacheKey, html);
       } else {
-        container.innerHTML = `<div class="ai-summary-text"><p>${text || 'Unable to generate summary.'}</p></div>`;
+        container.innerHTML = `<div class="ai-summary-text"><p>📝 An AI summary is not yet available for this note. Please check back later.</p></div>`;
       }
     } catch(err) {
-      container.innerHTML = `<div class="ai-summary-error"><p>Failed to generate summary. Check your API key and try again.</p></div>`;
+      console.error(err);
+      container.innerHTML = `<div class="ai-summary-error"><p>Failed to load AI summary. Please try again later.</p></div>`;
     }
   };
 
