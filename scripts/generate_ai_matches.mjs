@@ -22,9 +22,9 @@ if (!API_KEY) {
 }
 
 const genAI = new GoogleGenerativeAI(API_KEY);
-// Use Gemini 1.5 Flash - generous free tier (15 RPM, 1500 RPD) vs 2.5 Flash's strict 20 RPD limit
+// Use Gemini 2.0 Flash Lite - generous free tier (15 RPM, 1000 RPD) vs 2.5 Flash's strict 20 RPD limit
 const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-2.0-flash-lite",
     // Force JSON output
     generationConfig: {
         responseMimeType: "application/json",
