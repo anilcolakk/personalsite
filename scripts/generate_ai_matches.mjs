@@ -22,9 +22,9 @@ if (!API_KEY) {
 }
 
 const genAI = new GoogleGenerativeAI(API_KEY);
-// Use Gemini 2.5 Flash - it's ultra-fast and completely free up to 15 RPM
+// Use Gemini 1.5 Flash - generous free tier (15 RPM, 1500 RPD) vs 2.5 Flash's strict 20 RPD limit
 const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
+    model: "gemini-1.5-flash",
     // Force JSON output
     generationConfig: {
         responseMimeType: "application/json",
@@ -97,9 +97,15 @@ RULES:
 - Be specific: cite actual topic names, theorem names, chapter numbers when possible`;
 
     const result = await model.generateContent(userPrompt);
-    const content = result.response.text();
+    let content = result.response.text();
 
     if (!content) throw new Error('EMPTY_RESPONSE');
+
+    // Clean up potential markdown formatting and sanitize control characters inside strings
+    content = content.replace(/^```json\s*/i, '').replace(/```\s*$/i, '');
+    content = content.replace(/"([^"\\]*(\\.[^"\\]*)*)"/g, function (match) {
+        return match.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t');
+    });
 
     const parsed = JSON.parse(content);
     if (typeof parsed.matched_course_code !== 'string' || typeof parsed.match_confidence_score !== 'number') {
