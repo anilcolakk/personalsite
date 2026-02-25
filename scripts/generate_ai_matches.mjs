@@ -13,7 +13,7 @@ const API_KEY = process.env.GEMINI_API_KEY;
 
 // Gemini Free Tier allows 15 Requests Per Minute (RPM)
 // 60 / 15 = 4 seconds per request. We'll use 4.5s to be safe.
-const MAX_COURSES_PER_RUN = 50;
+const MAX_COURSES_PER_RUN = 4; // 4 calls * 4 times a day (every 6h) = 16/day, safely under the 20 RPD free tier limit
 const DELAY_BETWEEN_CALLS_MS = 4500;
 
 if (!API_KEY) {
@@ -22,9 +22,9 @@ if (!API_KEY) {
 }
 
 const genAI = new GoogleGenerativeAI(API_KEY);
-// Use Gemini 2.0 Flash Lite - generous free tier (15 RPM, 1000 RPD) vs 2.5 Flash's strict 20 RPD limit
+// Use Gemini 2.5 Flash
 const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
+    model: "gemini-2.5-flash",
     // Force JSON output
     generationConfig: {
         responseMimeType: "application/json",
